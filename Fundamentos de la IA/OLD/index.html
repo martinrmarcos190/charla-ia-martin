@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de IA · Módulo 1 · Clase 1</title>
+
+<!-- reveal.js (CDN). Para uso 100% offline en el aula, vendorear estos 3 archivos localmente. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+
+<style>
+  :root{
+    --bg:#0b0f17;
+    --bg2:#0f1622;
+    --fg:#e8eef6;
+    --muted:#9fb0c3;
+    --blue:#58a6ff;
+    --green:#3fb950;
+    --amber:#e3b341;
+    --purple:#bc8cff;
+    --red:#f85149;
+    --teal:#39d0d8;
+    --line:#243043;
+  }
+
+  /* ---------- Base / tipografía de proyección ---------- */
+  .reveal{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 30px;
+    color: var(--fg);
+  }
+  .reveal .slides{ text-align:left; }
+  .reveal .slides section{ height:100%; }
+  .reveal h1,.reveal h2,.reveal h3,.reveal h4{
+    font-weight:800; letter-spacing:-.01em; text-transform:none; line-height:1.1; color:#fff;
+  }
+  .reveal h1{ font-size:2.1em; }
+  .reveal h2{ font-size:1.55em; }
+  .reveal h3{ font-size:1.15em; color:var(--blue); }
+  .reveal p,.reveal li{ line-height:1.4; }
+  .reveal ul{ margin-left:1em; }
+  .reveal li{ margin:.28em 0; }
+  .reveal strong{ color:#fff; }
+  .reveal em{ color:var(--muted); font-style:italic; }
+  .reveal code{ font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em; }
+  .reveal :not(pre)>code{ background:#1b2433; color:var(--teal); padding:.08em .35em; border-radius:5px; }
+  .reveal section img{ border:none; box-shadow:none; }
+  .reveal .slide-number{ font-size:18px; color:var(--muted); background:transparent; }
+
+  body{ background:radial-gradient(1200px 800px at 70% -10%, #16203033, transparent), var(--bg); }
+  .reveal .backgrounds{ background:transparent; }
+
+  /* kicker / eyebrow */
+  .kicker{ color:var(--blue); font-weight:700; font-size:.62em; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .3em; }
+
+  /* citation footer */
+  .cite{ position:absolute; bottom:14px; left:0; right:0; font-size:.5em; color:var(--muted); font-style:italic; }
+
+  /* pill / tag */
+  .pill{ display:inline-block; font-size:.55em; font-weight:700; letter-spacing:.05em; padding:.25em .7em; border-radius:999px; text-transform:uppercase; }
+  .pill.blue{ background:#13294a; color:var(--blue); }
+  .pill.green{ background:#0f2e1c; color:var(--green); }
+  .pill.amber{ background:#33270a; color:var(--amber); }
+  .pill.purple{ background:#241a3a; color:var(--purple); }
+  .pill.red{ background:#3a1414; color:var(--red); }
+
+  /* lead bullets a bit larger */
+  .lead li{ font-size:1.02em; }
+
+  /* ---------- Portada ---------- */
+  .cover{ display:flex; flex-direction:column; justify-content:center; height:100%; }
+  .cover h1{ font-size:3.1em; background:linear-gradient(90deg,#fff, #9fc7ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .cover .sub{ color:var(--muted); font-size:1.05em; margin-top:.2em; }
+  .cover .tag{ color:var(--blue); font-style:italic; font-size:1.15em; margin-top:1.1em; font-weight:600; }
+  .cover .meta{ margin-top:2em; color:var(--muted); font-size:.7em; letter-spacing:.04em; }
+
+  /* ---------- Dos columnas ---------- */
+  .cols{ display:grid; grid-template-columns:1fr auto 1fr; gap:1.2em; align-items:center; }
+  .card{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:.9em 1.1em; }
+  .card h3{ margin-top:0; }
+  .arrow-mid{ font-size:2.4em; color:var(--blue); }
+
+  /* ---------- Tablas ---------- */
+  .reveal table{ width:100%; border-collapse:collapse; font-size:.82em; margin-top:.3em; }
+  .reveal table th{ background:#13203a; color:var(--blue); text-align:left; padding:.5em .7em; border-bottom:2px solid var(--line); }
+  .reveal table td{ padding:.45em .7em; border-bottom:1px solid var(--line); }
+  .reveal table tr:nth-child(even) td{ background:#0e1622; }
+  .reveal table td code{ background:#1b2433; }
+
+  /* ---------- Timeline ---------- */
+  .tl-zones{ display:grid; grid-template-columns:3fr 4fr 4fr; gap:8px; margin-bottom:14px; }
+  .tl-zone{ border-radius:10px; padding:.35em .6em; font-size:.55em; font-weight:700; text-align:center; letter-spacing:.04em; }
+  .tl-zone.z1{ background:#13203a; color:var(--blue); border:1px solid #1d3a66; }
+  .tl-zone.z2{ background:#0f2e1c; color:var(--green); border:1px solid #1d5234; }
+  .tl-zone.z3{ background:#241a3a; color:var(--purple); border:1px solid #3c2c66; }
+  .tl-rail{ position:relative; display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:6px; }
+  .tl-rail::before{ content:""; position:absolute; top:11px; left:2%; right:2%; height:3px; background:linear-gradient(90deg,var(--blue),var(--green),var(--purple)); border-radius:3px; }
+  .tl-item{ position:relative; padding-top:30px; text-align:center; }
+  .tl-dot{ position:absolute; top:4px; left:50%; transform:translateX(-50%); width:16px; height:16px; border-radius:50%; background:#0b0f17; border:3px solid var(--blue); }
+  .tl-item.z2 .tl-dot{ border-color:var(--green); }
+  .tl-item.z3 .tl-dot{ border-color:var(--purple); }
+  .tl-year{ font-weight:800; font-size:.62em; color:#fff; }
+  .tl-item.z1 .tl-year{ color:var(--blue);} .tl-item.z2 .tl-year{ color:var(--green);} .tl-item.z3 .tl-year{ color:var(--purple); }
+  .tl-label{ font-size:.44em; color:var(--muted); line-height:1.25; margin-top:.2em; }
+  .tl-label b{ color:#cdd9e6; }
+
+  /* ---------- Reglas / if-else block ---------- */
+  .codeblock{ background:#0c1320; border:1px solid var(--line); border-radius:12px; padding:.7em .9em; font-family:monospace; font-size:.72em; color:#cfe0f2; white-space:pre; }
+  .twoblock{ display:grid; grid-template-columns:1fr 1fr; gap:1.1em; align-items:stretch; }
+
+  /* ---------- Loop de pasos (backprop) ---------- */
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:.7em; }
+  .step{ background:var(--bg2); border:1px solid var(--line); border-left:4px solid var(--blue); border-radius:10px; padding:.5em .7em; font-size:.7em; }
+  .step b{ color:var(--blue); }
+
+  /* ---------- Demos ---------- */
+  .demo{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:1em; }
+  .demo .demo-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:.7em; margin:.7em 0; font-size:.72em; }
+  .demo button{ background:var(--blue); color:#06101f; border:none; border-radius:8px; padding:.45em .9em; font-weight:700; cursor:pointer; font-size:1em; }
+  .demo button:hover{ filter:brightness(1.1); }
+  .demo input[type=range]{ accent-color:var(--blue); width:200px; vertical-align:middle; }
+  .demo .status{ color:var(--amber); font-family:monospace; font-weight:700; }
+  #gd-canvas{ border-radius:10px; display:block; background:#070b12; width:500px; height:380px; max-width:100%; }
+  .demo-flex{ display:flex; gap:1.4em; align-items:flex-start; flex-wrap:wrap; }
+  .demo-flex > .demo-col{ flex:1 1 260px; min-width:240px; }
+
+  /* heatmap embeddings */
+  #emb-grid{ display:grid; gap:3px; }
+  .emb-cell{ border-radius:5px; font-size:.62em; font-family:monospace; color:#06101f; font-weight:700; transition:transform .08s; }
+  .emb-cell:hover{ transform:scale(1.08); outline:2px solid #fff; }
+  .emb-hover{ color:var(--muted); font-size:.72em; min-height:1.4em; font-family:monospace; }
+  .emb-legend{ font-size:.62em; color:var(--muted); }
+
+  /* heatmap atención */
+  #attn-grid{ display:grid; gap:2px; }
+  .attn-head{ font-size:.55em; color:var(--muted); display:flex; align-items:center; justify-content:center; text-align:center; padding:2px; font-weight:700; }
+  .attn-cell{ border-radius:4px; font-size:.55em; font-family:monospace; color:#eaf2ff; text-align:center; display:flex; align-items:center; justify-content:center; padding:6px 2px; }
+  .attn-cell.hot{ outline:2px solid #fff; }
+  #attn-sel{ background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:.4em .6em; font-size:.8em; }
+  .attn-hover{ color:var(--amber); font-size:.74em; min-height:1.4em; }
+
+  /* tokenizer */
+  #tok-input{ background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:10px; padding:.6em; font-size:.8em; font-family:inherit; width:100%; resize:vertical; }
+  #tok-chips{ line-height:2.4; margin-top:.5em; }
+  .tok-chip{ color:#fff; padding:3px 8px; margin:2px; border-radius:6px; font-family:monospace; font-size:.78em; display:inline-block; }
+  .tok-samples{ display:flex; flex-wrap:wrap; gap:.4em; margin-top:.5em; }
+  .tok-samples button{ background:#16213a; color:var(--blue); border:1px solid var(--line); border-radius:8px; padding:.3em .6em; font-size:.62em; cursor:pointer; }
+  #tok-count{ color:var(--amber); font-family:monospace; font-weight:700; }
+
+  /* ---------- ReAct loop ---------- */
+  .react{ display:flex; align-items:center; justify-content:center; gap:.5em; margin:.4em 0 1em; flex-wrap:nowrap; }
+  .react .node{ background:var(--bg2); border:2px solid var(--blue); border-radius:14px; padding:.6em .9em; text-align:center; min-width:150px; }
+  .react .node .t{ font-weight:800; color:#fff; font-size:.92em; }
+  .react .node .d{ color:var(--muted); font-size:.58em; }
+  .react .node.act{ border-color:var(--green);} .react .node.obs{ border-color:var(--purple); }
+  .react .ar{ color:var(--blue); font-size:1.6em; font-weight:800; }
+  .react-loop{ text-align:center; color:var(--amber); font-size:.7em; border:1.5px dashed var(--amber); border-radius:999px; padding:.3em 1.2em; display:inline-block; }
+  .loopwrap{ text-align:center; }
+
+  /* ---------- Slide 15 impacto: verde / ámbar ---------- */
+  .impact{ display:grid; grid-template-rows:auto auto; gap:.7em; }
+  .impact .band{ border-radius:14px; padding:.7em 1em; }
+  .impact .wins{ background:linear-gradient(180deg,#0f2e1c66,#0f2e1c22); border:1px solid #1d5234; }
+  .impact .cautions{ background:linear-gradient(180deg,#33270a66,#33270a22); border:1px solid #5a4410; }
+  .impact h3{ color:#fff; margin:0 0 .3em; font-size:.92em; }
+  .impact .wins h3{ color:var(--green);} .impact .cautions h3{ color:var(--amber); }
+  .impact ul{ margin:0 0 0 1em; }
+  .impact li{ font-size:.72em; margin:.18em 0; }
+
+  /* ---------- recap grid ---------- */
+  .recap{ display:grid; grid-template-columns:1fr 1fr; gap:.6em; }
+  .recap .r{ background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:.55em .8em; font-size:.78em; display:flex; gap:.6em; align-items:flex-start; }
+  .recap .ic{ font-size:1.3em; line-height:1; }
+
+  /* rol cambiando */
+  .rolewrap{ display:grid; grid-template-columns:1fr auto 1fr; gap:1em; align-items:center; }
+  .rolecard{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:1em 1.2em; text-align:center; }
+  .rolecard .big{ font-size:1.05em; font-weight:700; color:#fff; }
+  .rolecard.before{ border-color:#5a4410; } .rolecard.after{ border-color:#1d5234; }
+
+  .note{ color:var(--muted); font-size:.68em; }
+  .center{ text-align:center; }
+  .mono{ font-family:monospace; }
+  .hl-blue{ color:var(--blue);} .hl-green{ color:var(--green);} .hl-amber{ color:var(--amber);} .hl-red{ color:var(--red);} .hl-purple{ color:var(--purple);}
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ SLIDE 0 — Portada ============ -->
+<section data-background-gradient="radial-gradient(900px 600px at 75% 0%, #16294d, #0b0f17)">
+  <div class="cover">
+    <p class="kicker">Curso de IA Aplicada para MLOps</p>
+    <h1>Fundamentos de IA</h1>
+    <p class="sub">Módulo 1 · Clase 1 · 75 min</p>
+    <p class="tag">De random forests a agentes: el puente conceptual</p>
+    <p class="meta">No es magia, es ingeniería.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 1 — Hoja de ruta ============ -->
+<section>
+  <p class="kicker">Hoja de ruta</p>
+  <h2>Tender un puente, no empezar de cero</h2>
+  <div class="cols" style="margin-top:.6em">
+    <div class="card">
+      <h3 class="hl-green">Lo que ya sabés</h3>
+      <ul style="font-size:.82em">
+        <li>Docker · IaC · CI/CD</li>
+        <li>Pipelines de datos</li>
+        <li>Training · serving</li>
+        <li>ML clásico</li>
+      </ul>
+    </div>
+    <div class="arrow-mid">→</div>
+    <div class="card">
+      <h3 class="hl-blue">Lo que entendés hoy</h3>
+      <ul style="font-size:.82em">
+        <li>Embeddings · atención</li>
+        <li>Transformers · LLMs</li>
+        <li><strong>Agentes</strong></li>
+        <li>Qué te cambia el laburo</li>
+      </ul>
+    </div>
+  </div>
+  <ul class="lead" style="margin-top:.8em">
+    <li><strong>Regla:</strong> lo que ya sabés no lo explicamos, lo usamos como <strong>analogía</strong></li>
+    <li>4 demos en vivo · todo en esta presentación · <strong>sin notebooks</strong></li>
+  </ul>
+</section>
+
+<!-- ============ SLIDE 2 — Línea de tiempo (ANCLA) ============ -->
+<section>
+  <p class="kicker">Ancla de la clase</p>
+  <h2 style="margin-bottom:.3em">Dos décadas en una transparencia</h2>
+  <div class="tl-zones">
+    <div class="tl-zone z1">ML clásico · 2001–2012</div>
+    <div class="tl-zone z2">Deep learning + Transformers · 2012–2020</div>
+    <div class="tl-zone z3">LLMs + Agentes · 2020–2025</div>
+  </div>
+  <div class="tl-rail">
+    <div class="tl-item z1"><div class="tl-dot"></div><div class="tl-year">2001</div><div class="tl-label"><b>Random Forest</b><br>Breiman · tabular sigue vigente</div></div>
+    <div class="tl-item z1"><div class="tl-dot"></div><div class="tl-year">2012</div><div class="tl-label"><b>AlexNet</b><br>DL sale del laboratorio</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2013</div><div class="tl-label"><b>Word2Vec</b><br>Mikolov · embeddings</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2017</div><div class="tl-label"><b>Attention Is All You Need</b><br>Vaswani · Transformers</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2018–20</div><div class="tl-label"><b>BERT · GPT-2 · GPT-3</b><br>escala</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2022</div><div class="tl-label"><b>ReAct</b> + ChatGPT<br>Yao et al.</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2024</div><div class="tl-label"><b>Building Effective Agents</b><br>Anthropic</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2025</div><div class="tl-label"><b>Claude Code GA</b><br>$1B run-rate · nov</div></div>
+  </div>
+  <p class="note center" style="margin-top:1.4em">Hoy el LLM dejó de ser un chatbot de demo: <strong>escribe, ejecuta y verifica código solo.</strong></p>
+</section>
+
+<!-- ============ SLIDE 3 — 1.1 De reglas a patrones ============ -->
+<section>
+  <p class="kicker">1.1 · El cambio de paradigma</p>
+  <h2>De reglas a patrones</h2>
+  <div class="twoblock" style="margin-top:.5em">
+    <div class="card">
+      <h3 class="hl-amber">Software tradicional</h3>
+      <p style="font-size:.8em">Programás el <strong>qué hacer</strong></p>
+      <div class="codeblock">if mail.tiene("ganaste $$$"):
+    marcar_spam()
+elif remitente in lista_negra:
+    bloquear()</div>
+      <p class="note">El programador sabe y dicta las reglas.</p>
+    </div>
+    <div class="card">
+      <h3 class="hl-blue">Machine learning</h3>
+      <p style="font-size:.8em">Programás el <strong>cómo aprender</strong></p>
+      <div class="codeblock">datos = [(mail, "spam"), (mail, "ok"), ...]
+model.fit(X, y)
+# las reglas las descubre el modelo</div>
+      <p class="note">Le das ejemplos y descubre las reglas solo.</p>
+    </div>
+  </div>
+  <ul style="margin-top:.7em; font-size:.84em">
+    <li>Las reglas no escalan: <em>"reconocé un gato"</em>, <em>"esto es spam"</em>, <em>"traducí esto"</em></li>
+    <li>Costo del paradigma: <span class="hl-red">opacidad</span> · <span class="hl-red">no determinismo</span> · <span class="hl-red">dependencia de los datos</span></li>
+  </ul>
+</section>
+
+<!-- ============ SLIDE 4 — 1.2 Artefacto compilado ============ -->
+<section>
+  <p class="kicker">1.2 · ¿Qué es un modelo?</p>
+  <h2>Un modelo entrenado es un <span class="hl-blue">artefacto compilado</span></h2>
+  <p style="font-size:.78em; margin:.2em 0 .4em">Viene de la estadística (regresión = años 50–60). Cambió la <strong>escala</strong>, no la idea. Clásicos vigentes: regresión · árboles · <strong>Random Forest</strong> · gradient boosting · SVM.</p>
+  <table>
+    <thead><tr><th>Mundo DevOps</th><th>Mundo ML</th></tr></thead>
+    <tbody>
+      <tr><td>Código fuente</td><td>Dataset de entrenamiento</td></tr>
+      <tr><td><code>docker build</code></td><td><code>model.fit(X, y)</code></td></tr>
+      <tr><td>Imagen de Docker</td><td>Modelo serializado (<code>.pkl</code>, <code>.safetensors</code>)</td></tr>
+      <tr><td>Container registry</td><td>Model registry (MLflow, SageMaker)</td></tr>
+      <tr><td><code>docker run</code></td><td><code>model.predict()</code></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8em; margin-top:.5em">Como todo binario: <strong class="hl-red">opaco</strong>. No lo leés como un <code>.py</code>.</p>
+  <div class="cite">Breiman, L. (2001). <em>Random Forests</em>. Machine Learning 45(1):5–32.</div>
+</section>
+
+<!-- ============ SLIDE 5 — 1.3 Redes y backprop ============ -->
+<section>
+  <p class="kicker">1.3 · Redes neuronales</p>
+  <h2>Backpropagation: un CI loop con auto-fix</h2>
+  <p style="font-size:.82em; margin:.1em 0 .5em">Una red = <code>activación(W·x + b)</code> apilado en capas. <strong>Aprenden las features solas</strong> → adiós feature engineering manual.</p>
+  <div class="steps">
+    <div class="step"><b>1.</b> Pesos en valores <strong>random</strong></div>
+    <div class="step"><b>2.</b> Predigo un ejemplo (sale <strong>mal</strong>)</div>
+    <div class="step"><b>3.</b> Mido el error (<em>loss</em>)</div>
+    <div class="step"><b>4.</b> <strong class="hl-blue">Propago el error hacia atrás</strong> (gradiente)</div>
+    <div class="step"><b>5.</b> Ajusto cada peso un poquito</div>
+    <div class="step"><b>6.</b> Repito ×<strong>millones</strong></div>
+  </div>
+  <p style="font-size:.82em; margin-top:.7em">Analogía: un <strong>CI loop infinito</strong> donde el test es <em>"qué tan lejos estuvo la predicción del label"</em> y el <code>commit --amend</code> automático ajusta los pesos.</p>
+  <div class="cite">Rumelhart, Hinton & Williams (1986). <em>Learning representations by back-propagating errors</em>. Nature 323:533–536.</div>
+</section>
+
+<!-- ============ SLIDE 6 — DEMO 1 ============ -->
+<section data-autoslide="0">
+  <p class="kicker">🎬 Demo 1</p>
+  <h2>El modelo se equivoca y se ajusta</h2>
+  <div class="demo" id="demo-gd">
+    <div class="demo-flex">
+      <div style="flex:0 0 auto">
+        <canvas id="gd-canvas" width="500" height="380"></canvas>
+        <div class="demo-controls">
+          <label>learning rate: <span id="gd-lr-val" class="mono hl-amber">0.10</span></label>
+          <input type="range" id="gd-lr" min="0.01" max="0.55" step="0.01" value="0.10">
+          <button id="gd-run">▶ Correr</button>
+          <button id="gd-reset">↺ Reiniciar</button>
+          <span id="gd-status" class="status"></span>
+        </div>
+      </div>
+      <div class="demo-col">
+        <p style="font-size:.8em"><span class="hl-amber">★</span> = óptimo (pesos ideales)<br><span class="hl-red">●</span> = parámetros actuales.</p>
+        <p style="font-size:.8em">Cada paso: medí el error, calculá el gradiente, movete en la dirección opuesta.</p>
+        <p class="note" style="margin-top:.6em">Subí el <em>lr</em> al máximo → <span class="hl-red">diverge</span> (saltos). Bajalo al mínimo → <span class="hl-amber">se arrastra</span>. Es el mismo <code>lr</code> del training real.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Esto es backprop: lo mismo pero en miles de millones de dimensiones, no en dos.</aside>
+</section>
+
+<!-- ============ SLIDE 7 — 1.4 Embeddings ============ -->
+<section>
+  <p class="kicker">1.4 · El puente hacia los LLMs</p>
+  <h2>Embeddings: coordenadas GPS del significado</h2>
+  <ul style="font-size:.84em">
+    <li><strong>One-hot:</strong> cada palabra ortogonal → <span class="hl-red">no captura significado</span> (perro y gato tan lejos como perro y factura)</li>
+    <li><strong>Embedding:</strong> vector denso (100–3072 dim) donde <strong class="hl-blue">proximidad = similitud semántica</strong></li>
+    <li><code>vector(rey) − vector(hombre) + vector(mujer) ≈ vector(reina)</code> — aritmética sobre significado</li>
+    <li>Métrica de cercanía: <strong>similitud coseno</strong> (1 = igual · 0 = sin relación)</li>
+  </ul>
+  <div class="card" style="margin-top:.5em; font-size:.78em">
+    <strong>Buenos Aires</strong> está cerca de <strong>Montevideo</strong> y lejos de <strong>Tokio</strong> en el mapa físico.<br>
+    <strong>"perro"</strong> está cerca de <strong>"gato"</strong> y lejos de <strong>"factura"</strong> en el mapa semántico.
+  </div>
+  <p style="font-size:.78em; margin-top:.5em">Base de: <strong>RAG</strong> · búsqueda semántica · recomendadores · deduplicación · detección de fraude.</p>
+  <div class="cite">Mikolov et al. (2013), arXiv:1301.3781 (Word2Vec) · Pennington et al. (2014), EMNLP (GloVe).</div>
+</section>
+
+<!-- ============ SLIDE 8 — DEMO 2 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 2</p>
+  <h2>¿"perro" está más cerca de "gato" o de "factura"?</h2>
+  <div class="demo" id="demo-emb">
+    <div class="demo-flex" style="grid-template-columns:1fr auto">
+      <div>
+        <div id="emb-grid"></div>
+        <p id="emb-hover" class="emb-hover">Pasá el mouse sobre una celda…</p>
+      </div>
+      <div style="max-width:260px">
+        <p style="font-size:.74em"><code>all-MiniLM-L6-v2</code> · 384 dim · ~80 MB · <strong>local, sin API key</strong></p>
+        <p class="emb-legend">Escala: <span style="color:var(--blue)">■</span> 0.00 sin relación &nbsp;→&nbsp; <span style="color:var(--teal)">■</span> 1.00 idéntico</p>
+        <ul style="font-size:.66em; color:var(--muted)">
+          <li>perro/gato ≈ <b>0.50</b></li>
+          <li>perro/cachorro ≈ <b>0.65</b></li>
+          <li>perro/factura ≈ <b>0.05</b></li>
+          <li>factura/abonar ≈ <b>0.65</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Matriz precomputada con sentence-transformers (all-MiniLM-L6-v2) -->
+  <script type="application/json" id="emb-data">
+{"frases": ["El perro corre por el parque", "Mi gato duerme arriba del sillón", "El cachorro persigue una pelota", "Pagué la factura de la luz ayer", "Tengo que abonar el servicio eléctrico", "La inflación de Argentina en 2025"], "sim": [[1.0, 0.5, 0.65, 0.05, 0.04, 0.02], [0.5, 1.0, 0.47, 0.06, 0.05, 0.03], [0.65, 0.47, 1.0, 0.04, 0.03, 0.02], [0.05, 0.06, 0.04, 1.0, 0.65, 0.27], [0.04, 0.05, 0.03, 0.65, 1.0, 0.22], [0.02, 0.03, 0.02, 0.27, 0.22, 1.0]]}
+  </script>
+</section>
+
+<!-- ============ SLIDE 9 — 1.5 Transformers ============ -->
+<section>
+  <p class="kicker">1.5 · La revolución</p>
+  <h2>Transformers y atención</h2>
+  <ul style="font-size:.8em">
+    <li><strong>Pre-2017:</strong> RNN/LSTM → secuenciales, pierden contexto largo, <span class="hl-red">no paralelizan</span></li>
+    <li><strong>2017:</strong> <em>Attention Is All You Need</em> (Vaswani et al., Google) tira las RNN a la basura</li>
+    <li><strong class="hl-blue">Idea:</strong> cada token mira a <strong>todos los demás simultáneamente</strong> y decide a cuáles prestar atención</li>
+  </ul>
+  <div class="card" style="font-size:.74em; margin:.4em 0">
+    <strong>Q</strong>uery (qué busco) · <strong>K</strong>ey (qué ofrezco) · <strong>V</strong>alue (qué tengo) → <code>softmax(Q·Kᵀ / √dₖ)·V</code><br>
+    <span class="note">Multi-head: varios en paralelo, cada cabezal aprende relaciones distintas (sintaxis, semántica, correferencia).</span>
+  </div>
+  <p style="font-size:.8em">Por qué fue <strong>LA</strong> revolución: <strong class="hl-green">paraleliza</strong> (destraba la escala) + <strong class="hl-green">captura contexto largo</strong>.</p>
+  <p class="note" style="font-size:.72em">Análogo MLOps: RNN = build secuencial (Jenkins viejo) · Transformer = build masivamente paralelo (Bazel/Buildkite).</p>
+  <div class="cite">Vaswani et al. (2017). <em>Attention Is All You Need</em>. arXiv:1706.03762 (NeurIPS 2017).</div>
+</section>
+
+<!-- ============ SLIDE 10 — DEMO 3 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 3</p>
+  <h2>¿Quién mira a quién?</h2>
+  <div class="demo" id="demo-attn">
+    <div class="demo-controls">
+      <label>Oración: <select id="attn-sel"></select></label>
+      <span class="note">Cada fila = un token preguntando "¿a quién presto atención?"</span>
+    </div>
+    <div id="attn-grid"></div>
+    <p id="attn-hover" class="attn-hover">Pasá el mouse sobre una celda…</p>
+  </div>
+  <p class="note" style="font-size:.66em; margin-top:.3em">Simplificación didáctica: Q/K/V crudos, sin proyecciones aprendidas ni multi-head. Fijate cómo <strong>"estaba"</strong> y <strong>"durmiendo"</strong> miran al sujeto <strong>"gato"</strong>.</p>
+  <!-- Matrices de atención precomputadas (self-attention didáctica) -->
+  <script type="application/json" id="attn-data">
+[{"tokens": ["El", "gato", "que", "vi", "ayer", "en", "el", "parque", "estaba", "durmiendo"], "attn": [[0.281, 0.106, 0.081, 0.069, 0.069, 0.081, 0.106, 0.069, 0.069, 0.069], [0.052, 0.258, 0.052, 0.099, 0.044, 0.036, 0.044, 0.06, 0.147, 0.21], [0.089, 0.174, 0.237, 0.089, 0.058, 0.068, 0.079, 0.068, 0.068, 0.068], [0.044, 0.149, 0.052, 0.262, 0.149, 0.044, 0.044, 0.085, 0.069, 0.101], [0.042, 0.061, 0.051, 0.173, 0.304, 0.061, 0.051, 0.07, 0.117, 0.07], [0.071, 0.049, 0.06, 0.06, 0.06, 0.245, 0.114, 0.245, 0.049, 0.049], [0.091, 0.059, 0.07, 0.059, 0.059, 0.124, 0.242, 0.199, 0.048, 0.048], [0.045, 0.07, 0.045, 0.095, 0.054, 0.153, 0.136, 0.269, 0.062, 0.07], [0.034, 0.244, 0.041, 0.094, 0.086, 0.034, 0.034, 0.049, 0.169, 0.214], [0.035, 0.256, 0.043, 0.083, 0.051, 0.035, 0.035, 0.059, 0.224, 0.177]]}, {"tokens": ["La", "factura", "que", "llegó", "hoy", "tiene", "un", "error", "grave"], "attn": [[0.302, 0.141, 0.087, 0.074, 0.074, 0.074, 0.101, 0.074, 0.074], [0.062, 0.27, 0.054, 0.17, 0.054, 0.154, 0.046, 0.12, 0.071], [0.093, 0.202, 0.246, 0.104, 0.06, 0.082, 0.082, 0.071, 0.06], [0.045, 0.231, 0.053, 0.263, 0.134, 0.093, 0.045, 0.077, 0.061], [0.046, 0.076, 0.056, 0.188, 0.33, 0.117, 0.056, 0.066, 0.066], [0.043, 0.208, 0.051, 0.098, 0.082, 0.255, 0.051, 0.129, 0.082], [0.099, 0.076, 0.076, 0.064, 0.064, 0.088, 0.263, 0.193, 0.076], [0.042, 0.142, 0.042, 0.073, 0.042, 0.126, 0.08, 0.249, 0.203], [0.046, 0.097, 0.046, 0.067, 0.056, 0.087, 0.056, 0.313, 0.231]]}]
+  </script>
+</section>
+
+<!-- ============ SLIDE 11 — 1.6 De Transformers a LLMs ============ -->
+<section>
+  <p class="kicker">1.6 · La conexión completa</p>
+  <h2>De Transformers a LLMs</h2>
+  <div class="card" style="font-size:.76em; margin-bottom:.4em">
+    <strong>Receta:</strong> Transformer <strong>decoder-only</strong> → escalar (GPT-3 = 175B params) → entrenar para <strong>predecir el próximo token</strong> sobre medio internet → fine-tuning + RLHF.
+  </div>
+  <p style="font-size:.92em; text-align:center; margin:.3em 0"><strong class="hl-blue">Un LLM es un autocomplete cósmico.</strong></p>
+  <ul style="font-size:.78em">
+    <li><strong>Tokenización:</strong> el modelo ve <strong>enteros</strong>, no strings · <code>cl100k_base</code> (GPT-4) · <code>o200k_base</code> (GPT-4o, GPT-5, o1/o3/o4)</li>
+    <li>⚠️ <strong class="hl-red">NO ES DETERMINÍSTICO:</strong> en vez de elegir el token más probable, <strong>muestrea</strong> de una distribución (<code>temperature</code>, <code>top_p</code>, <code>top_k</code>)</li>
+  </ul>
+  <div class="codeblock" style="font-size:.66em; margin-top:.3em">prompt → [Transformer] → distribución P(token) sobre el vocabulario → muestreo → token → (repetir)</div>
+  <div class="cite">Brown et al. (2020), arXiv:2005.14165 (GPT-3) · Devlin et al. (2018), arXiv:1810.04805 (BERT).</div>
+</section>
+
+<!-- ============ SLIDE 12 — No-determinismo / MLOps ============ -->
+<section>
+  <p class="kicker">1.6 · Implicancias</p>
+  <h2>El no-determinismo te cambia el MLOps</h2>
+  <table style="font-size:.76em">
+    <thead><tr><th>ML clásico (determinístico)</th><th>LLM (estocástico)</th></tr></thead>
+    <tbody>
+      <tr><td>Mismo input → mismo output</td><td>Mismo prompt → <strong class="hl-red">outputs diferentes</strong></td></tr>
+      <tr><td><code>assert output == "..."</code></td><td>LLM-as-judge · golden sets <strong>semánticos</strong></td></tr>
+      <tr><td>Modelo fijo en tu registry</td><td>El proveedor lo <strong>actualiza sin avisar</strong> → versionalo</td></tr>
+      <tr><td>Reproducibilidad total</td><td><code>temperature=0</code> ayuda, <strong>no garantiza</strong></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8em; margin-top:.6em">Diseñá asumiéndolo desde el día cero: <strong>caching</strong> agresivo · <strong>idempotencia</strong> · <strong>schema validation</strong> en outputs · <strong>retries</strong> con backoff · <strong>observability</strong> fuerte.</p>
+  <p class="note" style="font-size:.72em">Pensálo como una API externa que devuelve respuestas <em>similares pero no idénticas</em> y que cambia sin avisar.</p>
+</section>
+
+<!-- ============ SLIDE 13 — DEMO 4 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 4</p>
+  <h2>Lo que el modelo realmente ve</h2>
+  <div class="demo" id="demo-tok">
+    <textarea id="tok-input" rows="2">Hola, ¿cómo andás che?</textarea>
+    <div class="demo-controls">
+      <label><input type="radio" name="enc" value="cl100k" checked> <code>cl100k_base</code> (GPT-4)</label>
+      <label><input type="radio" name="enc" value="o200k"> <code>o200k_base</code> (GPT-4o/5)</label>
+      <span id="tok-count">…</span>
+    </div>
+    <div id="tok-chips"></div>
+    <div class="tok-samples" id="tok-samples"></div>
+  </div>
+  <p class="note" style="font-size:.68em; margin-top:.3em">El español <strong>gasta más tokens</strong> que el inglés (= más costo + context window). Código y emojis se tokenizan distinto. Estimá costos <strong>por token</strong>, no por caracteres.</p>
+</section>
+
+<!-- ============ SLIDE 14 — 1.7 De LLM a Agente ============ -->
+<section>
+  <p class="kicker">1.7 · Lo más importante para el resto del curso</p>
+  <h2>De LLM a Agente</h2>
+  <p style="font-size:.8em; margin:.1em 0 .3em">LLM solo: <strong>genera texto</strong>. Un agente: <strong class="hl-green">planifica, usa tools, ejecuta acciones, observa, itera.</strong></p>
+  <div class="loopwrap">
+    <div class="react">
+      <div class="node"><div class="t">PENSAR</div><div class="d">reasoning</div></div>
+      <div class="ar">→</div>
+      <div class="node act"><div class="t">ACTUAR</div><div class="d">tool call</div></div>
+      <div class="ar">→</div>
+      <div class="node obs"><div class="t">OBSERVAR</div><div class="d">resultado</div></div>
+      <div class="ar">→</div>
+      <div class="node"><div class="t">¿terminé?</div><div class="d">sí → fin</div></div>
+    </div>
+    <div class="react-loop">↻ no → vuelve a PENSAR (itera hasta cumplir el objetivo)</div>
+  </div>
+  <ul style="font-size:.76em; margin-top:.6em">
+    <li>Anthropic (2024): <em>workflows</em> (camino de código predefinido) vs <em>agents</em> (el LLM dirige su propio proceso)</li>
+    <li>Bloque mínimo: <strong>augmented LLM</strong> = LLM + <span class="hl-blue">retrieval</span> + <span class="hl-green">tools</span> + <span class="hl-purple">memory</span></li>
+  </ul>
+  <div class="cite">Yao et al. (2022), arXiv:2210.03629 (ReAct) · Anthropic (2024), Building Effective Agents.</div>
+</section>
+
+<!-- ============ SLIDE 15 — Impacto real ============ -->
+<section>
+  <p class="kicker">Impacto real en software · 2025–2026</p>
+  <h2 style="font-size:1.3em; margin-bottom:.25em">La fábrica automatizada: producción y defectos</h2>
+  <div class="impact">
+    <div class="band wins">
+      <h3>✅ Los wins de empresa (Claude Code)</h3>
+      <ul>
+        <li>GA mayo 2025 · <strong>$1B run-rate revenue en nov-2025</strong> (Anthropic, 3-dic-2025)</li>
+        <li><strong>Stripe:</strong> 1.370 ingenieros · migración Scala→Java de 10k líneas en <strong>4 días</strong> (vs 10 engineer-weeks)</li>
+        <li><strong>Wiz:</strong> 50k líneas Python→Go en <strong>~20 horas</strong> (vs 2-3 meses)</li>
+        <li><strong>Ramp:</strong> <strong>−80%</strong> en investigación de incidentes · <strong>Rakuten:</strong> delivery de <strong>24 → 5 días</strong></li>
+      </ul>
+    </div>
+    <div class="band cautions">
+      <h3>⚖️ El contraste honesto</h3>
+      <ul>
+        <li><strong>METR 2025</strong> (arXiv:2507.09089): devs experimentados <strong>19% más lentos</strong> con la herramienta</li>
+        <li><strong>Veracode 2025:</strong> el modelo eligió el método <strong>inseguro el 45% de las veces</strong></li>
+        <li><strong>Gartner</strong> (jun-2025): <strong>&gt;40%</strong> de proyectos agénticos se cancelan antes de fin de 2027</li>
+        <li><strong>DORA 2025:</strong> <em>"magnifica las fortalezas de las orgs de alto rendimiento y las disfunciones de las que luchan"</em></li>
+      </ul>
+    </div>
+  </div>
+  <div class="cite">Fuentes: páginas oficiales de Anthropic · METR · Veracode GenAI Code Security Report · Gartner press release · DORA / Google Cloud.</div>
+</section>
+
+<!-- ============ SLIDE 16 — Tu rol cambia ============ -->
+<section>
+  <p class="kicker">El gran cambio en tu carrera</p>
+  <h2>Tu rol está cambiando</h2>
+  <div class="rolewrap" style="margin-top:.8em">
+    <div class="rolecard before">
+      <p class="note">Antes</p>
+      <p class="big">write code → run tests → fix → repeat</p>
+      <p class="note">operario de la línea</p>
+    </div>
+    <div class="arrow-mid">→</div>
+    <div class="rolecard after">
+      <p class="note">Ahora</p>
+      <p class="big">set goal → review changes → approve</p>
+      <p class="note">diseñador de la fábrica</p>
+    </div>
+  </div>
+  <p class="center" style="margin-top:1em; font-size:.95em"><strong>Diseñás la fábrica, no atornillás cada pieza.</strong></p>
+  <p class="center note" style="margin-top:.8em">Para orquestar bien necesitás entender qué hay adentro de la caja.<br>Próxima clase: <strong class="hl-blue">tools, skills y patrones de diseño de agentes</strong> — con las manos en la masa.</p>
+</section>
+
+<!-- ============ SLIDE 17 — Recap ============ -->
+<section data-background-gradient="radial-gradient(900px 600px at 50% 120%, #16294d, #0b0f17)">
+  <p class="kicker">Cruzamos el puente entero</p>
+  <h2>Recap: 6 ideas</h2>
+  <div class="recap" style="margin-top:.5em">
+    <div class="r"><span class="ic">📦</span><div><strong>ML clásico</strong> = artefactos compilados desde datos</div></div>
+    <div class="r"><span class="ic">🔁</span><div><strong>Redes + backprop</strong> = aprenden features vía loop error/corrección</div></div>
+    <div class="r"><span class="ic">🧭</span><div><strong>Embeddings</strong> = significado en coordenadas geométricas</div></div>
+    <div class="r"><span class="ic">👁️</span><div><strong>Transformers</strong> = la atención rompe la secuencialidad → escala</div></div>
+    <div class="r"><span class="ic">🎲</span><div><strong>LLMs</strong> = Transformers gigantes que autocompletan, no determinísticos</div></div>
+    <div class="r"><span class="ic">🤖</span><div><strong>Agentes</strong> = el LLM que actúa: piensa, usa tools, observa, itera</div></div>
+  </div>
+  <p class="center" style="margin-top:1.1em; font-size:1.5em"><strong>¿Preguntas?</strong></p>
+</section>
+
+</div>
+</div>
+
+<!-- ============ reveal.js core + plugins ============ -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 800, margin: 0.04,
+    minScale: 0.2, maxScale: 1.6, center: false,
+    hash: true, slideNumber: 'c/t', transition: 'slide',
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+</script>
+
+<!-- ============ DEMO 1 — Descenso de gradiente (live, JS puro) ============ -->
+<script>
+(function () {
+  const cv = document.getElementById('gd-canvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const loss = (x, y) => (x - 3) ** 2 + 4 * (y + 2) ** 2;   // mínimo en (3,-2)
+  const grad = (x, y) => [2 * (x - 3), 8 * (y + 2)];
+  const X0 = -6, X1 = 6, Y0 = -6, Y1 = 6;
+  const sx = x => (x - X0) / (X1 - X0) * W;
+  const sy = y => H - (y - Y0) / (Y1 - Y0) * H;
+  const $ = id => document.getElementById(id);
+
+  function drawContours() {
+    ctx.clearRect(0, 0, W, H);
+    const step = 5;
+    for (let i = 0; i < W; i += step) for (let j = 0; j < H; j += step) {
+      const wx = X0 + i / W * (X1 - X0);
+      const wy = Y0 + (H - j) / H * (Y1 - Y0);
+      const t = Math.min(1, loss(wx, wy) / 130);
+      ctx.fillStyle = `hsl(${230 - t * 180}, 65%, ${10 + t * 34}%)`;
+      ctx.fillRect(i, j, step, step);
+    }
+    ctx.fillStyle = 'gold';
+    ctx.beginPath(); ctx.arc(sx(3), sy(-2), 10, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
+  }
+  let pt, traj, timer = null;
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    pt = [-4, 3]; traj = [pt.slice()];
+    drawContours(); drawPoint();
+    $('gd-status').textContent = `loss = ${loss(pt[0], pt[1]).toFixed(2)}`;
+  }
+  function drawPoint() {
+    ctx.strokeStyle = '#ff5a52'; ctx.lineWidth = 2.5; ctx.beginPath();
+    traj.forEach((p, k) => k ? ctx.lineTo(sx(p[0]), sy(p[1])) : ctx.moveTo(sx(p[0]), sy(p[1])));
+    ctx.stroke();
+    ctx.fillStyle = '#ff3b30';
+    ctx.beginPath(); ctx.arc(sx(pt[0]), sy(pt[1]), 8, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  function stepFn() {
+    const lr = parseFloat($('gd-lr').value);
+    const g = grad(pt[0], pt[1]);
+    pt = [pt[0] - lr * g[0], pt[1] - lr * g[1]];
+    traj.push(pt.slice());
+    drawContours(); drawPoint();
+    const l = loss(pt[0], pt[1]);
+    $('gd-status').textContent = `loss = ${l.toFixed(2)}`;
+    if (Math.abs(pt[0]) > 12 || Math.abs(pt[1]) > 12) { $('gd-status').textContent = '⚠ diverge — bajá el learning rate'; clearInterval(timer); timer = null; }
+    else if (traj.length > 70 || l < 1e-3) { clearInterval(timer); timer = null; }
+  }
+  $('gd-lr').addEventListener('input', e => $('gd-lr-val').textContent = parseFloat(e.target.value).toFixed(2));
+  $('gd-run').addEventListener('click', () => { if (!timer) timer = setInterval(stepFn, 110); });
+  $('gd-reset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+
+<!-- ============ DEMO 2 — Embeddings + coseno (precomputado) ============ -->
+<script>
+(function () {
+  const el = document.getElementById('emb-data');
+  if (!el) return;
+  const { frases, sim } = JSON.parse(el.textContent);
+  const grid = document.getElementById('emb-grid');
+  const n = frases.length;
+  grid.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+  const hover = document.getElementById('emb-hover');
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const v = sim[i][j];
+    const cell = document.createElement('div');
+    cell.className = 'emb-cell';
+    cell.textContent = v.toFixed(2);
+    cell.style.background = `hsl(${200 - v * 165}, 72%, ${24 + v * 34}%)`;
+    cell.style.padding = '16px 6px';
+    cell.style.textAlign = 'center';
+    cell.style.cursor = 'pointer';
+    cell.style.color = v > 0.45 ? '#06101f' : '#dbe7f5';
+    cell.addEventListener('mouseenter', () => {
+      hover.innerHTML = `sim(<b>"${frases[i]}"</b>, <b>"${frases[j]}"</b>) = <span class="hl-amber">${v.toFixed(3)}</span>`;
+    });
+    grid.appendChild(cell);
+  }
+})();
+</script>
+
+<!-- ============ DEMO 3 — Mapa de atención (precomputado) ============ -->
+<script>
+(function () {
+  const el = document.getElementById('attn-data');
+  if (!el) return;
+  const data = JSON.parse(el.textContent);
+  const sel = document.getElementById('attn-sel');
+  const grid = document.getElementById('attn-grid');
+  const hover = document.getElementById('attn-hover');
+  data.forEach((d, i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = d.tokens.join(' ');
+    sel.appendChild(o);
+  });
+  function render(idx) {
+    const { tokens, attn } = data[idx];
+    const n = tokens.length;
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `110px repeat(${n}, 1fr)`;
+    grid.appendChild(document.createElement('div')); // esquina
+    tokens.forEach(t => { const h = document.createElement('div'); h.textContent = t; h.className = 'attn-head'; grid.appendChild(h); });
+    for (let i = 0; i < n; i++) {
+      const rh = document.createElement('div'); rh.textContent = tokens[i]; rh.className = 'attn-head'; rh.style.justifyContent = 'flex-end'; rh.style.paddingRight = '6px'; grid.appendChild(rh);
+      for (let j = 0; j < n; j++) {
+        const v = attn[i][j];
+        const c = document.createElement('div');
+        c.className = 'attn-cell';
+        c.textContent = v.toFixed(2);
+        c.style.background = `hsl(${255 - v * 210}, 72%, ${16 + v * 42}%)`;
+        c.addEventListener('mouseenter', () => {
+          hover.innerHTML = `<b>"${tokens[i]}"</b> presta <span class="hl-amber">${(v * 100).toFixed(0)}%</span> de atención a <b>"${tokens[j]}"</b>`;
+        });
+        grid.appendChild(c);
+      }
+    }
+  }
+  sel.addEventListener('change', e => render(+e.target.value));
+  render(0);
+})();
+</script>
+
+<!-- ============ DEMO 4 — Tokenización (live, gpt-tokenizer vía ESM) ============ -->
+<script type="module">
+  const palette = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#eab308'];
+  const samples = ['Hello, how are you today?', 'Hola, ¿cómo andás che?', 'import numpy as np', '🚀 La IA está cambiando todo en 2026 🤖'];
+  const input = document.getElementById('tok-input');
+  const count = document.getElementById('tok-count');
+  const chips = document.getElementById('tok-chips');
+  let cl100k = null, o200k = null;
+
+  // botones de ejemplo
+  const sbox = document.getElementById('tok-samples');
+  samples.forEach(s => { const b = document.createElement('button'); b.textContent = s; b.onclick = () => { input.value = s; render(); }; sbox.appendChild(b); });
+
+  try {
+    [cl100k, o200k] = await Promise.all([
+      import('https://esm.sh/gpt-tokenizer@2/encoding/cl100k_base'),
+      import('https://esm.sh/gpt-tokenizer@2/encoding/o200k_base')
+    ]);
+  } catch (e) {
+    count.textContent = '⚠ sin conexión: no se pudo cargar gpt-tokenizer (vendorealo para uso offline)';
+  }
+  function render() {
+    if (!cl100k || !o200k) return;
+    const txt = input.value;
+    const useO2 = document.querySelector('input[name=enc]:checked').value === 'o200k';
+    const enc = useO2 ? o200k : cl100k;
+    const ids = enc.encode(txt);
+    count.textContent = `${ids.length} tokens · ${txt.length} caracteres`;
+    chips.innerHTML = '';
+    ids.forEach((id, k) => {
+      const piece = enc.decode([id]).replace(/ /g, '␣').replace(/\n/g, '⏎');
+      const chip = document.createElement('span');
+      chip.className = 'tok-chip';
+      chip.textContent = piece || '∅';
+      chip.title = `id ${id}`;
+      chip.style.background = palette[k % palette.length];
+      chips.appendChild(chip);
+    });
+  }
+  input.addEventListener('input', render);
+  document.querySelectorAll('input[name=enc]').forEach(r => r.addEventListener('change', render));
+  render();
+</script>
+</body>
+</html>

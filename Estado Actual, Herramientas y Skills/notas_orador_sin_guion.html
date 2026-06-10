@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas al orador (sin guion) · Estado actual, herramientas y Skills</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0f1622; --fg:#e8eef6; --muted:#9fb0c3;
+    --blue:#58a6ff; --green:#3fb950; --amber:#e3b341; --purple:#bc8cff;
+    --red:#f85149; --teal:#39d0d8; --line:#243043;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 800px at 70% -10%, #16203033, transparent), var(--bg);
+    color:var(--fg); display:flex; flex-direction:column; height:100vh;
+  }
+  code{ font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.88em;
+        background:#1b2433; color:var(--teal); padding:.08em .35em; border-radius:5px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:14px; padding:10px 20px;
+    background:var(--bg2); border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .topbar .title{ font-weight:800; font-size:15px; letter-spacing:-.01em; }
+  .topbar .title span{ color:var(--muted); font-weight:500; }
+  .topbar .spacer{ flex:1; }
+  .nav-btn{
+    background:#13294a; color:var(--blue); border:1px solid #1d3a66; border-radius:8px;
+    padding:7px 14px; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .nav-btn:hover{ filter:brightness(1.25); }
+  .nav-btn:disabled{ opacity:.35; cursor:default; }
+  .counter{ font-variant-numeric:tabular-nums; font-weight:800; color:#fff; font-size:15px; min-width:60px; text-align:center; }
+  select#jump{
+    background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:8px;
+    padding:7px 10px; font-size:13px; max-width:340px;
+  }
+  .time-chip{
+    font-variant-numeric:tabular-nums; font-family:monospace; font-weight:700;
+    background:#33270a; color:var(--amber); border:1px solid #5a4410;
+    padding:6px 12px; border-radius:999px; font-size:14px;
+  }
+
+  /* ---------- Cronómetro ---------- */
+  .timer{ display:flex; align-items:center; gap:8px; padding:4px 10px 4px 6px; background:#0c1320; border:1px solid var(--line); border-radius:12px; }
+  .tm-btn{ background:var(--green); color:#06140c; border:none; border-radius:8px; padding:7px 13px; font-weight:800; cursor:pointer; font-size:14px; white-space:nowrap; }
+  .tm-btn.running{ background:var(--amber); color:#1a1400; }
+  .tm-btn:hover{ filter:brightness(1.1); }
+  .tm-clock{ font-family:monospace; font-weight:800; font-size:21px; color:#fff; font-variant-numeric:tabular-nums; min-width:64px; text-align:center; }
+  .tm-reset{ background:#1b2433; color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:6px 9px; cursor:pointer; font-size:15px; }
+  .tm-reset:hover{ color:#fff; }
+  .tm-status{ font-size:12.5px; font-weight:700; font-family:monospace; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .tm-status.ontime{ background:#0f2e1c; color:var(--green); }
+  .tm-status.behind{ background:#3a1414; color:var(--red); }
+  .tm-status.ahead{  background:#13294a; color:var(--blue); }
+  .tm-status.idle{   color:var(--muted); }
+
+  /* ---------- Stage ---------- */
+  .stage{ flex:1 1 auto; overflow-y:auto; padding:36px 8vw 90px; }
+  .slide{ display:none; max-width:1000px; margin:0 auto; animation:fade .15s ease; }
+  .slide.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .kicker{ color:var(--blue); font-weight:700; font-size:13px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 6px; }
+  .slide h2{ font-size:34px; line-height:1.12; margin:0 0 6px; color:#fff; font-weight:800; letter-spacing:-.01em; }
+  .slide .range{ color:var(--muted); font-size:15px; margin:0 0 22px; font-family:monospace; }
+
+  .block{ background:var(--bg2); border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin:0 0 16px; }
+  .block.say{ border-left:4px solid var(--blue); }
+  .block.demo{ border-left:4px solid var(--green); background:#0d1a12; }
+  .block.goal{ border-left:4px solid var(--amber); background:#161202; }
+  .block.recap{ border-left:4px solid var(--purple); }
+  .block-label{ font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .say   .block-label{ color:var(--blue); }
+  .demo  .block-label{ color:var(--green); }
+  .goal  .block-label{ color:var(--amber); }
+  .recap .block-label{ color:var(--purple); }
+
+  .slide ul{ margin:0; padding-left:22px; }
+  .slide li{ font-size:20px; line-height:1.5; margin:7px 0; }
+  .slide li ul{ margin:4px 0 4px; }
+  .slide li li{ font-size:18px; color:var(--muted); margin:3px 0; }
+  .slide li li strong{ color:var(--fg); }
+  .slide strong{ color:#fff; }
+  .slide ol{ margin:0; padding-left:24px; }
+  .slide ol li{ font-size:20px; }
+
+  .goal .goal-text{ font-size:21px; line-height:1.45; margin:0; }
+
+  .hint{ text-align:center; color:var(--muted); font-size:13px; margin-top:24px; }
+  kbd{ background:#1b2433; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 7px; font-family:monospace; font-size:12px; color:var(--fg); }
+
+  /* progress bar */
+  .progress{ height:3px; background:#13294a; flex:0 0 auto; }
+  .progress > div{ height:100%; background:linear-gradient(90deg,var(--blue),var(--green),var(--purple)); transition:width .15s; }
+
+  /* extra cards inside slides */
+  .note-extra{ background:#0c1320; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:0 0 16px; font-size:16px; color:var(--muted); }
+  .note-extra b{ color:var(--fg); }
+
+  /* ---------- Guion hablado (teleprompter) ---------- */
+  .divider{ display:flex; align-items:center; gap:14px; margin:30px 0 16px; color:var(--teal); font-size:13px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+  .divider::before,.divider::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--teal),transparent); opacity:.5; }
+  .script{
+    background:#0a1418; border:1px solid #14333a; border-left:4px solid var(--teal);
+    border-radius:14px; padding:20px 26px; margin:0 0 16px;
+  }
+  .script p{ font-size:21px; line-height:1.62; margin:0 0 16px; color:#dbe8ee; }
+  .script p:last-child{ margin-bottom:0; }
+  .script ul,.script ol{ margin:0 0 16px; padding-left:24px; }
+  .script li{ font-size:20px; line-height:1.55; margin:6px 0; color:#dbe8ee; }
+  .script strong{ color:#fff; }
+  .script em{ color:var(--muted); }
+  .script .stage-note{ color:var(--green); font-style:italic; }
+  .script pre{ background:#06121a; border:1px solid #14333a; border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:15px; color:#bfe7ec; line-height:1.45; font-family:"SFMono-Regular",Consolas,Menlo,monospace; }
+
+  /* inline gloss para siglas */
+  .gloss{ color:var(--teal); font-weight:600; font-size:.8em; white-space:nowrap; }
+
+  /* ---------- Glosario (overlay) ---------- */
+  .glos-overlay{
+    position:fixed; inset:0; background:rgba(4,8,14,.82); backdrop-filter:blur(3px);
+    display:none; align-items:flex-start; justify-content:center; z-index:50; padding:40px 20px; overflow-y:auto;
+  }
+  .glos-overlay.open{ display:flex; }
+  .glos-modal{
+    background:var(--bg2); border:1px solid var(--line); border-radius:18px;
+    max-width:1040px; width:100%; padding:26px 30px 34px; box-shadow:0 30px 80px #000a;
+  }
+  .glos-modal h2{ margin:0 0 4px; font-size:26px; color:#fff; }
+  .glos-modal .sub{ color:var(--muted); font-size:14px; margin:0 0 20px; }
+  .glos-close{ float:right; background:#3a1414; color:var(--red); border:1px solid #5a1f1f; border-radius:8px; padding:6px 13px; font-weight:700; cursor:pointer; font-size:14px; }
+  .glos-close:hover{ filter:brightness(1.3); }
+  .glos-cols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; }
+  .glos-group h3{ color:var(--blue); font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin:0 0 8px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .glos-group dl{ margin:0; }
+  .glos-group div.row{ display:flex; gap:10px; margin:7px 0; align-items:baseline; }
+  .glos-group dt{ color:var(--teal); font-weight:800; font-family:monospace; font-size:15px; min-width:92px; flex:0 0 auto; }
+  .glos-group dd{ margin:0; color:#dbe8ee; font-size:15px; line-height:1.35; }
+  .glos-group dd em{ color:var(--muted); font-style:normal; }
+
+  /* ---------- Pantalla angosta / formato vertical ---------- */
+  @media (max-width:760px){
+    .topbar{ flex-wrap:wrap; gap:8px 8px; padding:8px 12px; }
+    .topbar .spacer{ display:none; }
+    .topbar .title{ flex:1 1 100%; font-size:12.5px; line-height:1.35; order:1; }
+    .topbar .title span{ display:inline; }
+    .timer{ flex:1 1 100%; flex-wrap:wrap; justify-content:center; order:2; padding:6px 10px; }
+    .tm-btn{ flex:1 1 auto; }
+    .tm-clock{ font-size:20px; }
+    .tm-status{ flex:1 1 100%; text-align:center; }
+    .time-chip{ order:3; flex:0 0 auto; }
+    #glos-btn{ order:4; flex:1 1 auto; text-align:center; }
+    select#jump{ order:5; flex:1 1 100%; max-width:none; }
+    #prev{ order:6; flex:1 1 0; }
+    .counter{ order:7; flex:0 0 auto; }
+    #next{ order:8; flex:1 1 0; }
+
+    .stage{ padding:22px 18px 80px; }
+    .slide h2{ font-size:27px; }
+    .slide .range{ font-size:14px; }
+    .slide li{ font-size:18.5px; }
+    .slide ol li{ font-size:18.5px; }
+    .slide li li{ font-size:16.5px; }
+    .goal .goal-text{ font-size:19px; }
+    .block{ padding:15px 16px; }
+    .note-extra{ font-size:15px; }
+    .hint{ font-size:12px; }
+    .script{ padding:16px 18px; }
+    .script p,.script li{ font-size:19px; }
+    .script pre{ font-size:13.5px; }
+    .glos-modal{ padding:22px 18px 28px; }
+    .glos-cols{ grid-template-columns:1fr; gap:18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">Notas al orador <span>· sin guion ·</span> <span>Clase 2 · Applied AI · Parte 2 · 90 min · Devs MLOps</span></div>
+  <div class="timer" id="timer-group" title="Cronómetro de la charla (Espacio = iniciar/pausar)">
+    <button class="tm-btn" id="tm-toggle">▶ Iniciar</button>
+    <span class="tm-clock" id="tm-elapsed">00:00</span>
+    <button class="tm-reset" id="tm-reset" title="Reiniciar cronómetro">⟲</button>
+    <span class="tm-status idle" id="tm-status">cronómetro detenido</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="nav-btn" id="glos-btn" title="Abrir glosario de siglas (G)">📖 Glosario</button>
+  <span class="time-chip" id="time" title="Horario previsto de esta slide">⏱️ 00:00</span>
+  <select id="jump" title="Saltar a slide"></select>
+  <button class="nav-btn" id="prev">← Anterior</button>
+  <span class="counter" id="counter">1 / 28</span>
+  <button class="nav-btn" id="next">Siguiente →</button>
+</div>
+
+<div class="progress"><div id="bar"></div></div>
+
+<!-- ===== Glosario de siglas ===== -->
+<div class="glos-overlay" id="glos">
+  <div class="glos-modal">
+    <button class="glos-close" id="glos-close">✕ Cerrar (Esc)</button>
+    <h2>📖 Glosario de siglas</h2>
+    <p class="sub">Todas las siglas que aparecen en la clase, agrupadas por categoría. Cerrá con <kbd>Esc</kbd>, el botón ✕ o clic en el fondo.</p>
+    <div class="glos-cols">
+
+      <div class="glos-group">
+        <h3>IA / LLMs / Benchmarks</h3>
+        <dl>
+          <div class="row"><dt>IA</dt><dd>Inteligencia Artificial</dd></div>
+          <div class="row"><dt>ML</dt><dd>Machine Learning — <em>aprendizaje automático</em></dd></div>
+          <div class="row"><dt>LLM</dt><dd>Large Language Model — <em>modelo grande de lenguaje</em></dd></div>
+          <div class="row"><dt>GPT</dt><dd>Generative Pre-trained Transformer</dd></div>
+          <div class="row"><dt>MoE</dt><dd>Mixture of Experts — <em>mezcla de expertos (arquitectura de DeepSeek)</em></dd></div>
+          <div class="row"><dt>ctx</dt><dd>context window — <em>ventana de contexto (ej. 1M tokens)</em></dd></div>
+          <div class="row"><dt>SWE-bench</dt><dd>Software Engineering Benchmark — <em>500 issues reales de GitHub</em></dd></div>
+          <div class="row"><dt>OWASP</dt><dd>Open Worldwide Application Security Project — <em>el "Top 10" de vulnerabilidades web</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Protocolos / Formatos / APIs</h3>
+        <dl>
+          <div class="row"><dt>MCP</dt><dd>Model Context Protocol — <em>protocolo de contexto de modelo</em></dd></div>
+          <div class="row"><dt>JSON</dt><dd>JavaScript Object Notation</dd></div>
+          <div class="row"><dt>JSON-RPC</dt><dd>JSON Remote Procedure Call — <em>llamada a procedimiento remoto sobre JSON</em></dd></div>
+          <div class="row"><dt>HTTP</dt><dd>HyperText Transfer Protocol — <em>transporte de los servers remotos</em></dd></div>
+          <div class="row"><dt>stdio</dt><dd>Standard Input/Output — <em>entrada/salida estándar (transporte local)</em></dd></div>
+          <div class="row"><dt>OAuth</dt><dd>Open Authorization — <em>estándar de autorización (acá v2.1)</em></dd></div>
+          <div class="row"><dt>URI</dt><dd>Uniform Resource Identifier — <em>identificador uniforme de recurso</em></dd></div>
+          <div class="row"><dt>LSP</dt><dd>Language Server Protocol — <em>protocolo de servidor de lenguaje (de VS Code)</em></dd></div>
+          <div class="row"><dt>API</dt><dd>Application Programming Interface — <em>interfaz de programación</em></dd></div>
+          <div class="row"><dt>SDK</dt><dd>Software Development Kit — <em>kit de desarrollo</em></dd></div>
+          <div class="row"><dt>REST</dt><dd>Representational State Transfer — <em>estilo de API web</em></dd></div>
+          <div class="row"><dt>CRUD</dt><dd>Create, Read, Update, Delete — <em>las 4 operaciones básicas sobre datos</em></dd></div>
+          <div class="row"><dt>YAML</dt><dd>YAML Ain't Markup Language — <em>formato del frontmatter del SKILL.md</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>DevOps / MLOps (las que ya conocés)</h3>
+        <dl>
+          <div class="row"><dt>DevOps</dt><dd>Development + Operations</dd></div>
+          <div class="row"><dt>MLOps</dt><dd>Machine Learning Operations — <em>operación de modelos de ML en producción</em></dd></div>
+          <div class="row"><dt>IaC</dt><dd>Infrastructure as Code — <em>infraestructura como código</em></dd></div>
+          <div class="row"><dt>CI/CD</dt><dd>Continuous Integration / Continuous Delivery — <em>integración y entrega continua</em></dd></div>
+          <div class="row"><dt>SSH</dt><dd>Secure Shell — <em>acceso remoto a un server</em></dd></div>
+          <div class="row"><dt>GCP</dt><dd>Google Cloud Platform</dd></div>
+          <div class="row"><dt>AWS</dt><dd>Amazon Web Services</dd></div>
+          <div class="row"><dt>S3</dt><dd>Simple Storage Service — <em>almacenamiento de objetos de AWS</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Dominio / ejemplos de la charla</h3>
+        <dl>
+          <div class="row"><dt>SDD</dt><dd>Spec-Driven Development — <em>desarrollo dirigido por especificación</em></dd></div>
+          <div class="row"><dt>PR</dt><dd>Pull Request — <em>propuesta de cambio revisable</em></dd></div>
+          <div class="row"><dt>JIRA</dt><dd><em>gestor de tickets de Atlassian (no es sigla literal)</em></dd></div>
+          <div class="row"><dt>SAML</dt><dd>Security Assertion Markup Language — <em>estándar de single sign-on (ejemplo de la demo)</em></dd></div>
+          <div class="row"><dt>DCP</dt><dd><em>prefijo de ticket JIRA de la empresa ficticia DataCorp</em></dd></div>
+          <div class="row"><dt>PDF</dt><dd>Portable Document Format</dd></div>
+          <div class="row"><dt>MIT</dt><dd><em>licencia open-source permisiva (de DeepSeek)</em></dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- ===== Slide 0 — Portada ===== -->
+  <section class="slide" data-time="⏱️ 00:00–00:01">
+    <p class="kicker">Portada</p>
+    <h2>Estado actual, herramientas y Skills</h2>
+    <p class="range">⏱️ 00:00–00:01 · Bienvenida + framing</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Saludá y presentate corto. No te extiendas acá.</li>
+        <li><em>"Segunda clase. Hoy bajamos a tierra."</em></li>
+        <li>Subtítulo de la slide: <em>"De random forests a agentes — ahora las herramientas."</em></li>
+        <li>▶ Avanzá rápido apenas terminás de saludar.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      ⏱️ <b>Nota:</b> la presentación no trae timing por slide; los horarios de estas notas son una <b>estimación</b> (suman 90 min, con break implícito 0:38–0:43). Ajustá en vivo con el chip de estado del cronómetro.
+    </div>
+  </section>
+
+  <!-- ===== Slide 1 — Recap clase 1 ===== -->
+  <section class="slide" data-time="⏱️ 00:01–00:03">
+    <p class="kicker">Recap clase 1</p>
+    <h2>De dónde venimos</h2>
+    <p class="range">⏱️ 00:01–00:03</p>
+    <div class="block recap">
+      <p class="block-label">💬 Recap (solo reconectar)</p>
+      <ul>
+        <li>Las 4 piezas de la slide: <strong>LLM</strong> <span class="gloss">(modelo de lenguaje)</span> = predictor de tokens · <strong>Embeddings</strong> = significado como coordenadas · <strong>Transformer</strong> = attention + capas · <strong>Agent loop</strong> = LLM + tools + memoria.</li>
+        <li>Disparador rápido: <em>"¿se acuerdan del agent loop?"</em> No re-expliques.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Hoy: el estado del arte y las herramientas que cambian cómo trabajamos." El cambio real es de <strong>proceso</strong>, no de herramienta.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 2 — 2.1 Mapa de LLMs ===== -->
+  <section class="slide" data-time="⏱️ 00:03–00:12">
+    <p class="kicker">2.1 · El mapa de LLMs</p>
+    <h2>Quién es quién (junio 2026)</h2>
+    <p class="range">⏱️ 00:03–00:12 · ~1 min por proveedor</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (proveedor por proveedor, rápido)</p>
+      <ul>
+        <li><strong>Anthropic:</strong> Opus 4.8 (may-26) flagship; Sonnet 4.6 daily driver ($3/$15, 1M ctx). Domina coding.</li>
+        <li><strong>OpenAI:</strong> GPT-5.5 (abr-26), más caro ($5/$30), gana en multimodal/breadth.</li>
+        <li><strong>Google:</strong> Gemini 3.5 Flash (value) + 3.1 Pro (reasoning). Si están en GCP <span class="gloss">(Google Cloud)</span>, Vertex te ahorra horas.</li>
+        <li><strong>Meta:</strong> Muse Spark (abr-26); open-weights sólido sigue siendo Llama 4.</li>
+        <li><strong>DeepSeek:</strong> V3.2/V4, calidad cercana a GPT-4o a 1/10 del costo, MIT.</li>
+        <li><strong>Qwen:</strong> 3.7 Max (may-26), 1M ctx, agentes long-horizon, #1 chino.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El error más común en MLOps es tratar a los LLMs como <strong>commodity intercambiable</strong>. No lo son. Default real = Sonnet 4.6; reservá el flagship para lo duro (misma lógica multi-cloud).</p>
+    </div>
+    <div class="note-extra">
+      Al pasar: Grok, Mistral, MiniMax M2.5, GLM-5, Kimi K2.6. <b>"9 de los top 15 en SWE-bench <span class="gloss">(benchmark de coding)</span> son chinos."</b> · ⚠️ Revisá nombres/versiones el día de la clase — cambian cada 4-8 semanas.
+    </div>
+  </section>
+
+  <!-- ===== Slide 3 — 2.2 Vibe coding ===== -->
+  <section class="slide" data-time="⏱️ 00:12–00:15">
+    <p class="kicker">2.2 · Vibe coding vs SDD</p>
+    <h2>Vibe coding</h2>
+    <p class="range">⏱️ 00:12–00:15 · Bloque 2.2 (≈20 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Término de Karpathy, 2-feb-2025. Cita: <em>"forget that the code even exists".</em></li>
+        <li>Collins Word of the Year 2025 (6-nov-2025).</li>
+        <li>OK para el prototipo del viernes, NO para tu pipeline de CI <span class="gloss">(integración continua)</span>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Vibe coding = deploy a mano por SSH a producción." La analogía del SSH es la que tiene que pegar.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 4 — 2.2 Por qué no escala ===== -->
+  <section class="slide" data-time="⏱️ 00:15–00:17">
+    <p class="kicker">2.2 · Vibe coding vs SDD</p>
+    <h2>Por qué vibe coding no escala</h2>
+    <p class="range">⏱️ 00:15–00:17 · Datos crudos, fuerte y rápido</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Código co-escrito con IA = <strong>1.4× más issues críticos</strong> y <strong>1.7× más mayores</strong> que código humano.</li>
+        <li><strong>45%</strong> del código generado por IA introduce vulnerabilidades del OWASP <span class="gloss">(Top 10 de seguridad web)</span> Top 10.</li>
+        <li>La mayoría de los modelos <strong>no mejoran</strong> la seguridad del código que generan.</li>
+        <li>Falta lo de siempre: reproducibilidad, revisión, versión, rollback.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">No te quedes en los números: llevá a "falta proceso". Es el equivalente a tener tu infra clickeada a mano.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 5 — 2.2 SDD ===== -->
+  <section class="slide" data-time="⏱️ 00:17–00:20">
+    <p class="kicker">2.2 · Vibe coding vs SDD</p>
+    <h2>Spec-Driven Development (SDD)</h2>
+    <p class="range">⏱️ 00:17–00:20</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Escribís una <strong>spec</strong> de qué querés; el agente la convierte en plan, tareas y código.</li>
+        <li>Lo que gobierna es la <strong>spec</strong>, no el código generado.</li>
+        <li>Frase de la slide: <em>"pasamos de 'el código es la fuente de verdad' a 'la intención es la fuente de verdad'".</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">La frase clave: <strong>la IA hace que las especificaciones sean ejecutables</strong>. Repetir "lo que gobierna es la spec". (Análogo MLOps en el guion: SDD es IaC <span class="gloss">(infra como código)</span> para tu código.)</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 6 — 2.2 Spec Kit ===== -->
+  <section class="slide" data-time="⏱️ 00:20–00:22">
+    <p class="kicker">2.2 · Vibe coding vs SDD</p>
+    <h2>Spec Kit en una slide</h2>
+    <p class="range">⏱️ 00:20–00:22</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Toolkit open-source de GitHub (sep-2025). ⚠️ ~92k stars · 8k+ forks (revisá el día).</li>
+        <li>Soporta 30+ agentes (Claude Code, Copilot, Gemini, Cursor, Codex, Windsurf, Kiro…).</li>
+        <li><em>"La próxima clase se usa en vivo. Hoy solo la intuición."</em></li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Flujo canónico (slash commands):</b> <code>/speckit.constitution</code> → <code>/speckit.specify</code> → <code>/speckit.clarify</code> → <code>/speckit.plan</code> → <code>/speckit.tasks</code> → <code>/speckit.analyze</code> → <code>/speckit.implement</code>
+    </div>
+  </section>
+
+  <!-- ===== Slide 7 — DEMO 1 ===== -->
+  <section class="slide" data-time="⏱️ 00:22–00:30">
+    <p class="kicker">🎬 Demo 1 · 2.2</p>
+    <h2>Demo 1 · El agente que vibe-codeó te da la spec</h2>
+    <p class="range">⏱️ 00:22–00:30 · Vibe coding → "ahora escribime la spec"</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul>
+        <li><strong>Terminal embebida</strong> (animar con fragments) o en vivo en Claude Code.</li>
+        <li>Paso 1: vibe coding puro — endpoint Flask POST → valida → SQLite → ID.</li>
+        <li>Paso 2: <em>"Funciona, pero vos no leíste nada. No es reproducible."</em></li>
+        <li>Paso 3: pedile al agente <em>"ahora generame la spec de lo que hiciste".</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Si el agente puede escribir la spec <em>después</em>, también puede escribirla <em>antes</em> y dejar que la spec dirija todo → reproducible, revisable, versionable. Esa spec.md se commitea y se re-implementa en Go en la próxima clase.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 8 — DEMO 2 (Spec Kit e2e) ===== -->
+  <section class="slide" data-time="⏱️ 00:30–00:38">
+    <p class="kicker">🎬 Demo 2 · 2.2</p>
+    <h2>Demo 2 · De un design.md de juguete a código</h2>
+    <p class="range">⏱️ 00:30–00:38 · Spec Kit de punta a punta</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul>
+        <li><strong>Terminal embebida</strong> o en vivo. Partís de un <code>design.md</code> de juguete (CRUD <span class="gloss">(create/read/update/delete)</span> de tareas, SQLite, endpoints REST <span class="gloss">(API web)</span>).</li>
+        <li>Corrés el flujo entero: <code>constitution</code> → <code>specify</code> → <code>plan</code> (FastAPI) → <code>tasks</code> → <code>implement</code>.</li>
+        <li>Mostrá que cada paso deja un artefacto <code>.md</code> versionado, y que <code>implement</code> genera el código tarea por tarea con tests.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Una idea en un <code>.md</code> → spec → plan → tareas → código, todo versionado y revisable. La spec manda; el código es el <strong>output</strong>, no la fuente de verdad.</p>
+    </div>
+    <div class="note-extra">
+      Toy a propósito: el punto es ver el <b>flujo entero</b>, no la complejidad. Cada artefacto se commitea; la semana del workshop lo hacen ellos. · ▶ <b>Después de esta demo: BREAK 5 min (≈0:38–0:43).</b>
+    </div>
+  </section>
+
+  <!-- ===== Slide 9 — 2.3 ¿cómo usa una tool un LLM? ===== -->
+  <section class="slide" data-time="⏱️ 00:43–00:46">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>Primero: ¿cómo usa una tool un LLM?</h2>
+    <p class="range">⏱️ 00:43–00:46 · Bloque 2.3 (≈20 min) · post-break</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Un LLM solo <strong>genera texto</strong>. Para que <em>actúe</em> le das <strong>tools</strong>: una función + su descripción.</li>
+        <li>El modelo no ejecuta nada: <strong>decide</strong> qué tool llamar y con qué argumentos. Tu código la corre y le devuelve el resultado.</li>
+        <li>Ejemplo de la slide (LangChain): <code>get_weather</code> bindeada al modelo → el modelo pide <code>get_weather("Córdoba")</code> → tu runtime la ejecuta.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El modelo decide, tu código ejecuta. Definir esto a mano para cada modelo y framework no escala → <strong>eso es lo que MCP estandariza</strong>. Puente directo al M×N.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 10 — 2.3 M×N ===== -->
+  <section class="slide" data-time="⏱️ 00:46–00:48">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>El problema M×N</h2>
+    <p class="range">⏱️ 00:46–00:48</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>3 modelos × 10 tools = 30 integraciones custom, cada una con auth/schema/error handling.</li>
+        <li>Insostenible de mantener.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Mismo problema que resuelve un service mesh: en vez de N² conexiones, una abstracción común." Anclar en service mesh, ya lo conocen.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 11 — 2.3 MCP USB-C ===== -->
+  <section class="slide" data-time="⏱️ 00:48–00:51">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>Model Context Protocol = el USB-C de la IA</h2>
+    <p class="range">⏱️ 00:48–00:51</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Anthropic, 25 de noviembre de 2024.</li>
+        <li>Inspirado en el LSP <span class="gloss">(protocolo de servidor de lenguaje de VS Code)</span>: <em>write once, plug anywhere</em>.</li>
+        <li>Adopción: Anthropic, OpenAI (mar-2025, Altman), Cursor, VS Code, Zed, Replit.</li>
+        <li>&gt;10.000 servers públicos activos (Linux Foundation, 9-dic-2025).</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">La frase USB-C. Un server se escribe una vez y cualquier host lo usa.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 12 — 2.3 Las 3 primitivas ===== -->
+  <section class="slide" data-time="⏱️ 00:51–00:54">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>Las 3 primitivas de MCP</h2>
+    <p class="range">⏱️ 00:51–00:54</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (mapear a algo que ya conocen)</p>
+      <ul>
+        <li><strong>Tools</strong> → funciones invocables por el modelo (query DB, mandar email, crear issue).</li>
+        <li><strong>Resources</strong> → data leíble por el modelo (archivos, configs, registros · por URI <span class="gloss">(identificador de recurso)</span>).</li>
+        <li><strong>Prompts</strong> → templates reutilizables / slash commands.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Handshake:</b> <code>initialize</code> → capabilities → <code>tools/list</code> → <code>tools/call</code>.
+    </div>
+  </section>
+
+  <!-- ===== Slide 13 — 2.3 Anatomía de un MCP server ===== -->
+  <section class="slide" data-time="⏱️ 00:54–00:57">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>Anatomía de un MCP server</h2>
+    <p class="range">⏱️ 00:54–00:57</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Un server = un nombre + una lista de <strong>tools tipadas</strong>. Cada tool se describe sola.</li>
+        <li>Ejemplo con <code>fastmcp</code>: <code>@mcp.tool()</code> sobre <code>list_directory</code> / <code>read_file</code>, con docstring + tipos.</li>
+        <li>Conectá con la demo: esas mismas tools (<code>read_file</code>, <code>list_directory</code>) son las del <code>server-filesystem</code> oficial — esto pero ya hecho.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El <strong>docstring + los tipos</strong> ES lo que el modelo lee para decidir cuándo llamar la tool.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 14 — DEMO 3 (MCP add) ===== -->
+  <section class="slide" data-time="⏱️ 00:57–01:01">
+    <p class="kicker">🎬 Demo 3 · 2.3</p>
+    <h2>Demo 3 · El modelo descubre tu filesystem por protocolo</h2>
+    <p class="range">⏱️ 00:57–01:01 · Agregar un MCP server a Claude Code</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul>
+        <li><strong>Terminal embebida</strong> o en vivo.</li>
+        <li>Comando: <code>claude mcp add filesystem -s user -- npx -y @modelcontextprotocol/server-filesystem ~/Documents ~/Desktop</code>.</li>
+        <li>Desglosá: <code>add</code> / nombre / <code>-s user</code> global / <code>--</code> separa / paths con acceso.</li>
+        <li>Verificá: <code>claude mcp list</code> y dentro <code>/mcp</code>. Pedile: <em>"listame los .md de ~/Documents y resumime el más nuevo".</em></li>
+        <li>Mostrá los remotos HTTP (Notion/Stripe/Sentry) con OAuth <span class="gloss">(autorización)</span> 2.1.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"El modelo NO conoce tu filesystem — lo descubre por protocolo. Si mañana cambiás a S3, el modelo y tu prompt no cambian." La abstracción es el punto.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 15 — 2.3 Por qué cambia las reglas ===== -->
+  <section class="slide" data-time="⏱️ 01:01–01:03">
+    <p class="kicker">2.3 · MCPs y Tools</p>
+    <h2>Por qué cambia las reglas</h2>
+    <p class="range">⏱️ 01:01–01:03</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li><strong>Antes:</strong> cada equipo escribía su propio adapter LLM → backend.</li>
+        <li><strong>Hoy:</strong> escribís el MCP server una vez (<code>fastmcp</code>, <code>@modelcontextprotocol/sdk</code>) y anda en cualquier host.</li>
+        <li>El costo marginal de integrar una tool nueva → colapsa.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Cerrar bloque MCP: el costo de integrar una tool nueva colapsa. (Mismo salto que de drivers JDBC custom a una capa estándar.)</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 16 — 2.4 Claude Skills ===== -->
+  <section class="slide" data-time="⏱️ 01:03–01:06">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Claude Skills</h2>
+    <p class="range">⏱️ 01:03–01:06 · Bloque 2.4 (≈17 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Anthropic, 16 de octubre de 2025.</li>
+        <li>Un Skill = una <strong>carpeta con un <code>SKILL.md</code></strong> adentro.</li>
+        <li>YAML <span class="gloss">(formato del frontmatter)</span> frontmatter (<code>name</code>, <code>description</code>) + instrucciones en Markdown.</li>
+        <li>Willison: <em>"maybe a bigger deal than MCP".</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Progressive disclosure: al arrancar solo lee la descripción (~30-50 tokens); carga el body solo si matchea; los auxiliares solo si los necesita. Cero overhead hasta que se usa."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 17 — 2.4 Skills vs MCP (tabla) ===== -->
+  <section class="slide" data-time="⏱️ 01:06–01:09">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Skills vs MCP (memorizá esto)</h2>
+    <p class="range">⏱️ 01:06–01:09 · La slide que vale oro</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — tabla de la slide</p>
+      <ul>
+        <li><strong>Da…</strong> → MCP: conectividad (cómo técnico) · Skills: procedimiento (cómo organizacional).</li>
+        <li><strong>Ejemplo</strong> → MCP: "cómo hablo con Stripe" · Skills: "cómo <em>mi equipo</em> hace un refund".</li>
+        <li><strong>Formato</strong> → MCP: JSON-RPC <span class="gloss">(RPC sobre JSON)</span> server · Skills: carpeta con <code>SKILL.md</code>.</li>
+        <li><strong>Combinables</strong> → ✅ un Skill puede invocar tools MCP.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">MCP = conectividad. Skill = procedimiento. (Analogía del guion: MCP = Terraform provider · Skill = módulo de Terraform / role de Ansible.)</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 18 — 2.4 Estructura ===== -->
+  <section class="slide" data-time="⏱️ 01:09–01:11">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Estructura de un Skill</h2>
+    <p class="range">⏱️ 01:09–01:11</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Layout: <code>SKILL.md</code> (req) + <code>references/</code> + <code>scripts/</code> + <code>assets/</code> + <code>evals/</code>.</li>
+        <li>Personal: <code>~/.claude/skills/&lt;nombre&gt;/</code> · Proyecto (equipo): <code>.claude/skills/&lt;nombre&gt;/</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Hot-reload: agregás o editás un skill y toma efecto sin reiniciar la sesión." En el repo se commitea <code>.claude/skills/</code> y todo el equipo lo hereda.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 19 — DEMO 4 (Skill) ===== -->
+  <section class="slide" data-time="⏱️ 01:11–01:15">
+    <p class="kicker">🎬 Demo 4 · 2.4</p>
+    <h2>Demo 4 · El skill se activa solo, sin nombrarlo</h2>
+    <p class="range">⏱️ 01:11–01:15 · Crear un Skill en Claude Code</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul>
+        <li><strong>Terminal embebida</strong> o en vivo.</li>
+        <li><code>mkdir -p ~/.claude/skills/release-notes</code> + escribir el <code>SKILL.md</code> (formato DataCorp).</li>
+        <li>Recargá, pedí (sin nombrar el skill): <em>"generame las release notes desde el tag v2.3.0 hasta HEAD".</em></li>
+        <li>Mostrá que carga el skill solo y sigue el procedimiento (output con SAML <span class="gloss">(single sign-on)</span>, [DCP-1234]…).</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender — tres cosas</p>
+      <ol>
+        <li>Sin prompt engineering: la inteligencia está versionada en disco.</li>
+        <li>Portable: lo commiteo y el equipo lo hereda.</li>
+        <li>Open standard: agentskills.io (18-dic-2025).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== Slide 20 — 2.4 Open standard ===== -->
+  <section class="slide" data-time="⏱️ 01:15–01:16">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Skills es un open standard</h2>
+    <p class="range">⏱️ 01:15–01:16</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Spec publicado en <strong>agentskills.io</strong> (18-dic-2025).</li>
+        <li>Soporte nativo: Claude.ai · Claude Code · Agent SDK · Claude API.</li>
+        <li>Portable a: OpenAI Codex CLI · Cursor · Gemini CLI.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Pensalos como tus playbooks / roles de Ansible: capacidad procedimental versionada, code-reviewable, hot-reloadable. La pieza que faltaba para que el agente sea una capa más del stack.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 21 — 2.4 Skills vs MCP en ejemplos ===== -->
+  <section class="slide" data-time="⏱️ 01:16–01:18">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Skills vs MCP, en ejemplos</h2>
+    <p class="range">⏱️ 01:16–01:18</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — la tabla de ejemplos</p>
+      <ul>
+        <li><strong>MCP (la conexión):</strong> hablar con la API de Stripe · leer/escribir en la base · mandar a Slack · crear un issue en GitHub.</li>
+        <li><strong>Skill (el procedimiento):</strong> cómo hacemos un refund · el formato de las release notes · el tono de un anuncio · cuándo abrir un issue y qué campos llenar.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">MCP te da la <strong>capacidad</strong>. Skill te da el <strong>criterio</strong> de cómo usarla. (Izquierda = "poder hacerlo"; derecha = "hacerlo como tu equipo quiere".)</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 22 — 2.4 Skill + MCP + API juntos ===== -->
+  <section class="slide" data-time="⏱️ 01:18–01:19">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Skill + MCP + API, juntos</h2>
+    <p class="range">⏱️ 01:18–01:19</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — el ejemplo del refund</p>
+      <ul>
+        <li><strong>1 · Skill</strong> → el procedimiento: "validá el monto, registrá el motivo y avisá al cliente".</li>
+        <li><strong>2 · MCP server</strong> → expone la tool <code>create_refund(...)</code>.</li>
+        <li><strong>3 · API</strong> → Stripe ejecuta el refund de verdad.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El Skill <strong>orquesta</strong> · el MCP <strong>conecta</strong> · la API <strong>ejecuta</strong>. El skill no "habla" con Stripe; le dice al modelo CÓMO usar la tool que el MCP expone.</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 23 — 2.4 Un Skill puede ser muchas cosas ===== -->
+  <section class="slide" data-time="⏱️ 01:19–01:20">
+    <p class="kicker">2.4 · Claude Skills</p>
+    <h2>Un Skill puede ser muchas cosas</h2>
+    <p class="range">⏱️ 01:19–01:20</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — mostrar la amplitud</p>
+      <ul>
+        <li>📄 Documentos: generar un PDF con el branding de la empresa.</li>
+        <li>✍️ Redacción: aplicar la guía de estilo al escribir.</li>
+        <li>🔍 Code review: revisar un PR con el checklist del equipo.</li>
+        <li>📊 Reportes: armar el informe mensual con el formato fijo.</li>
+        <li>🧪 Testing: escribir tests con nuestras convenciones.</li>
+        <li>🚀 Onboarding: levantar el entorno local paso a paso.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Cualquier procedimiento repetible que quieras que el agente haga <strong>siempre igual</strong>. No es solo "código".</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 24 — 2.5 Las 4 piezas ===== -->
+  <section class="slide" data-time="⏱️ 01:20–01:23">
+    <p class="kicker">2.5 · Cierre</p>
+    <h2>Las 4 piezas juntas</h2>
+    <p class="range">⏱️ 01:20–01:23 · Bloque 2.5 (≈10 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — recap de una línea cada uno</p>
+      <ul>
+        <li><strong>Mapa de LLMs</strong> → elegí el motor con criterio.</li>
+        <li><strong>SDD</strong> → la spec gobierna, el código es output.</li>
+        <li><strong>MCP</strong> → conectividad estándar a todo.</li>
+        <li><strong>Skills</strong> → procedimientos versionables del equipo.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== Slide 25 — 2.5 La idea fuerza ===== -->
+  <section class="slide" data-time="⏱️ 01:23–01:27">
+    <p class="kicker">2.5 · Cierre</p>
+    <h2>La idea fuerza</h2>
+    <p class="range">⏱️ 01:23–01:27 · Esta es LA frase de la clase. Dejala respirar.</p>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"La diferencia no está en la herramienta, está en el proceso."</p>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (bullets de la slide)</p>
+      <ul>
+        <li>Pregunta para que se lleven: <em>"¿tu spec es la fuente de verdad, o lo es tu chat history con el agente?"</em></li>
+        <li>"Vibe coding = viernes a la noche. <strong>SDD = producción.</strong>"</li>
+        <li>"Las 4 piezas = la versión 2026 de pasar de scripts bash a CI/CD declarativo."</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== Slide 26 — 2.5 Workshop ===== -->
+  <section class="slide" data-time="⏱️ 01:27–01:29">
+    <p class="kicker">2.5 · Cierre</p>
+    <h2>La próxima clase: Workshop</h2>
+    <p class="range">⏱️ 01:27–01:29 · Cerrar con energía</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir — 100% hands-on, tres cosas</p>
+      <ol>
+        <li><strong>Spec Kit</strong> — flujo completo <code>constitution → … → implement</code> en un proyecto real.</li>
+        <li><strong>Construir un Skill</strong> aplicando SDD (el doble bucle).</li>
+        <li><strong>Diseñar un flujo SDD custom.</strong></li>
+      </ol>
+    </div>
+    <div class="note-extra">
+      <b>Traé:</b> Claude Code 2.1+ actualizado.
+    </div>
+  </section>
+
+  <!-- ===== Slide 27 — ¿Preguntas? ===== -->
+  <section class="slide" data-time="⏱️ 01:29–01:30">
+    <p class="kicker">Cierre</p>
+    <h2>¿Preguntas?</h2>
+    <p class="range">⏱️ 01:29–01:30 · Gracias</p>
+    <div class="block recap">
+      <p class="block-label">💬 Recap final</p>
+      <p class="goal-text">"La diferencia no está en la herramienta, está en el proceso." Las 4 piezas: <strong>Mapa de LLMs · SDD · MCP · Skills</strong>.</p>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Cerrar</p>
+      <ul>
+        <li>Gracias + abrí a <strong>preguntas</strong>.</li>
+        <li>Bridge al workshop de la próxima clase.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      ⚠️ <b>Checklist pre-clase (revisar el día):</b> versiones de modelos (slide 2.1) · stars de Spec Kit · <code>claude --version</code> · probar las 4 demos una vez.
+    </div>
+  </section>
+
+  <p class="hint">Navegá con <kbd>←</kbd> <kbd>→</kbd> · <kbd>Home</kbd>/<kbd>End</kbd> a los extremos · <kbd>Espacio</kbd> inicia/pausa el cronómetro · <kbd>G</kbd> abre el glosario.</p>
+
+</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let i = 0;
+  const counter = document.getElementById('counter');
+  const time = document.getElementById('time');
+  const bar = document.getElementById('bar');
+  const jump = document.getElementById('jump');
+  const stage = document.getElementById('stage');
+
+  // parsea "⏱️ 00:06–00:10" → start/end en segundos (H:MM = minutos acumulados)
+  function parseTimes(txt){
+    const m = (txt || '').match(/(\d{1,2}):(\d{2})(?:\s*[–-]\s*(\d{1,2}):(\d{2}))?/);
+    if (!m) return { start:null, end:null };
+    const start = (+m[1]*60 + +m[2]) * 60;
+    const end   = m[3] != null ? (+m[3]*60 + +m[4]) * 60 : start;
+    return { start, end };
+  }
+
+  // build jump menu + cachear horarios
+  slides.forEach((s, k) => {
+    const h2 = s.querySelector('h2').textContent;
+    const kick = s.querySelector('.kicker').textContent;
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = `${kick} — ${h2}`;
+    jump.appendChild(o);
+    const t = parseTimes(s.dataset.time);
+    s._startSec = t.start; s._endSec = t.end;
+  });
+
+  function show(n){
+    i = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    counter.textContent = `${i + 1} / ${total}`;
+    time.textContent = slides[i].dataset.time || '';
+    bar.style.width = ((i + 1) / total * 100) + '%';
+    jump.value = i;
+    document.getElementById('prev').disabled = (i === 0);
+    document.getElementById('next').disabled = (i === total - 1);
+    stage.scrollTop = 0;
+    tmRender();
+  }
+
+  document.getElementById('prev').addEventListener('click', () => show(i - 1));
+  document.getElementById('next').addEventListener('click', () => show(i + 1));
+  jump.addEventListener('change', e => show(+e.target.value));
+
+  // ----- Cronómetro -----
+  let tmRunning = false, tmStart = 0, tmAcc = 0, tmInt = null;
+  const tmToggleBtn = document.getElementById('tm-toggle');
+  const tmElapsedEl = document.getElementById('tm-elapsed');
+  const tmStatusEl  = document.getElementById('tm-status');
+
+  const tmElapsedSec = () => (tmAcc + (tmRunning ? Date.now() - tmStart : 0)) / 1000;
+  function fmt(s){
+    s = Math.max(0, Math.round(s));
+    const m = Math.floor(s / 60), ss = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+  }
+  function tmRender(){
+    const el = tmElapsedSec();
+    tmElapsedEl.textContent = fmt(el);
+    const start = slides[i]._startSec, end = slides[i]._endSec;
+    if (!tmRunning && tmAcc === 0){ tmStatusEl.className = 'tm-status idle'; tmStatusEl.textContent = 'cronómetro detenido'; return; }
+    if (start == null || end == null){ tmStatusEl.className = 'tm-status idle'; tmStatusEl.textContent = '— sin horario —'; return; }
+    if (el < start){ tmStatusEl.className = 'tm-status ahead'; tmStatusEl.textContent = '⏩ adelantado ' + fmt(start - el); }
+    else if (el <= end){ tmStatusEl.className = 'tm-status ontime'; tmStatusEl.textContent = '✓ en horario · corte en ' + fmt(end - el); }
+    else { tmStatusEl.className = 'tm-status behind'; tmStatusEl.textContent = '⚠ atrasado +' + fmt(el - end); }
+  }
+  function tmStartFn(){ if (tmRunning) return; tmRunning = true; tmStart = Date.now(); tmToggleBtn.textContent = '⏸ Pausar'; tmToggleBtn.classList.add('running'); tmInt = setInterval(tmRender, 250); tmRender(); }
+  function tmPause(){ if (!tmRunning) return; tmAcc = tmElapsedSec() * 1000; tmRunning = false; tmToggleBtn.textContent = '▶ Reanudar'; tmToggleBtn.classList.remove('running'); clearInterval(tmInt); tmInt = null; tmRender(); }
+  function tmToggle(){ tmRunning ? tmPause() : tmStartFn(); }
+  function tmReset(){ tmRunning = false; clearInterval(tmInt); tmInt = null; tmAcc = 0; tmToggleBtn.textContent = '▶ Iniciar'; tmToggleBtn.classList.remove('running'); tmRender(); }
+  tmToggleBtn.addEventListener('click', tmToggle);
+  document.getElementById('tm-reset').addEventListener('click', tmReset);
+
+  // ----- Glosario -----
+  const glos = document.getElementById('glos');
+  const openGlos = () => glos.classList.add('open');
+  const closeGlos = () => glos.classList.remove('open');
+  document.getElementById('glos-btn').addEventListener('click', openGlos);
+  document.getElementById('glos-close').addEventListener('click', closeGlos);
+  glos.addEventListener('click', e => { if (e.target === glos) closeGlos(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'SELECT') return;
+    if (e.key === 'Escape') { closeGlos(); return; }
+    // Espacio = iniciar/pausar cronómetro (salvo que el foco esté en un botón)
+    if (e.key === ' ' && e.target.tagName !== 'BUTTON') { tmToggle(); e.preventDefault(); return; }
+    if (e.key === 'g' || e.key === 'G') { glos.classList.toggle('open'); e.preventDefault(); return; }
+    if (glos.classList.contains('open')) return;   // no navegar slides con el glosario abierto
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { show(i + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+    else if (e.key === 'Home') { show(0); e.preventDefault(); }
+    else if (e.key === 'End') { show(total - 1); e.preventDefault(); }
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>

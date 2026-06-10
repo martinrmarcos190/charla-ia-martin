@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas al orador · Workshop SDD + Skills</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0f1622; --fg:#e8eef6; --muted:#9fb0c3;
+    --blue:#58a6ff; --green:#3fb950; --amber:#e3b341; --purple:#bc8cff;
+    --red:#f85149; --teal:#39d0d8; --line:#243043;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 800px at 70% -10%, #16203033, transparent), var(--bg);
+    color:var(--fg); display:flex; flex-direction:column; height:100vh;
+  }
+  code{ font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.88em;
+        background:#1b2433; color:var(--teal); padding:.08em .35em; border-radius:5px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:14px; padding:10px 20px;
+    background:var(--bg2); border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .topbar .title{ font-weight:800; font-size:15px; letter-spacing:-.01em; }
+  .topbar .title span{ color:var(--muted); font-weight:500; }
+  .topbar .spacer{ flex:1; }
+  .nav-btn{
+    background:#13294a; color:var(--blue); border:1px solid #1d3a66; border-radius:8px;
+    padding:7px 14px; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .nav-btn:hover{ filter:brightness(1.25); }
+  .nav-btn:disabled{ opacity:.35; cursor:default; }
+  .counter{ font-variant-numeric:tabular-nums; font-weight:800; color:#fff; font-size:15px; min-width:60px; text-align:center; }
+  select#jump{
+    background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:8px;
+    padding:7px 10px; font-size:13px; max-width:340px;
+  }
+  .time-chip{
+    font-variant-numeric:tabular-nums; font-family:monospace; font-weight:700;
+    background:#33270a; color:var(--amber); border:1px solid #5a4410;
+    padding:6px 12px; border-radius:999px; font-size:14px;
+  }
+
+  /* ---------- Cronómetro ---------- */
+  .timer{ display:flex; align-items:center; gap:8px; padding:4px 10px 4px 6px; background:#0c1320; border:1px solid var(--line); border-radius:12px; }
+  .tm-btn{ background:var(--green); color:#06140c; border:none; border-radius:8px; padding:7px 13px; font-weight:800; cursor:pointer; font-size:14px; white-space:nowrap; }
+  .tm-btn.running{ background:var(--amber); color:#1a1400; }
+  .tm-btn:hover{ filter:brightness(1.1); }
+  .tm-clock{ font-family:monospace; font-weight:800; font-size:21px; color:#fff; font-variant-numeric:tabular-nums; min-width:64px; text-align:center; }
+  .tm-reset{ background:#1b2433; color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:6px 9px; cursor:pointer; font-size:15px; }
+  .tm-reset:hover{ color:#fff; }
+  .tm-status{ font-size:12.5px; font-weight:700; font-family:monospace; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .tm-status.ontime{ background:#0f2e1c; color:var(--green); }
+  .tm-status.behind{ background:#3a1414; color:var(--red); }
+  .tm-status.ahead{  background:#13294a; color:var(--blue); }
+  .tm-status.idle{   color:var(--muted); }
+
+  /* ---------- Stage ---------- */
+  .stage{ flex:1 1 auto; overflow-y:auto; padding:36px 8vw 90px; }
+  .slide{ display:none; max-width:1000px; margin:0 auto; animation:fade .15s ease; }
+  .slide.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .kicker{ color:var(--blue); font-weight:700; font-size:13px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 6px; }
+  .slide h2{ font-size:34px; line-height:1.12; margin:0 0 6px; color:#fff; font-weight:800; letter-spacing:-.01em; }
+  .slide .range{ color:var(--muted); font-size:15px; margin:0 0 22px; font-family:monospace; }
+
+  .block{ background:var(--bg2); border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin:0 0 16px; }
+  .block.say{ border-left:4px solid var(--blue); }
+  .block.demo{ border-left:4px solid var(--green); background:#0d1a12; }
+  .block.goal{ border-left:4px solid var(--amber); background:#161202; }
+  .block.recap{ border-left:4px solid var(--purple); }
+  .block-label{ font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .say   .block-label{ color:var(--blue); }
+  .demo  .block-label{ color:var(--green); }
+  .goal  .block-label{ color:var(--amber); }
+  .recap .block-label{ color:var(--purple); }
+
+  .slide ul{ margin:0; padding-left:22px; }
+  .slide li{ font-size:20px; line-height:1.5; margin:7px 0; }
+  .slide li ul{ margin:4px 0 4px; }
+  .slide li li{ font-size:18px; color:var(--muted); margin:3px 0; }
+  .slide li li strong{ color:var(--fg); }
+  .slide strong{ color:#fff; }
+  .slide ol{ margin:0; padding-left:24px; }
+  .slide ol li{ font-size:20px; }
+
+  .goal .goal-text{ font-size:21px; line-height:1.45; margin:0; }
+
+  .hint{ text-align:center; color:var(--muted); font-size:13px; margin-top:24px; }
+  kbd{ background:#1b2433; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 7px; font-family:monospace; font-size:12px; color:var(--fg); }
+
+  /* progress bar */
+  .progress{ height:3px; background:#13294a; flex:0 0 auto; }
+  .progress > div{ height:100%; background:linear-gradient(90deg,var(--blue),var(--green),var(--purple)); transition:width .15s; }
+
+  /* extra cards inside slides */
+  .note-extra{ background:#0c1320; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:0 0 16px; font-size:16px; color:var(--muted); }
+  .note-extra b{ color:var(--fg); }
+
+  /* tabla embebida en notas */
+  .mini-table{ width:100%; border-collapse:collapse; margin:6px 0 4px; font-size:16px; }
+  .mini-table th,.mini-table td{ border:1px solid var(--line); padding:7px 10px; text-align:left; }
+  .mini-table th{ background:#13294a; color:#fff; font-size:14px; }
+  .mini-table tr:nth-child(even) td{ background:#0c1320; }
+  .mini-table td strong{ color:#fff; }
+
+  /* ---------- Guion hablado (teleprompter) ---------- */
+  .divider{ display:flex; align-items:center; gap:14px; margin:30px 0 16px; color:var(--teal); font-size:13px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+  .divider::before,.divider::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--teal),transparent); opacity:.5; }
+  .script{
+    background:#0a1418; border:1px solid #14333a; border-left:4px solid var(--teal);
+    border-radius:14px; padding:20px 26px; margin:0 0 16px;
+  }
+  .script p{ font-size:21px; line-height:1.62; margin:0 0 16px; color:#dbe8ee; }
+  .script p:last-child{ margin-bottom:0; }
+  .script ul,.script ol{ margin:0 0 16px; padding-left:24px; }
+  .script li{ font-size:20px; line-height:1.55; margin:6px 0; color:#dbe8ee; }
+  .script strong{ color:#fff; }
+  .script em{ color:var(--muted); }
+  .script .stage-note{ color:var(--green); font-style:italic; }
+  .script pre{ background:#06121a; border:1px solid #14333a; border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:15px; color:#bfe7ec; line-height:1.45; font-family:"SFMono-Regular",Consolas,Menlo,monospace; }
+
+  /* inline gloss para siglas */
+  .gloss{ color:var(--teal); font-weight:600; font-size:.8em; white-space:nowrap; }
+
+  /* ---------- Glosario (overlay) ---------- */
+  .glos-overlay{
+    position:fixed; inset:0; background:rgba(4,8,14,.82); backdrop-filter:blur(3px);
+    display:none; align-items:flex-start; justify-content:center; z-index:50; padding:40px 20px; overflow-y:auto;
+  }
+  .glos-overlay.open{ display:flex; }
+  .glos-modal{
+    background:var(--bg2); border:1px solid var(--line); border-radius:18px;
+    max-width:1040px; width:100%; padding:26px 30px 34px; box-shadow:0 30px 80px #000a;
+  }
+  .glos-modal h2{ margin:0 0 4px; font-size:26px; color:#fff; }
+  .glos-modal .sub{ color:var(--muted); font-size:14px; margin:0 0 20px; }
+  .glos-close{ float:right; background:#3a1414; color:var(--red); border:1px solid #5a1f1f; border-radius:8px; padding:6px 13px; font-weight:700; cursor:pointer; font-size:14px; }
+  .glos-close:hover{ filter:brightness(1.3); }
+  .glos-cols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; }
+  .glos-group h3{ color:var(--blue); font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin:0 0 8px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .glos-group dl{ margin:0; }
+  .glos-group div.row{ display:flex; gap:10px; margin:7px 0; align-items:baseline; }
+  .glos-group dt{ color:var(--teal); font-weight:800; font-family:monospace; font-size:15px; min-width:92px; flex:0 0 auto; }
+  .glos-group dd{ margin:0; color:#dbe8ee; font-size:15px; line-height:1.35; }
+  .glos-group dd em{ color:var(--muted); font-style:normal; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">Notas al orador · <span>Clase 3 · Workshop SDD + Skills · 150 min · Devs MLOps</span></div>
+  <div class="timer" id="timer-group" title="Cronómetro de la charla (Espacio = iniciar/pausar)">
+    <button class="tm-btn" id="tm-toggle">▶ Iniciar</button>
+    <span class="tm-clock" id="tm-elapsed">00:00</span>
+    <button class="tm-reset" id="tm-reset" title="Reiniciar cronómetro">⟲</button>
+    <span class="tm-status idle" id="tm-status">cronómetro detenido</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="nav-btn" id="glos-btn" title="Abrir glosario de siglas (G)">📖 Glosario</button>
+  <span class="time-chip" id="time" title="Horario previsto de esta slide">⏱️ 00:00</span>
+  <select id="jump" title="Saltar a slide"></select>
+  <button class="nav-btn" id="prev">← Anterior</button>
+  <span class="counter" id="counter">1 / 28</span>
+  <button class="nav-btn" id="next">Siguiente →</button>
+</div>
+
+<div class="progress"><div id="bar"></div></div>
+
+<!-- ===== Glosario de siglas ===== -->
+<div class="glos-overlay" id="glos">
+  <div class="glos-modal">
+    <button class="glos-close" id="glos-close">✕ Cerrar (Esc)</button>
+    <h2>📖 Glosario de siglas y términos</h2>
+    <p class="sub">Lo que aparece en el workshop, agrupado. Cerrá con <kbd>Esc</kbd>, el botón ✕ o clic en el fondo.</p>
+    <div class="glos-cols">
+
+      <div class="glos-group">
+        <h3>SDD / Spec Kit</h3>
+        <dl>
+          <div class="row"><dt>SDD</dt><dd>Spec-Driven Development — <em>desarrollo dirigido por especificación</em></dd></div>
+          <div class="row"><dt>Spec Kit</dt><dd><em>toolkit open-source de GitHub que materializa SDD</em></dd></div>
+          <div class="row"><dt>specify</dt><dd><em>la CLI de Spec Kit</em></dd></div>
+          <div class="row"><dt>constitution</dt><dd><em>los principios no-negociables del proyecto (.specify/memory/)</em></dd></div>
+          <div class="row"><dt>clarify</dt><dd><em>fase opcional: cierra ambigüedades de la spec</em></dd></div>
+          <div class="row"><dt>analyze</dt><dd><em>fase opcional: gate de consistencia spec↔plan↔tasks</em></dd></div>
+          <div class="row"><dt>IaC</dt><dd>Infrastructure as Code — <em>infra como código (la analogía clave)</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>MCP / Tools</h3>
+        <dl>
+          <div class="row"><dt>MCP</dt><dd>Model Context Protocol — <em>el "USB-C" de la IA, conectividad</em></dd></div>
+          <div class="row"><dt>FastMCP</dt><dd><em>la API del SDK oficial mcp para escribir servers rápido</em></dd></div>
+          <div class="row"><dt>stdio</dt><dd>Standard Input/Output — <em>transporte local (mismo árbol de proceso)</em></dd></div>
+          <div class="row"><dt>JSON-RPC</dt><dd>JSON Remote Procedure Call — <em>el protocolo que habla MCP</em></dd></div>
+          <div class="row"><dt>tool</dt><dd><em>función invocable por el modelo (con @mcp.tool())</em></dd></div>
+          <div class="row"><dt>httpx</dt><dd><em>cliente HTTP async de Python</em></dd></div>
+          <div class="row"><dt>SDK</dt><dd>Software Development Kit — <em>kit de desarrollo (acá, el paquete mcp)</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Skills / Claude Code</h3>
+        <dl>
+          <div class="row"><dt>Skill</dt><dd><em>carpeta con un SKILL.md: un procedimiento versionado</em></dd></div>
+          <div class="row"><dt>SKILL.md</dt><dd><em>frontmatter YAML (name, description) + instrucciones</em></dd></div>
+          <div class="row"><dt>frontmatter</dt><dd><em>el bloque YAML entre --- al inicio del archivo</em></dd></div>
+          <div class="row"><dt>YAML</dt><dd>YAML Ain't Markup Language — <em>formato de configuración legible</em></dd></div>
+          <div class="row"><dt>progressive disclosure</dt><dd><em>carga perezosa en 3 niveles: name+desc → body → archivos</em></dd></div>
+          <div class="row"><dt>/init</dt><dd><em>comando que genera el CLAUDE.md leyendo el repo</em></dd></div>
+          <div class="row"><dt>/mcp</dt><dd><em>comando que muestra el estado de los MCP conectados</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Entorno / Stack</h3>
+        <dl>
+          <div class="row"><dt>uv / uvx</dt><dd><em>gestor de entornos/paquetes de Astral (uvx = uv tool run)</em></dd></div>
+          <div class="row"><dt>Flask</dt><dd><em>microframework web de Python</em></dd></div>
+          <div class="row"><dt>sqlite3</dt><dd><em>módulo de la stdlib para SQLite (DB en un archivo)</em></dd></div>
+          <div class="row"><dt>curl</dt><dd><em>cliente HTTP de terminal para probar endpoints</em></dd></div>
+          <div class="row"><dt>stdlib</dt><dd>standard library — <em>biblioteca estándar de Python</em></dd></div>
+          <div class="row"><dt>OAuth</dt><dd>Open Authorization — <em>el login por navegador de Claude Code</em></dd></div>
+          <div class="row"><dt>WSL2</dt><dd>Windows Subsystem for Linux 2 — <em>recomendado en Windows</em></dd></div>
+          <div class="row"><dt>MLOps</dt><dd>Machine Learning Operations — <em>operar modelos en producción</em></dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- ===== Slide 0 — Portada ===== -->
+  <section class="slide" data-time="⏱️ 00:00–00:02">
+    <p class="kicker">Slide 0 · Bloque 0</p>
+    <h2>Portada — Workshop SDD + Skills</h2>
+    <p class="range">⏱️ 00:00–00:02 · Apertura</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Bienvenida corta. <em>"Clase 3, y hoy lo construimos end-to-end."</em></li>
+        <li>El valor está en el teclado de ellos, no en tus slides.</li>
+        <li>Confirmá que todos tienen una terminal y Claude Code a mano.</li>
+        <li>▶ Avanzá enseguida.</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · Bloque 0 · Bienvenida</div>
+    <div class="script">
+      <p>"Bienvenidos a la Clase 3. En las clases 1 y 2 vimos el puente de ML clásico a LLMs y agentes, vibe coding contra Spec-Driven Development, MCP como el USB-C para agentes, y las Skills como carpetas con procedimientos. <strong>Hoy no miramos slides: hoy lo construimos end-to-end, con las manos en el teclado.</strong> Al final de estas dos horas y media, cada uno de ustedes va a tener una app, un MCP propio y una Skill, todo dirigido por specs."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 1 — Recap ===== -->
+  <section class="slide" data-time="⏱️ 00:02–00:04">
+    <p class="kicker">Slide 1 · Bloque 0</p>
+    <h2>Recap clases 1 y 2</h2>
+    <p class="range">⏱️ 00:02–00:04</p>
+    <div class="block recap">
+      <p class="block-label">💬 Recap (solo reconectar)</p>
+      <ul>
+        <li>4 piezas: agent loop · vibe vs SDD · MCP (conectividad) · Skills (procedimiento).</li>
+        <li>No re-expliques. Disparador: <em>"¿se acuerdan del agent loop?"</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Hoy bajamos las 4 piezas a un proyecto real. La estrella es <strong>SDD</strong> conectando todo."</p>
+    </div>
+    <div class="divider">📜 Guion completo · Bloque 0 · Reconexión</div>
+    <div class="script">
+      <p>"Rápido, para reconectar: vimos que un agente es un LLM en un loop con tools y memoria. Vimos que el vibe coding —tirarle un prompt suelto y aceptar lo que sale— no escala, y que SDD da vuelta eso: la spec gobierna, el código es output. Vimos MCP como la capa de conectividad estándar, y las Skills como los procedimientos versionados de tu equipo. <strong>Hoy esas cuatro piezas dejan de ser teoría: las vamos a usar juntas, en vivo.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 2 — Agenda ===== -->
+  <section class="slide" data-time="⏱️ 00:04–00:05">
+    <p class="kicker">Slide 2 · Bloque 0</p>
+    <h2>Agenda · reparto de bloques</h2>
+    <p class="range">⏱️ 00:04–00:05</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Recorré los 6 bloques en 30 segundos.</li>
+        <li>Subrayá: <strong>B2, B3 y B4 (105 min) son 100% manos al teclado.</strong></li>
+        <li><em>"Si a alguien le falla el entorno, lo arreglamos AHORA, no en el minuto 40."</em></li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Reparto:</b> B0 Apertura 10' · B1 Fundamentos SDD 25' · B2 Setup 25' · B3 Flujo completo 45' · B4 Skill+MCP 35' · B5 Cierre 10'. <b>Total 150'.</b>
+    </div>
+    <div class="divider">📜 Guion completo · Bloque 0 · Hoja de ruta</div>
+    <div class="script">
+      <p>"El plan: arrancamos con 25 minutos de fundamentos de SDD y Spec Kit en detalle. Después, 25 minutos de setup, todos armando su repo. Luego el plato fuerte: 45 minutos haciendo el flujo SDD completo sobre un problema real, y 35 minutos construyendo un MCP propio y una Skill. Cerramos con 10 minutos de reflexión. <strong>De los 150 minutos, 105 son con las manos en el teclado.</strong> Por eso lo primero es asegurarnos de que el entorno de todos esté verde."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 3 — Checklist de entorno ===== -->
+  <section class="slide" data-time="⏱️ 00:05–00:10">
+    <p class="kicker">Slide 3 · Bloque 0</p>
+    <h2>Checklist de entorno (en vivo)</h2>
+    <p class="range">⏱️ 00:05–00:10 · Todos tipean</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos al teclado)</p>
+      <ul>
+        <li>Que cada uno corra: <code>python3 --version</code> · <code>uv --version</code> · <code>claude doctor</code> · <code>specify check</code>.</li>
+        <li>Detectá rojos rápido. Pediles un pulgar arriba cuando tengan los tres en verde.</li>
+        <li>Quien tenga rojo: emparejalo y abrí el apéndice de troubleshooting del material previo.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Umbral de decisión</p>
+      <p class="goal-text">Si <strong>más del 20%</strong> tiene algo roto, corré el Bloque 2 como "setup asistido" extendido y recortá 10 min del Bloque 3 (una sola pasada de SDD).</p>
+    </div>
+    <div class="divider">📜 Guion completo · Bloque 0 · Verificación</div>
+    <div class="script">
+      <p>"Antes de tocar nada, verifiquemos el entorno. Abran una terminal y corran estos cuatro comandos. <span class='stage-note'>[esperá a que tipeen]</span> Me interesa ver tres cosas en verde: Python 3.11 o más, uv respondiendo, Claude Code con <code>claude doctor</code> sin errores graves, y <code>specify check</code> que detecta el agente. <strong>Si a alguien le aparece algo en rojo, levantá la mano ahora.</strong> Esto lo resolvemos acá, porque si entramos al setup en vivo con el entorno roto, perdemos el tiempo de todos."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 4 — Qué es SDD ===== -->
+  <section class="slide" data-time="⏱️ 00:10–00:14">
+    <p class="kicker">Slide 4 · Bloque 1</p>
+    <h2>Spec-Driven Development</h2>
+    <p class="range">⏱️ 00:10–00:14 · Bloque 1 — Fundamentos (25 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Vibe coding: el código <em>parece</em> bien pero no anda o resuelve otra cosa. Se pierde la intención.</li>
+        <li>SDD da vuelta la jerarquía: la spec es la única fuente de verdad; el código se regenera.</li>
+        <li>La analogía que tiene que pegar: <strong>IaC, pero para el código</strong>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"En SDD no parcheás el código: <strong>cambiás la spec y regenerás</strong>. Debuggear es arreglar la spec."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1 · Qué es SDD</div>
+    <div class="script">
+      <p>"Cuando le tirás un prompt suelto a un agente —'hacéme una API de inventario'— pasa lo de siempre: el código parece correcto, pero no compila, o resuelve otra cosa, o elige un stack que no es el tuyo. Eso es vibe coding, y está bien para un prototipo del viernes, pero no escala. El problema no es el modelo: es que lo tratamos como un buscador cuando es un programador de a pares muy literal que necesita instrucciones sin ambigüedad.</p>
+      <p>SDD da vuelta la jerarquía: en vez de que la spec sirva al código, el código sirve a la spec. <strong>La especificación es la única fuente de verdad, y el código pasa a ser el output que se regenera.</strong> Para ustedes, MLOps, esto es familiar: es Infrastructure-as-Code, pero para el código. Igual que no editás un server a mano sino que cambiás el Terraform y reaplicás, en SDD no parcheás el código: cambiás la spec y regenerás. Debuggear es arreglar la spec; refactorizar es reescribir para que la spec sea más clara."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 5 — Qué es Spec Kit ===== -->
+  <section class="slide" data-time="⏱️ 00:14–00:17">
+    <p class="kicker">Slide 5 · Bloque 1</p>
+    <h2>Spec Kit, en una slide</h2>
+    <p class="range">⏱️ 00:14–00:17</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Toolkit open-source de GitHub que materializa SDD para agentes de código.</li>
+        <li>CLI <code>specify</code>, bootstrapea el repo con plantillas y slash-commands.</li>
+        <li>El flujo tiene fases con checkpoints. <em>"Vos manejás el volante, el agente escribe."</em></li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>⚠️ Dato con fecha:</b> última release estable <b>0.8.18</b> (29-may-2026), 0.9.0 en desarrollo. Verificá <code>specify check</code> el día de la clase y pinneá versión si querés que todos vean lo mismo (<code>@v0.8.18</code>).
+    </div>
+    <div class="divider">📜 Guion completo · 1 · Qué es Spec Kit</div>
+    <div class="script">
+      <p>"Spec Kit es el toolkit open-source de GitHub que materializa SDD para agentes de código —Claude Code, Copilot, Gemini y otros—. Trae una CLI llamada <code>specify</code> que bootstrapea tu repo con plantillas y slash-commands. El flujo tiene fases con checkpoints: primero una constitución con los principios no-negociables del proyecto, después specify —el qué y el porqué—, plan —el cómo técnico—, tasks —el desglose accionable— e implement —la construcción—. <strong>La idea es que vos manejás el volante y el agente escribe.</strong> Hoy lo vamos a correr entero sobre un problema real."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 6 — Flujo de comandos ===== -->
+  <section class="slide" data-time="⏱️ 00:17–00:22">
+    <p class="kicker">Slide 6 · Bloque 1</p>
+    <h2>El flujo de comandos /speckit.*</h2>
+    <p class="range">⏱️ 00:17–00:22 · Spec Kit en detalle</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (comando por comando)</p>
+      <ul>
+        <li><code>constitution</code> → principios · <code>specify</code> → el qué · <code>clarify</code> (opc) → ambigüedades</li>
+        <li><code>plan</code> → el cómo técnico · <code>tasks</code> → desglose · <code>analyze</code> (opc) → gate de consistencia · <code>implement</code> → construye</li>
+        <li><strong>clarify y analyze son los gates de calidad</strong> — eso es lo que NO tiene el vibe coding.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Ojo con los nombres</p>
+      <p class="goal-text">Hoy llevan prefijo: <code>/speckit.specify</code>, etc. El flag de init es <strong><code>--integration claude</code></strong>; el viejo <code>--ai</code> quedó deprecado.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1 · El flujo en detalle</div>
+    <div class="script">
+      <p>"Veamos el flujo comando por comando, porque en un rato lo vamos a tipear. <code>/speckit.constitution</code> sienta los principios no-negociables. <code>/speckit.specify</code> describe qué construir y por qué, sin entrar en el cómo. <code>/speckit.clarify</code> —opcional pero recomendado— hace preguntas para cerrar ambigüedades, y acá es donde gobernás la intención. <code>/speckit.plan</code> define el cómo técnico, el stack. <code>/speckit.tasks</code> lo baja a un desglose accionable. <code>/speckit.analyze</code> —otro gate— chequea que spec, plan y tasks no se contradigan. Y <code>/speckit.implement</code> construye. <strong>La diferencia con el vibe coding son justamente esos checkpoints revisables entre fase y fase.</strong> Y un detalle importante: los nombres cambiaron, hoy llevan el prefijo <code>speckit.</code>, y el flag de init es <code>--integration claude</code>, no el viejo <code>--ai</code>."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 7 — Dónde viven los artefactos ===== -->
+  <section class="slide" data-time="⏱️ 00:22–00:26">
+    <p class="kicker">Slide 7 · Bloque 1</p>
+    <h2>Dónde viven los artefactos</h2>
+    <p class="range">⏱️ 00:22–00:26</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Constitución en <code>.specify/memory/constitution.md</code>; comandos en <code>.claude/commands/</code>.</li>
+        <li>Por feature: <code>specs/&lt;N&gt;-&lt;nombre&gt;/spec.md · plan.md · tasks.md</code>.</li>
+        <li><strong>Todo se commitea.</strong> Versionado, revisable en un PR.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El punto para MLOps</p>
+      <p class="goal-text">Cuando alguien pregunta "¿por qué el código hace X?", la respuesta está en <strong>spec.md</strong>, no en un chat perdido.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1 · Los artefactos</div>
+    <div class="script">
+      <p>"¿Dónde queda todo esto? La constitución vive en <code>.specify/memory/constitution.md</code>. Los slash-commands en <code>.claude/commands/</code>. Y por cada feature, Spec Kit crea una carpeta <code>specs/</code> numerada con tres archivos: <code>spec.md</code> —qué construir—, <code>plan.md</code> —cómo— y <code>tasks.md</code> —la lista ejecutable—. Lo importante para ustedes: <strong>todo esto se commitea</strong>. La spec, el plan y las tareas viven en el repo, versionados y revisables en un PR, igual que cualquier otra parte del sistema. Cuando dentro de seis meses alguien pregunte por qué el código hace algo, la respuesta está en la spec, no en un chat que ya nadie tiene."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 8 — Adaptar SDD ===== -->
+  <section class="slide" data-time="⏱️ 00:26–00:35">
+    <p class="kicker">Slide 8 · Bloque 1</p>
+    <h2>Adaptar el flujo a tu empresa</h2>
+    <p class="range">⏱️ 00:26–00:35 · Cierre del Bloque 1</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>El flujo es un template que adaptás: constitución propia, gates propios, convenciones de stack.</li>
+        <li>Sembrá el cierre: <em>"más tarde encodeamos esto como Skills a medida del equipo".</em></li>
+      </ul>
+    </div>
+    <div class="block demo">
+      <p class="block-label">🖐️ Ejercicio (anotan)</p>
+      <ul>
+        <li>Pediles que anoten <strong>3 reglas que pondrían en la constitución de SU proyecto</strong>.</li>
+        <li>Guardalo: se reconecta en el Bloque 5 ("diseñá tu propio SDD").</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · 1 · Tu propio SDD</div>
+    <div class="script">
+      <p>"Algo clave: este flujo no es sagrado. Es un template que cada empresa adapta. Vos definís tu propia constitución —tu stack, tus reglas de seguridad, tu estilo, tu data residency—; tus propios gates de calidad —qué tiene que pasar <code>analyze</code> antes de implementar—; y tus convenciones de stack. <span class='stage-note'>[pedí el ejercicio]</span> Tómense treinta segundos y anoten tres reglas que pondrían en la constitución de su propio proyecto. Guárdenlas, porque al final de la clase las vamos a usar para algo: <strong>vamos a ver cómo encodear cada fase de tu SDD como una Skill a medida de tu equipo.</strong> Ahora, vamos a las manos en el teclado."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 9 — Setup repo ===== -->
+  <section class="slide" data-time="⏱️ 00:35–00:45">
+    <p class="kicker">Slide 9 · Bloque 2</p>
+    <h2>Armá tu repo y abrí Claude Code</h2>
+    <p class="range">⏱️ 00:35–00:45 · Bloque 2 — Setup (25 min)</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean)</p>
+      <ul>
+        <li><code>mkdir taller-sdd && cd taller-sdd && git init</code></li>
+        <li><code>claude</code> → primera vez, autenticar en el navegador.</li>
+        <li>Dentro de Claude Code: <code>/init</code> → genera el <code>CLAUDE.md</code>.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Si falta Claude Code:</b> nativo <code>curl -fsSL https://claude.ai/install.sh | bash</code> (recomendado, sin Node). npm es legado (Node 18+). <b>Nunca</b> <code>sudo npm</code>.
+    </div>
+    <div class="divider">📜 Guion completo · 2 · El repo</div>
+    <div class="script">
+      <p>"Ahora cada uno arma su repo. Tres comandos: creás la carpeta <code>taller-sdd</code>, entrás, y hacés <code>git init</code>. <span class='stage-note'>[esperá]</span> Después corren <code>claude</code>. Si es la primera vez, les va a abrir el navegador para autenticar —necesitan plan Pro, Max, Team o Enterprise—. Y una vez adentro de Claude Code, tipeen <code>/init</code>: eso analiza el repo y genera el <code>CLAUDE.md</code>, que es la memoria del proyecto. Está vacío todavía, pero deja la base. <strong>El que todavía no tenga Claude Code instalado, usá el instalador nativo, que no depende de Node y se autoactualiza.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 10 — Instalar Spec Kit ===== -->
+  <section class="slide" data-time="⏱️ 00:45–00:55">
+    <p class="kicker">Slide 10 · Bloque 2</p>
+    <h2>Instalá Spec Kit en el repo</h2>
+    <p class="range">⏱️ 00:45–00:55</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean)</p>
+      <ul>
+        <li><code>specify init . --integration claude</code> (en la carpeta del repo).</li>
+        <li>Verificación grupal: <code>ls .specify/ .claude/commands/</code>.</li>
+        <li>Dentro de Claude Code, tipear <code>/</code> y confirmar que aparecen los <code>/speckit.*</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Troubleshooting frecuente</p>
+      <p class="goal-text">¿No aparecen los comandos? <strong>Reiniciá Claude Code</strong> (descubre comandos al arrancar) y confirmá la carpeta. Usá <code>--integration claude</code>, no <code>--ai</code>.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 2 · Spec Kit en el repo</div>
+    <div class="script">
+      <p>"Con el repo listo, instalamos Spec Kit adentro. El comando es <code>specify init punto --integration claude</code> —el punto significa 'en el directorio actual'—. Eso instala las plantillas en <code>.specify/</code> y los slash-commands en <code>.claude/commands/</code>. <span class='stage-note'>[esperá]</span> Verifiquen con <code>ls</code> que esas dos carpetas existen. Y ahora, dentro de Claude Code, tipeen una barra: <code>/</code>, y confirmen que aparecen todos los <code>/speckit punto algo</code>. <strong>Si no los ven, casi siempre es porque hay que reiniciar Claude Code —descubre los comandos al arrancar la sesión— o porque están en la carpeta equivocada.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 11 — Checklist de setup ===== -->
+  <section class="slide" data-time="⏱️ 00:55–01:00">
+    <p class="kicker">Slide 11 · Bloque 2</p>
+    <h2>Checklist antes de seguir</h2>
+    <p class="range">⏱️ 00:55–01:00 · Cierre de setup</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué hacer</p>
+      <ul>
+        <li>Pausá. Confirmación a mano alzada de los 5 ítems.</li>
+        <li><strong>Nadie entra al Bloque 3 con esto en rojo.</strong> Es el último checkpoint antes de la práctica grande.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Los 5:</b> repo con git · logueado + CLAUDE.md · <code>specify init</code> OK · veo los <code>/speckit.*</code> · existen <code>.specify/</code> y <code>.claude/commands/</code>.
+    </div>
+    <div class="divider">📜 Guion completo · 2 · Checkpoint</div>
+    <div class="script">
+      <p>"Pausemos un segundo para sincronizar. Necesito que todos tengan estos cinco en verde: el repo con git inicializado, logueados en Claude Code con el CLAUDE.md generado, el <code>specify init</code> corrido, los comandos <code>/speckit</code> visibles, y las carpetas <code>.specify</code> y <code>.claude/commands</code> existiendo. <span class='stage-note'>[confirmación a mano alzada]</span> <strong>El que tenga algo en rojo, lo vemos ahora, porque lo que viene es la práctica grande y no quiero que nadie la arranque trabado.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 12 — El problema + estimación ===== -->
+  <section class="slide" data-time="01:00–01:05">
+    <p class="kicker">Slide 12 · Bloque 3</p>
+    <h2>El problema + estimación a mano</h2>
+    <p class="range">⏱️ 01:00–01:05 · Bloque 3 — Flujo completo (45 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Entregá el <code>.md</code> del problema (<code>entregables/problema-inventario.md</code>). <strong>No menciones a Claude todavía.</strong></li>
+        <li>API local de inventario: Flask + sqlite3, 4 endpoints, seed, validaciones, curl.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El gancho</p>
+      <p class="goal-text">"Primero ESTIMÁ cuánto tardarías a mano: DB + server + 4 endpoints + seed + pruebas curl. <strong>Anotá tu número en minutos.</strong> Al final lo comparamos."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 3 · El problema</div>
+    <div class="script">
+      <p>"Les paso un documento con un problema: una API local de inventario de modelos. Flask, SQLite con el módulo sqlite3 de la stdlib, un solo <code>app.py</code>, cuatro endpoints —listar modelos, traer uno por id, crear uno, y un health check—, con datos de ejemplo y validaciones, todo probable con curl. <strong>Antes de automatizar nada, quiero que hagan un ejercicio: estimen cuánto tardarían en hacer TODO esto a mano. La base, el server, los cuatro endpoints, el seed y las pruebas con curl. Anoten el número en minutos.</strong> <span class='stage-note'>[esperá a que anoten]</span> Guárdenlo. En un rato lo vamos a comparar con lo que tarda el flujo SDD."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 13 — Flujo overview ===== -->
+  <section class="slide" data-time="01:05–01:08">
+    <p class="kicker">Slide 13 · Bloque 3</p>
+    <h2>Se lo damos a Claude Code vía SDD</h2>
+    <p class="range">⏱️ 01:05–01:08</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>"Ahora se lo damos a Claude Code, pero vía SDD, no vibe coding."</li>
+        <li>Marcá el ritmo: <strong>vamos comando por comando, todos juntos</strong>.</li>
+        <li>En cada checkpoint, abrí el artefacto generado y leé unas líneas en voz alta.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El punto pedagógico</p>
+      <p class="goal-text">"No es un botón mágico. Es un proceso con checkpoints donde <strong>vos leés y aprobás entre fase y fase</strong>."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 3 · El flujo en vivo</div>
+    <div class="script">
+      <p>"Ahora se lo damos a Claude Code, pero no con un prompt suelto: vía SDD. Vamos a ir comando por comando, todos juntos, al mismo ritmo. Y en cada paso voy a abrir el artefacto que se generó y vamos a leer unas líneas. <strong>Quiero que vean que esto no es un botón mágico que escupe código: es un proceso con checkpoints donde ustedes leen y aprueban entre fase y fase.</strong> Ese control humano en cada gate es exactamente lo que el vibe coding no te da."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 14 — constitution + specify + clarify ===== -->
+  <section class="slide" data-time="01:08–01:25">
+    <p class="kicker">Slide 14 · Bloque 3</p>
+    <h2>Constitución → Spec → Clarify</h2>
+    <p class="range">⏱️ 01:08–01:25 · El corazón del bloque</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean, a la par)</p>
+      <ul>
+        <li><code>/speckit.constitution</code> con: local y simple, stdlib + Flask, sqlite3, sin auth, tests con curl, documentado.</li>
+        <li><code>/speckit.specify</code> pegando el contenido de <code>problema-inventario.md</code>.</li>
+        <li><code>/speckit.clarify</code> → respondé las preguntas en vivo, mostrá cómo se actualiza la spec.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Lo que tiene que quedar</p>
+      <p class="goal-text">Abrí <code>spec.md</code> después del specify y mostrá que es <strong>legible</strong>. El clarify es donde gobernás la intención: evita que el agente rellene supuestos solo.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 3 · Constitución, spec, clarify</div>
+    <div class="script">
+      <p>"Arrancamos con la constitución. Tipeen <code>/speckit.constitution</code> y le dicen las reglas: proyecto local y simple, solo stdlib más Flask, SQLite con el módulo sqlite3, sin auth, tests con curl, código documentado. <span class='stage-note'>[esperá]</span> Eso escribe la constitución del proyecto.</p>
+      <p>Ahora el <code>/speckit.specify</code>: péguenle el contenido del documento del problema. Claude genera <code>spec.md</code>. <span class='stage-note'>[abrí spec.md y leé unas líneas]</span> Miren que es legible, son los requisitos en prosa estructurada, no código.</p>
+      <p>Y acá viene la parte clave: <code>/speckit.clarify</code>. Claude hace preguntas concretas —'¿accuracy se rechaza fuera de cero a uno?', '¿created_at en UTC?'—. <strong>Respóndanlas en vivo y miren cómo se actualiza la spec.</strong> Esto es lo que evita que el agente rellene supuestos por su cuenta. Acá es donde ustedes gobiernan la intención."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 15 — plan + tasks + analyze + implement ===== -->
+  <section class="slide" data-time="01:25–01:42">
+    <p class="kicker">Slide 15 · Bloque 3</p>
+    <h2>Plan → Tasks → Analyze → Implement</h2>
+    <p class="range">⏱️ 01:25–01:42</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean)</p>
+      <ul>
+        <li><code>/speckit.plan</code> indicando Flask + sqlite3 stdlib. <code>/speckit.tasks</code>.</li>
+        <li><code>/speckit.analyze</code> → el gate de consistencia.</li>
+        <li><code>/speckit.implement</code> → mientras corre, <strong>narrá qué está haciendo</strong>. Después, curl a los 4 endpoints.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Explicá el gate</p>
+      <p class="goal-text"><code>analyze</code> chequea que spec, plan y tasks no se contradigan <strong>antes</strong> de escribir una línea de código. Si hay inconsistencia, la marca acá.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 3 · Plan, tasks, analyze, implement</div>
+    <div class="script">
+      <p>"Seguimos. <code>/speckit.plan</code>, y le aclaran el stack: Flask más el módulo sqlite3 de la stdlib, sin dependencias extra. Eso genera <code>plan.md</code> con la arquitectura, el esquema SQL y los contratos. Después <code>/speckit.tasks</code>, que lo baja a una lista de tareas concretas.</p>
+      <p>Antes de implementar, corremos <code>/speckit.analyze</code>. <strong>Este es un gate: chequea que la spec, el plan y las tareas no se contradigan, antes de escribir una sola línea de código.</strong> Si algo no cierra, lo marca acá, que es barato, en vez de descubrirlo en producción.</p>
+      <p>Y ahora sí: <code>/speckit.implement</code>. <span class='stage-note'>[mientras corre, narrá: está creando app.py, inicializando la DB, insertando los seeds...]</span> Cuando termine, probamos en vivo con curl los cuatro endpoints. Health, listar, crear uno nuevo, y traerlo por id."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 16 — Comparación ===== -->
+  <section class="slide" data-time="01:42–01:45">
+    <p class="kicker">Slide 16 · Bloque 3</p>
+    <h2>SDD vs vibe coding</h2>
+    <p class="range">⏱️ 01:42–01:45 · Cierre del Bloque 3</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué preguntar</p>
+      <ul>
+        <li><em>"¿Quién tardó menos que su estimación a mano?"</em></li>
+        <li><em>"¿Qué parte les sorprendió?"</em> — dejá que respondan.</li>
+        <li>Llevá la conversación a: lo que ganamos no es solo velocidad, es <strong>proceso</strong>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 La frase de cierre</p>
+      <p class="goal-text">"Lo que ganaste no es solo tiempo: es algo <strong>reproducible y revisable</strong>. Esa spec se commitea y se regenera mañana en otro lenguaje si hace falta."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 3 · La comparación</div>
+    <div class="script">
+      <p>"Paremos a comparar. Levanten la mano: ¿quién tardó menos que su estimación a mano? <span class='stage-note'>[dejá que respondan]</span> ¿Y qué parte los sorprendió? <span class='stage-note'>[escuchá dos o tres]</span> Pero ojo, no quiero que se queden solo con la velocidad. Miren la tabla: en vibe coding la fuente de verdad es el chat con el agente, no es reproducible, leés código a ciegas y no hay checkpoints. En SDD la fuente de verdad es la spec versionada, es reproducible, revisás spec, plan y tasks en un PR, y tenés los gates de clarify y analyze. <strong>Lo que ganaron no es solo tiempo: es un proceso reproducible y revisable.</strong> Esa spec se commitea, y si mañana hay que reimplementar en otro lenguaje, se regenera."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 17 — Objetivo B4 ===== -->
+  <section class="slide" data-time="01:45–01:48">
+    <p class="kicker">Slide 17 · Bloque 4</p>
+    <h2>Un MCP propio + una Skill, vía SDD</h2>
+    <p class="range">⏱️ 01:45–01:48 · Bloque 4 (35 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Mostrá el objetivo end-to-end: pedido → Skill → MCP → API Flask.</li>
+        <li><strong>La Skill no "habla" con la API:</strong> le dice al modelo CÓMO usar las tools que el MCP expone.</li>
+        <li>MCP = conectividad (las tools). Skill = procedimiento (cómo usarlas bien).</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El matrimonio</p>
+      <p class="goal-text">"MCP te da la <strong>capacidad</strong>. Skill te da el <strong>criterio</strong> de cómo usarla. Juntos, construís casi cualquier integración."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · El objetivo</div>
+    <div class="script">
+      <p>"Ahora subimos un escalón. Vamos a levantar un MCP propio que le pega a los endpoints de la DB que acabamos de construir, y vía specs vamos a crear una Skill que conecta todo. Miren el diagrama: el usuario pide algo en lenguaje natural, la Skill 'items-ops' aporta el procedimiento —cómo operar el inventario—, el MCP 'items-api' aporta las tools, y la API Flask ejecuta contra SQLite. <strong>Clave: la Skill no habla directamente con la API. Le dice al modelo cómo usar bien las tools que el MCP expone.</strong> MCP es la conectividad, la capacidad. Skill es el criterio, el procedimiento. Ese es el matrimonio."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 18 — MCP server código ===== -->
+  <section class="slide" data-time="01:48–01:52">
+    <p class="kicker">Slide 18 · Bloque 4</p>
+    <h2>MCP server mínimo (FastMCP, stdio)</h2>
+    <p class="range">⏱️ 01:48–01:52</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>SDK oficial <code>mcp</code> (1.27.x, Python ≥3.10). <code>from mcp.server.fastmcp import FastMCP</code>.</li>
+        <li>Cada tool se describe sola con el <strong>docstring</strong> — eso es lo que el modelo lee.</li>
+        <li>Código completo en <code>entregables/mcp-items/server.py</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El gotcha crítico</p>
+      <p class="goal-text">En stdio, <strong>NUNCA <code>print()</code> a stdout</strong> → corrompe el JSON-RPC. Por eso el logging va a <code>sys.stderr</code>.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · El código del MCP</div>
+    <div class="script">
+      <p>"Este es el MCP server mínimo, con el SDK oficial. Importás <code>FastMCP</code>, creás el server con un nombre, y cada función que decorás con <code>arroba mcp punto tool</code> se vuelve una tool invocable. Fíjense que cada tool tiene un docstring: <strong>ese docstring es exactamente lo que el modelo lee para decidir cuándo llamarla</strong>. Tenemos tres: listar modelos, traer uno por id, y agregar uno, todas pegándole a la API Flask con httpx.</p>
+      <p>Y acá va el gotcha más importante de todos, subráyenlo: <strong>en transporte stdio, nunca escriban a stdout. Un <code>print</code> corrompe el JSON-RPC y el server deja de funcionar.</strong> Por eso configuramos el logging hacia stderr. El código completo está en los entregables, no hace falta que lo copien letra por letra ahora."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 19 — crear + registrar MCP ===== -->
+  <section class="slide" data-time="01:52–02:03">
+    <p class="kicker">Slide 19 · Bloque 4</p>
+    <h2>Crear y registrar el MCP</h2>
+    <p class="range">⏱️ 01:52–02:03 · Todos al teclado</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean)</p>
+      <ul>
+        <li><code>uv init mcp-items && cd mcp-items</code> · <code>uv venv && source .venv/bin/activate</code> · <code>uv add "mcp[cli]" httpx</code>.</li>
+        <li>Pegan <code>server.py</code> (de entregables). Registran: <code>claude mcp add items-api -- uv run server.py</code>.</li>
+        <li>Verifican: <code>claude mcp list</code> y, en sesión, <code>/mcp</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Recordatorios</p>
+      <p class="goal-text"><strong>La API Flask del Bloque 3 tiene que estar corriendo</strong> para que el MCP le pegue. Los servers stdio descubren tools al inicio de sesión: si lo agregaste a mitad, abrí sesión nueva.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · Levantar y conectar el MCP</div>
+    <div class="script">
+      <p>"Manos al teclado. Creamos el proyecto del MCP con <code>uv init mcp-items</code>, entramos, creamos el venv y lo activamos, e instalamos las dependencias con <code>uv add mcp corchete cli httpx</code>. <span class='stage-note'>[esperá]</span> Ahora pegan el <code>server.py</code> de los entregables. Y lo registran en Claude Code con <code>claude mcp add items-api guion guion uv run server.py</code>. Eso lo agrega como server stdio en scope local.</p>
+      <p>Verifiquen con <code>claude mcp list</code> que aparece conectado, y adentro de la sesión con <code>/mcp</code> que ven las tres tools. <strong>Dos recordatorios importantes: primero, la API Flask del bloque anterior tiene que estar corriendo, si no el MCP no tiene a quién pegarle. Y segundo, los servers stdio descubren las tools al inicio de la sesión; si lo agregaron a mitad de una sesión, abran una nueva.</strong> Para compartirlo con el equipo, agregan <code>--scope project</code> y queda en un <code>.mcp.json</code> commiteable."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 20 — crear la Skill con SDD ===== -->
+  <section class="slide" data-time="02:03–02:12">
+    <p class="kicker">Slide 20 · Bloque 4</p>
+    <h2>Generás la Skill con el mismo flujo SDD</h2>
+    <p class="range">⏱️ 02:03–02:12</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos tipean)</p>
+      <ul>
+        <li><code>/speckit.specify</code> con la spec de la Skill (en entregables). Luego <code>plan</code>, <code>tasks</code>, <code>implement</code>.</li>
+        <li>Resultado: <code>.claude/skills/items-ops/SKILL.md</code>.</li>
+        <li>Carpeta de skills nueva → <strong>reiniciar Claude Code</strong> (no alcanza <code>/reload-skills</code> para directorios nuevos).</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El momento "aha"</p>
+      <p class="goal-text">El doble bucle: usás SDD no solo para la app, sino para construir las <strong>capacidades del agente</strong>. La Skill es un artefacto generado por spec, igual que el código.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · La Skill vía SDD</div>
+    <div class="script">
+      <p>"Y acá viene el momento que quiero que les quede grabado. Vamos a crear la Skill <strong>con el mismo flujo SDD que usamos para la app</strong>. Tipeen <code>/speckit.specify</code> con la spec de la Skill que está en los entregables —dice que quieren una Skill items-ops que opere el inventario vía las tools del MCP, que valide accuracy entre cero y uno, y que confirme el id después de un alta—. Después <code>plan</code>, <code>tasks</code> e <code>implement</code>. El resultado es un archivo <code>.claude/skills/items-ops/SKILL.md</code>.</p>
+      <p><strong>Esto es el doble bucle: usaron SDD no solo para construir el producto, sino para construir las capacidades del propio agente.</strong> La Skill es un artefacto generado por una spec, exactamente igual que el código. Un detalle operativo: como la carpeta de skills es nueva, hay que reiniciar Claude Code para que la empiece a vigilar. El <code>/reload-skills</code> sirve para editar skills existentes, no para directorios que no existían al arrancar."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 21 — El SKILL.md ===== -->
+  <section class="slide" data-time="02:12–02:15">
+    <p class="kicker">Slide 21 · Bloque 4</p>
+    <h2>El SKILL.md resultante</h2>
+    <p class="range">⏱️ 02:12–02:15</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (las reglas de oro)</p>
+      <ul>
+        <li><code>name</code>: ≤64 chars, minúsculas/números/guiones. <code>description</code>: ≤1024, 3ª persona, qué + cuándo.</li>
+        <li><strong>Nombres calificados <code>servidor:tool</code></strong> → evita "tool not found" con varios MCP.</li>
+        <li>Progressive disclosure: al arrancar solo se carga <code>name+description</code>; cuerpo &lt;500 líneas.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 Lo único que Claude lee al arrancar</p>
+      <p class="goal-text">Es el <code>description</code>. Por eso tiene que decir <strong>qué hace y cuándo usarse</strong> — si está mal escrito, la Skill no se activa nunca.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · Anatomía del SKILL.md</div>
+    <div class="script">
+      <p>"Miremos el archivo que generó. Arriba, entre tres guiones, está el frontmatter YAML. Dos campos obligatorios: <code>name</code> —máximo 64 caracteres, solo minúsculas, números y guiones— y <code>description</code> —máximo 1024 caracteres, en tercera persona, diciendo qué hace y cuándo usarse—. <strong>Ese description es lo único que Claude lee al arrancar la sesión. Si está mal escrito, la Skill no se activa nunca.</strong> Por eso dice explícitamente 'usar cuando el usuario pida ver, buscar o agregar modelos'.</p>
+      <p>En el cuerpo, las reglas: usar siempre los nombres calificados <code>items-api dos puntos list_models</code>, etcétera —eso evita errores de 'tool not found' cuando hay varios MCP conectados—, validar accuracy entre cero y uno antes de un alta, y confirmar el id después. Y todo esto con progressive disclosure: al inicio solo se cargan el nombre y la descripción; el cuerpo se lee recién cuando la tarea matchea. Por eso el cuerpo se mantiene por debajo de 500 líneas."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 22 — Probar la Skill ===== -->
+  <section class="slide" data-time="02:15–02:20">
+    <p class="kicker">Slide 22 · Bloque 4</p>
+    <h2>Prueba end-to-end</h2>
+    <p class="range">⏱️ 02:15–02:20 · Cierre del Bloque 4</p>
+    <div class="block demo">
+      <p class="block-label">🖐️ Hacer (todos prueban)</p>
+      <ul>
+        <li>Pedile a Claude en lenguaje natural: <em>"listá los modelos y agregá uno: bert-base, pytorch, 0.91"</em>.</li>
+        <li>Observen: la Skill se activa sola, valida accuracy, llama al MCP, confirma el id.</li>
+        <li>Verifican por afuera: <code>curl http://127.0.0.1:5000/models/3</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 El cierre del bloque</p>
+      <p class="goal-text">"No nombraste la Skill — <strong>se activó sola por su <code>description</code></strong>. Validó y confirmó, exactamente como dice el procedimiento. Todo el stack junto."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 4 · El stack completo funcionando</div>
+    <div class="script">
+      <p>"Probemos todo junto. Pídanle a Claude, en lenguaje natural, sin nombrar la Skill: 'listame los modelos del inventario y agregá uno: bert-base, pytorch, accuracy cero punto noventa y uno'. <span class='stage-note'>[esperá]</span> Miren lo que pasa: la Skill items-ops se activa sola, lista los modelos llamando a la tool del MCP, valida que cero punto noventa y uno está entre cero y uno, da de alta el modelo, y confirma el id leyéndolo de vuelta. Todo eso lo hizo porque el procedimiento de la Skill se lo indica.</p>
+      <p>Y para cerrar el círculo, verifiquen por afuera con curl que el dato está realmente en la base. <strong>El usuario pidió en lenguaje natural, la Skill se activó sola por su descripción, validó según el criterio del equipo, y el MCP ejecutó contra la API. Skill que da el criterio, MCP que da la capacidad, API que ejecuta. Todo el stack que construimos hoy, funcionando junto.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 23 — Skills + MCPs + imaginación ===== -->
+  <section class="slide" data-time="02:20–02:23">
+    <p class="kicker">Slide 23 · Bloque 5</p>
+    <h2>Skills + MCPs + imaginación</h2>
+    <p class="range">⏱️ 02:20–02:23 · Bloque 5 — Cierre (10 min)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>MCP = capacidad (tools hacia tus sistemas). Skill = criterio (cómo se hace acá).</li>
+        <li>Con esas dos piezas, construís casi cualquier integración.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Cita textual:</b> <em>"MCP can provide tools and resources, while Skills package the playbook for using them well."</em> — Docs de Claude (Agent Skills).
+    </div>
+    <div class="divider">📜 Guion completo · 5 · La combinación</div>
+    <div class="script">
+      <p>"Llegamos al cierre. La idea grande con la que quiero que se vayan: <strong>MCP te da la capacidad —las tools hacia tus sistemas— y Skills te dan el criterio —cómo se hace acá—. Combinando los dos, con un poco de imaginación, construís casi cualquier integración.</strong> Como dice la documentación de Claude: MCP provee las tools y los recursos, mientras que las Skills empaquetan el playbook de cómo usarlos bien. El agente deja de ser un chatbot y pasa a ser una capa más de su stack de DevEx."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 24 — Ejemplos MLOps ===== -->
+  <section class="slide" data-time="02:23–02:25">
+    <p class="kicker">Slide 24 · Bloque 5</p>
+    <h2>Skills útiles para MLOps</h2>
+    <p class="range">⏱️ 02:23–02:25</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (rápido, 2-3 ejemplos)</p>
+      <ul>
+        <li><strong>run-training:</strong> captura la receta reproducible de lanzar un entrenamiento (env, vars, script).</li>
+        <li><strong>data-drift-check:</strong> corre un <code>drift.py</code> bundleado e interpreta el reporte. Script determinístico = confiable.</li>
+        <li><strong>model-card:</strong> genera la model card con el template del equipo, tomando métricas del MCP.</li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      <b>Patrón:</b> cualquier procedimiento repetible que quieras que el agente haga <b>siempre igual</b>. El run-training refleja el <code>run-skill-generator</code> oficial.
+    </div>
+    <div class="divider">📜 Guion completo · 5 · Ejemplos para su mundo</div>
+    <div class="script">
+      <p>"Para que lo aterricen en su mundo, tres ejemplos de Skills MLOps. Una <code>run-training</code> que captura el procedimiento reproducible de levantar un entrenamiento —los comandos de entorno, las variables, el script de lanzamiento que de verdad funcionó— y queda commiteada para que todo el equipo siga la misma receta. Una <code>data-drift-check</code> que corre un script de drift bundleado entre el dataset de referencia y producción, e interpreta el reporte; al ser un script determinístico, es confiable y no gasta contexto. Y una <code>model-card</code> que genera la model card siguiendo el template del equipo, tomando las métricas del inventario vía el MCP. <strong>El patrón es siempre el mismo: cualquier procedimiento repetible que quieras que el agente haga siempre igual.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 25 — Diseñá tu propio SDD ===== -->
+  <section class="slide" data-time="02:25–02:28">
+    <p class="kicker">Slide 25 · Bloque 5</p>
+    <h2>Diseñá tu propio SDD basado en Skills</h2>
+    <p class="range">⏱️ 02:25–02:28 · El concepto central</p>
+    <div class="block recap">
+      <p class="block-label">🔗 Reconectá con el Bloque 1</p>
+      <ul>
+        <li>Acordate de las <strong>3 reglas de su constitución</strong> que anotaron al principio.</li>
+        <li>Cada fase del SDD puede ser una Skill a medida: <code>mlops-specify</code>, <code>mlops-plan</code>, <code>mlops-tasks</code>, <code>mlops-implement</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 La idea que se llevan</p>
+      <p class="goal-text">"Tu equipo deja de usar un SDD genérico y pasa a tener <strong>su propio SDD</strong>, versionado en el repo y compartible vía plugins."</p>
+    </div>
+    <div class="divider">📜 Guion completo · 5 · Tu propio SDD</div>
+    <div class="script">
+      <p>"Y acá conecto con el ejercicio del principio. ¿Se acuerdan de las tres reglas que anotaron para la constitución de su proyecto? Bueno: el flujo specify, plan, tasks, implement no es fijo. Como una Skill es solo una carpeta con un procedimiento, <strong>podés encodear cada fase de tu SDD como una Skill a medida de tu stack</strong>. Una <code>mlops-specify</code> que sepa que sus specs siempre llevan sección de datos, métricas objetivo y restricciones de latencia. Una <code>mlops-plan</code> que imponga su stack: Kubeflow, MLflow, su registry. Una <code>mlops-tasks</code> con sus convenciones de CI. Una <code>mlops-implement</code> que conozca sus repos y patrones. MCP aporta la conectividad, las Skills aportan el procedimiento. <strong>Combinándolos, su equipo deja de usar un SDD genérico y pasa a tener su propio SDD, versionado en el repo y compartible vía plugins.</strong>"</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 26 — Idea fuerza ===== -->
+  <section class="slide" data-time="02:28–02:30">
+    <p class="kicker">Slide 26 · Bloque 5</p>
+    <h2>La idea fuerza</h2>
+    <p class="range">⏱️ 02:28–02:30</p>
+    <div class="block goal">
+      <p class="block-label">🎯 LA frase de la clase (dejala respirar)</p>
+      <p class="goal-text">"La spec gobierna. El código es output. <strong>El procedimiento es versionable.</strong>"</p>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Recap de lo que hicieron con las manos</p>
+      <ul>
+        <li>Construyeron una app, un MCP y una Skill — <strong>todo dirigido por specs</strong>.</li>
+        <li>El doble bucle: SDD para el producto Y para las capacidades del agente.</li>
+        <li>Llamado a la acción: <strong>encodeá el SDD de tu equipo como Skills esta semana</strong>.</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · 5 · El cierre</div>
+    <div class="script">
+      <p>"Si se llevan una sola frase, que sea esta: <strong>la spec gobierna, el código es output, y el procedimiento es versionable.</strong> <span class='stage-note'>[pausá]</span> Hoy, en dos horas y media, ustedes construyeron una app, un MCP propio y una Skill, todo dirigido por specs. Y vieron el doble bucle: usar SDD no solo para el producto, sino para las capacidades del propio agente. El siguiente paso es de ustedes: esta semana, agarren un procedimiento real de su equipo —el deploy, el chequeo de drift, la model card— y encódenlo como una Skill. Eso es empezar a tener su propio SDD."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 27 — Preguntas ===== -->
+  <section class="slide" data-time="02:30">
+    <p class="kicker">Slide 27 · Cierre</p>
+    <h2>¿Preguntas?</h2>
+    <p class="range">⏱️ 02:30 · Q&amp;A</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Gracias + preguntas.</li>
+        <li>Recordá dónde quedan los entregables: carpeta <code>entregables/</code> (material previo, problema, server.py, SKILL.md).</li>
+        <li>Próximo paso concreto: una Skill para un procedimiento real, esta semana.</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · Cierre</div>
+    <div class="script">
+      <p>"Eso es todo. Gracias por construir en vivo conmigo. Todo lo que usamos hoy —el material previo, el documento del problema, el código del MCP server y el SKILL.md— queda en la carpeta <code>entregables</code> para que lo tengan de referencia. Y me llevo una sola tarea para ustedes: esta semana, una Skill para un procedimiento real de su equipo. <strong>¿Preguntas?</strong>"</p>
+    </div>
+  </section>
+
+</div>
+
+<p class="hint">Navegá con <kbd>←</kbd> <kbd>→</kbd> · <kbd>Espacio</kbd> inicia/pausa el cronómetro · <kbd>G</kbd> glosario · <kbd>Esc</kbd> cierra</p>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+
+  const counter = document.getElementById('counter');
+  const bar = document.getElementById('bar');
+  const timeChip = document.getElementById('time');
+  const jump = document.getElementById('jump');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  // poblar el selector de salto
+  slides.forEach((s, i) => {
+    const h2 = s.querySelector('h2');
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = (i) + ' · ' + (h2 ? h2.textContent : 'slide ' + i);
+    jump.appendChild(o);
+  });
+
+  function show(n){
+    idx = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    counter.textContent = (idx + 1) + ' / ' + total;
+    bar.style.width = ((idx) / (total - 1) * 100) + '%';
+    const t = slides[idx].dataset.time || '';
+    timeChip.textContent = t.replace('⏱️ ', '⏱️ ');
+    jump.value = idx;
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total - 1;
+    document.querySelector('.stage').scrollTop = 0;
+  }
+
+  prevBtn.onclick = () => show(idx - 1);
+  nextBtn.onclick = () => show(idx + 1);
+  jump.onchange = e => show(parseInt(e.target.value, 10));
+
+  document.addEventListener('keydown', e => {
+    if (glosOpen){
+      if (e.key === 'Escape') toggleGlos(false);
+      return;
+    }
+    if (e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { show(idx + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(idx - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(total - 1);
+    else if (e.key === ' ') { toggleTimer(); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'g') { toggleGlos(true); e.preventDefault(); }
+  });
+
+  // ---------- Cronómetro ----------
+  let running = false, elapsed = 0, tick = null;
+  const TOTAL_MIN = 150;
+  const tmBtn = document.getElementById('tm-toggle');
+  const tmClock = document.getElementById('tm-elapsed');
+  const tmStatus = document.getElementById('tm-status');
+  const tmReset = document.getElementById('tm-reset');
+
+  function fmt(s){
+    const m = Math.floor(s / 60), ss = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+  }
+  function planMinutesForIdx(i){
+    // minuto previsto de inicio de cada slide (aprox., en minutos)
+    const starts = [0,2,4,5,10,14,17,22,26,35,45,55,60,65,68,82,85,88,92,103,112,120,125,128,140,145,148,150];
+    return starts[i] || 0;
+  }
+  function updateStatus(){
+    if (!running && elapsed === 0){ tmStatus.className = 'tm-status idle'; tmStatus.textContent = 'cronómetro detenido'; return; }
+    const planSec = planMinutesForIdx(idx) * 60;
+    const diff = elapsed - planSec;
+    if (Math.abs(diff) <= 90){ tmStatus.className = 'tm-status ontime'; tmStatus.textContent = 'en horario'; }
+    else if (diff > 90){ tmStatus.className = 'tm-status behind'; tmStatus.textContent = 'atrasado ' + fmt(Math.round(diff)); }
+    else { tmStatus.className = 'tm-status ahead'; tmStatus.textContent = 'adelantado ' + fmt(Math.round(-diff)); }
+  }
+  function toggleTimer(){
+    running = !running;
+    tmBtn.classList.toggle('running', running);
+    tmBtn.textContent = running ? '⏸ Pausar' : '▶ Reanudar';
+    if (running){ tick = setInterval(() => { elapsed++; tmClock.textContent = fmt(elapsed); updateStatus(); }, 1000); }
+    else { clearInterval(tick); }
+    updateStatus();
+  }
+  tmBtn.onclick = toggleTimer;
+  tmReset.onclick = () => {
+    running = false; clearInterval(tick); elapsed = 0;
+    tmClock.textContent = '00:00'; tmBtn.classList.remove('running'); tmBtn.textContent = '▶ Iniciar';
+    updateStatus();
+  };
+
+  // ---------- Glosario ----------
+  let glosOpen = false;
+  const glos = document.getElementById('glos');
+  function toggleGlos(open){ glosOpen = open; glos.classList.toggle('open', open); }
+  document.getElementById('glos-btn').onclick = () => toggleGlos(true);
+  document.getElementById('glos-close').onclick = () => toggleGlos(false);
+  glos.onclick = e => { if (e.target === glos) toggleGlos(false); };
+
+  show(0);
+</script>
+</body>
+</html>

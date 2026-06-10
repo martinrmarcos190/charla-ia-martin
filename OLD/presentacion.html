@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de IA — Módulo 1</title>
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#161b22; --panel:#1c2230;
+    --fg:#e6edf3; --muted:#8b949e; --dim:#6e7681;
+    --accent:#d97757; --accent2:#79c0ff; --green:#56d364; --purple:#bc8cff;
+    --border:#30363d; --code:#0b0f14;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",SFMono-Regular,ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--fg); font-family:var(--font);
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Deck ---------- */
+  .deck{position:relative;width:100vw;height:100vh}
+  .slide{
+    position:absolute;inset:0;
+    display:none;flex-direction:column;justify-content:center;
+    padding:6vh 8vw 9vh;
+    opacity:0;transition:opacity .25s ease;
+  }
+  .slide.active{display:flex;opacity:1}
+  .slide h1{font-size:clamp(2.2rem,5.5vw,4.2rem);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  .slide h2{font-size:clamp(1.6rem,3.6vw,2.7rem);line-height:1.12;letter-spacing:-.015em;font-weight:750;margin-bottom:2.2rem}
+  .slide h2 .num{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.5rem}
+  .slide h3{font-size:1.15rem;color:var(--accent2);font-weight:650;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.08em}
+  ul{list-style:none;display:flex;flex-direction:column;gap:1.15rem;max-width:60ch}
+  li{font-size:clamp(1.05rem,2.1vw,1.55rem);line-height:1.35;padding-left:1.6rem;position:relative;color:var(--fg)}
+  li::before{content:"";position:absolute;left:0;top:.62em;width:.6rem;height:.6rem;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+  li .sub{display:block;font-size:.82em;color:var(--muted);margin-top:.25rem;padding-left:0}
+  strong{color:#fff;font-weight:700}
+  em{color:var(--accent2);font-style:normal}
+  code{font-family:var(--mono);background:var(--code);border:1px solid var(--border);border-radius:5px;padding:.06em .4em;font-size:.85em;color:var(--green)}
+
+  .kicker{color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:.95rem;margin-bottom:1.4rem}
+  .lead{color:var(--muted);font-size:clamp(1.1rem,2.3vw,1.6rem);margin-top:1.6rem;max-width:55ch;line-height:1.4}
+
+  /* two-column */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+  .col h3{margin-bottom:1.2rem}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem}
+  .card.classic{border-color:#3d2f2a}
+  .card.ml{border-color:#23404d}
+
+  /* mapping rows (docker analogy) */
+  .map{display:flex;flex-direction:column;gap:.9rem;max-width:none}
+  .map .row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1.2rem;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.3rem}
+  .map .row .l{text-align:right;color:var(--muted);font-family:var(--mono);font-size:1rem}
+  .map .row .r{color:#fff;font-weight:600;font-size:1.05rem}
+  .map .row .eq{color:var(--accent);font-size:1.3rem;font-weight:700}
+
+  /* code block */
+  pre{background:var(--code);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.6rem;font-family:var(--mono);font-size:clamp(.7rem,1.15vw,.95rem);line-height:1.55;overflow:auto;max-width:90ch}
+  pre .c{color:var(--dim)}
+  pre .k{color:var(--purple)}
+  pre .s{color:var(--green)}
+  pre .f{color:var(--accent2)}
+
+  /* timeline */
+  .tl{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem .035rem;max-width:none;column-gap:3rem}
+  .tl .ev{display:grid;grid-template-columns:7.5rem 1fr;gap:1rem;align-items:baseline;font-size:clamp(.78rem,1.35vw,1.02rem);padding:.18rem 0}
+  .tl .ev .d{color:var(--accent);font-family:var(--mono);font-weight:600;text-align:right;white-space:nowrap}
+  .tl .ev .t{color:var(--fg)}
+  .tl .ev .t b{color:#fff}
+
+  /* paper citation pill */
+  .cite{display:inline-block;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:0 8px 8px 0;padding:.5rem .9rem;font-size:.9rem;color:var(--muted);margin-top:.4rem;font-family:var(--mono)}
+
+  .big-eq{font-size:clamp(1.4rem,3.4vw,2.6rem);font-family:var(--mono);color:#fff;text-align:center;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.6rem;margin:1.5rem 0;letter-spacing:.02em}
+  .big-eq .op{color:var(--accent)}
+
+  .demo-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(217,119,87,.12);border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:.4rem 1rem;font-size:.9rem;font-weight:650;margin-top:1.6rem;width:fit-content;font-family:var(--mono)}
+  .demo-tag::before{content:"▶";font-size:.75rem}
+
+  .metric{font-family:var(--mono);font-weight:700;color:var(--green)}
+
+  /* SWE-bench bars */
+  .bars{display:flex;flex-direction:column;gap:1rem;max-width:none;margin-top:.5rem}
+  .bars .bar{display:grid;grid-template-columns:14rem 1fr 3.5rem;align-items:center;gap:1rem;font-size:1rem}
+  .bars .bar .lbl{color:var(--muted);text-align:right;font-size:.92rem}
+  .bars .bar .track{height:1.7rem;background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .bars .bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:5px 0 0 5px}
+  .bars .bar .pct{font-family:var(--mono);color:#fff;font-weight:700}
+
+  /* ---------- Chrome (UI) ---------- */
+  .progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:50;transition:width .25s ease}
+  .hud{position:fixed;bottom:1.1rem;right:1.6rem;z-index:50;display:flex;align-items:center;gap:1rem;color:var(--dim);font-family:var(--mono);font-size:.85rem}
+  .hud .blk{color:var(--muted)}
+  .counter{font-variant-numeric:tabular-nums}
+  .brand{position:fixed;bottom:1.1rem;left:1.6rem;z-index:50;color:var(--dim);font-size:.8rem;letter-spacing:.04em}
+  .brand b{color:var(--accent)}
+
+  /* presenter notes */
+  .notes{position:fixed;left:0;right:0;bottom:0;max-height:42vh;overflow:auto;
+    background:rgba(13,17,23,.97);border-top:2px solid var(--accent);
+    padding:1.4rem 8vw 1.6rem;z-index:60;transform:translateY(100%);transition:transform .25s ease;backdrop-filter:blur(6px)}
+  .notes.show{transform:translateY(0)}
+  .notes h4{color:var(--accent);font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.7rem}
+  .notes p{color:var(--fg);font-size:1.02rem;line-height:1.55;max-width:80ch;margin-bottom:.7rem}
+  .notes .empty{color:var(--dim)}
+
+  .help{position:fixed;top:1.1rem;right:1.6rem;z-index:50;color:var(--dim);font-family:var(--mono);font-size:.75rem;text-align:right;line-height:1.5;opacity:.65}
+  .help b{color:var(--muted)}
+
+  /* fade-in animation for active slide blocks */
+  .slide.active h1,.slide.active h2,.slide.active .kicker,.slide.active .lead,
+  .slide.active ul li,.slide.active .cols,.slide.active .map,.slide.active pre,
+  .slide.active .tl,.slide.active .big-eq,.slide.active .bars,.slide.active .demo-tag{
+    animation:rise .42s ease both;
+  }
+  .slide.active ul li:nth-child(1){animation-delay:.02s}
+  .slide.active ul li:nth-child(2){animation-delay:.08s}
+  .slide.active ul li:nth-child(3){animation-delay:.14s}
+  .slide.active ul li:nth-child(4){animation-delay:.20s}
+  .slide.active ul li:nth-child(5){animation-delay:.26s}
+  .slide.active ul li:nth-child(6){animation-delay:.32s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+  @media (max-width:820px){
+    .cols,.tl{grid-template-columns:1fr}
+    .slide{padding:5vh 6vw 8vh}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="help">← → navega &nbsp;·&nbsp; <b>N</b> notas &nbsp;·&nbsp; <b>F</b> fullscreen</div>
+<div class="brand"><b>Fundamentos de IA</b> · Módulo 1</div>
+<div class="hud"><span class="blk" id="blk">Apertura</span><span class="counter" id="counter">1 / 29</span></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 — Portada -->
+  <section class="slide" data-blk="Apertura" data-notes="Buenas, arrancamos. Esta clase es el puente. Ustedes ya saben mover modelos: los entrenan, los containerizan, los deployan, los monitorean. Lo que vamos a hacer en los próximos 75 minutos es agarrar todo eso que ya saben y usarlo como andamiaje para entender qué cambió con los LLMs y por qué hoy estamos hablando de agentes. No les voy a explicar qué es un modelo ni qué es un pipeline. Lo que sí vamos a ver es por qué el modelo dejó de ser sólo un .pkl que sirve predicciones, y empezó a ser una cosa que planifica, llama herramientas y abre pull requests. Vamos.">
+    <div class="kicker">Curso de IA Aplicada — Módulo 1</div>
+    <h1>Fundamentos de IA</h1>
+    <p class="lead">El puente desde el ML que ya conocés hasta los LLMs y los agentes.<br>Audiencia: MLOps / Plataforma.</p>
+  </section>
+
+  <!-- 2 — Roadmap -->
+  <section class="slide" data-blk="Roadmap" data-notes="Siete bloques, 75 minutos. Vamos de cómo escribíamos software hasta agentes que abren PRs.">
+    <h2><span class="num">·</span>Roadmap — 75 min</h2>
+    <ul>
+      <li><strong>1.</strong> Cambio de paradigma: de reglas a patrones <span class="sub">8 min</span></li>
+      <li><strong>2.</strong> El modelo como artefacto compilado <span class="sub">10 min</span></li>
+      <li><strong>3.</strong> Redes neuronales y backpropagation <span class="sub">12 min</span></li>
+      <li><strong>4.</strong> Embeddings: coordenadas GPS del significado <span class="sub">12 min</span></li>
+      <li><strong>5.</strong> Transformers y atención <span class="sub">13 min</span></li>
+      <li><strong>6.</strong> De Transformers a LLMs &nbsp;·&nbsp; <strong>7.</strong> Agentes <span class="sub">8 + 10 min</span></li>
+    </ul>
+  </section>
+
+  <!-- 3 — Clásica vs ML -->
+  <section class="slide" data-blk="1 · Paradigma" data-notes="Pensemos cómo escribíamos software los últimos 40 años. Problema → reglas → if/else → testeás. Determinista, auditable, debuggeable. Funciona cuando podés escribir las reglas. ¿Cómo le explicás a una computadora con if/else qué hace que una imagen tenga un gato? No sabés. En ML, en vez de escribir reglas, le mostrás millones de ejemplos y dejás que descubra las reglas sola. El código que escribís es el optimizador y la arquitectura; las reglas terminan codificadas como números —pesos— dentro del modelo. Las reglas viven en el dataset, el compilador es el entrenamiento, el artefacto compilado son los pesos.">
+    <h2><span class="num">01</span>Programación clásica vs. ML</h2>
+    <div class="cols">
+      <div class="col"><div class="card classic">
+        <h3>Clásica</h3>
+        <ul>
+          <li>El humano <strong>escribe las reglas</strong></li>
+          <li><code>if / else</code> → código → ejecuta</li>
+          <li>Determinista y auditable</li>
+        </ul>
+      </div></div>
+      <div class="col"><div class="card ml">
+        <h3>Machine Learning</h3>
+        <ul>
+          <li>El humano provee <strong>datos + arquitectura</strong></li>
+          <li>El entrenamiento <strong>descubre las reglas</strong></li>
+          <li>El resultado son <em>pesos</em> (números)</li>
+        </ul>
+      </div></div>
+    </div>
+    <p class="lead">El "código fuente" del comportamiento ya no es texto: son números.</p>
+  </section>
+
+  <!-- 4 — Implicancias -->
+  <section class="slide" data-blk="1 · Paradigma" data-notes="Si las reglas viven en los datos y los pesos, todo el lifecycle cambia. Testing: no cubrís con unit tests. Debugging: el bug puede estar en los datos, no en el código. Versionado: versionás código + datos + pesos. Y reproducibilidad no es lo mismo que determinismo: podés reproducir un experimento fijando librerías, dataset y seed, pero la inferencia puede seguir teniendo aleatoriedad.">
+    <h2><span class="num">01</span>Qué cambia radicalmente</h2>
+    <ul>
+      <li><strong>Testing</strong> — no lo cubrís con unit tests; necesitás evals sobre distribuciones</li>
+      <li><strong>Debugging</strong> — el bug puede estar en los <em>datos</em>, no en el código</li>
+      <li><strong>Versionado</strong> — del código <em>+</em> de los datos <em>+</em> de los pesos</li>
+      <li><strong>Reproducibilidad ≠ determinismo</strong></li>
+    </ul>
+  </section>
+
+  <!-- 5 — Modelo como imagen Docker -->
+  <section class="slide" data-blk="2 · Artefacto" data-notes="Llevémoslo a su mundo. Una imagen de Docker es un artefacto inmutable: Dockerfile + contexto de build → tag → push → deploy. Un modelo entrenado es exactamente eso con otros insumos. El Dockerfile es tu código de entrenamiento; el contexto de build es el dataset; docker build es la corrida de training (días/semanas, millones de USD de GPU); la imagen taggeada son los pesos; docker run es la inferencia. Esto les ordena todo el lifecycle: training es CI, serving es CD, versionar modelos es versionar artefactos, A/B testing es shadow traffic.">
+    <h2><span class="num">02</span>El modelo es una imagen de Docker</h2>
+    <div class="map">
+      <div class="row"><span class="l">Dockerfile + arquitectura</span><span class="eq">≈</span><span class="r">Código de entrenamiento</span></div>
+      <div class="row"><span class="l">Contexto de build</span><span class="eq">≈</span><span class="r">Dataset</span></div>
+      <div class="row"><span class="l"><code>docker build</code></span><span class="eq">≈</span><span class="r">Training run (días · M de USD)</span></div>
+      <div class="row"><span class="l">Imagen taggeada (blob inmutable)</span><span class="eq">≈</span><span class="r">Pesos del modelo</span></div>
+      <div class="row"><span class="l"><code>docker run</code></span><span class="eq">≈</span><span class="r">Inferencia / serving</span></div>
+    </div>
+  </section>
+
+  <!-- 6 — LLM que NO compilás -->
+  <section class="slide" data-blk="2 · Artefacto" data-notes="El quiebre: los LLMs son artefactos como cualquier modelo —pesos, tensores, endpoint—, pero el artefacto pesa cientos de GB y costó del orden de cien millones de dólares. Sam Altman confirmó que GPT-4 costó más de cien millones; el AI Index de Epoch AI lo estima en ~79 millones de cómputo. Nadie lo re-entrena desde cero. Lo consumís como dependencia: vía API, o lo bajás de Hugging Face y lo servís vos. El ciclo de 'yo entreno mi modelo' deja de aplicar. Se parece más a 'bajar Postgres' que a 'compilar tu app'.">
+    <h2><span class="num">02</span>El LLM es un artefacto que <em>no</em> compilás</h2>
+    <ul>
+      <li>Cientos de GB de pesos</li>
+      <li>Costo de entrenamiento: <span class="metric">~$79M – $100M+</span> <span class="sub">caso GPT-4 — Epoch AI / Sam Altman</span></li>
+      <li>Lo consumís como <strong>dependencia</strong>: API o weights de Hugging Face</li>
+      <li>Más parecido a <em>"bajar Postgres"</em> que a <em>"compilar tu app"</em></li>
+    </ul>
+  </section>
+
+  <!-- 7 — Red = perillas -->
+  <section class="slide" data-blk="3 · Backprop" data-notes="Una red neuronal es una función matemática gigante con un montón de perillas regulables. Imaginate una caja con miles de millones de potenciómetros. Le metés un vector de entrada, sale otro vector. El valor de cada perilla determina cuánto contribuye cada conexión interna. Perillas en random → salida basura. Perillas en la configuración correcta → la predicción que querés.">
+    <h2><span class="num">03</span>Una red neuronal es un tablero de perillas</h2>
+    <ul>
+      <li>Función matemática gigante con <strong>N parámetros ajustables</strong> ("perillas")</li>
+      <li>Una perilla por conexión interna</li>
+      <li>Frontier hoy: <span class="metric">10⁹ – 10¹²</span> parámetros</li>
+    </ul>
+    <p class="lead">Random → la salida es basura. La configuración correcta → la predicción que querés. ¿Cómo la encontrás?</p>
+  </section>
+
+  <!-- 8 — Backprop -->
+  <section class="slide" data-blk="3 · Backprop" data-notes="¿Cómo encontrás la config correcta de miles de millones de perillas? Backpropagation, la idea clave de 1986 —Rumelhart, Hinton, Williams, en Nature. El loop: 1) pasás un ejemplo; 2) la red predice, comparás con lo correcto y calculás el error (la loss); 3) con la regla de la cadena calculás, para cada perilla, en qué dirección moverla para bajar el error —eso es el gradiente; 4) movés todas un pasito —descenso por gradiente; 5) repetís millones de veces. Cita textual del abstract: 'el procedimiento ajusta repetidamente los pesos de las conexiones para minimizar la diferencia entre el vector de salida real y el deseado'. Cuarenta años después seguimos haciendo lo mismo.">
+    <h2><span class="num">03</span>Backpropagation (1986)</h2>
+    <ul>
+      <li><strong>Predecir</strong> → <strong>calcular el error</strong> (loss)</li>
+      <li><strong>Calcular el gradiente</strong> — regla de la cadena: en qué dirección mover cada perilla</li>
+      <li><strong>Ajustar</strong> todas un pasito (descenso por gradiente)</li>
+      <li><strong>Repetir</strong> millones de veces, con millones de ejemplos</li>
+    </ul>
+    <span class="cite">Rumelhart, Hinton &amp; Williams — Nature 323:533–536 (1986)</span>
+  </section>
+
+  <!-- 9 — Descenso por gradiente (demo) -->
+  <section class="slide" data-blk="3 · Backprop" data-notes="DEMO gradient_descent.py. Arranca lejos del mínimo. En cada paso calculo el gradiente —la derivada en ese punto— y muevo x en la dirección opuesta, por un learning rate. La pelotita baja, la loss baja. Esto es backprop conceptualmente; en una red real pasa en miles de millones de dimensiones simultáneamente, pero la idea es exactamente la misma.">
+    <h2><span class="num">03</span>Descenso por gradiente, en vivo</h2>
+    <div class="cols">
+      <div class="col">
+        <ul>
+          <li>Soltamos una pelotita en un punto random</li>
+          <li>Gradiente = derivada en ese punto</li>
+          <li>La movemos un pasito <em>en contra</em> del gradiente</li>
+          <li>Converge al mínimo</li>
+        </ul>
+        <div class="demo-tag">demos/gradient_descent.py</div>
+      </div>
+      <div class="col">
+        <pre><span class="k">for</span> _ <span class="k">in</span> <span class="f">range</span>(steps):
+    x = x <span class="op">-</span> lr <span class="op">*</span> grad(x)  <span class="c"># un pasito</span>
+    <span class="c"># f(x) = (x-3)² + 2</span>
+    <span class="c"># grad = 2·(x-3)</span></pre>
+        <p class="lead" style="font-size:1rem;margin-top:1rem">Lo mismo, en miles de millones de dimensiones.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — Embeddings GPS -->
+  <section class="slide" data-blk="4 · Embeddings" data-notes="Las redes operan con números, pero el texto no es número. ¿Cómo le metés 'gato' a una red? Embedding: a cada pedazo de texto le asignás un vector de cientos de números, coordenadas en un espacio de alta dimensión. La gracia, lo que se tienen que llevar: estas coordenadas se aprenden de forma que cercanía geométrica = similitud de significado. 'Gato' y 'perro' caen cerca; 'gato' y 'factura' lejos. Y hay álgebra: el ejemplo famoso de Mikolov, rey - hombre + mujer ≈ reina. La geometría captura semántica.">
+    <h2><span class="num">04</span>Embeddings: GPS del significado</h2>
+    <ul>
+      <li>Texto → vector de <span class="metric">384 / 768 / 1536 / 3072</span> dimensiones</li>
+      <li><strong>Cercanía geométrica = similitud semántica</strong></li>
+      <li>"gato" cerca de "perro"; lejos de "factura"</li>
+    </ul>
+    <div class="big-eq">vec(rey) <span class="op">−</span> vec(hombre) <span class="op">+</span> vec(mujer) <span class="op">≈</span> vec(reina)</div>
+  </section>
+
+  <!-- 11 — Papers embeddings -->
+  <section class="slide" data-blk="4 · Embeddings" data-notes="Dos papers fundacionales. Word2Vec —Mikolov et al., NeurIPS 2013, precedido por arXiv:1301.3781 de enero 2013. Y GloVe —Pennington, Socher, Manning, EMNLP 2014. Esa fue la primera ola: embeddings estáticos, una palabra = un vector fijo. Hoy, con Transformers, tenemos embeddings contextuales: la misma palabra en distintos contextos tiene distintas coordenadas, lo que resuelve la polisemia —'banco' de plaza vs 'banco' institución.">
+    <h2><span class="num">04</span>Papers fundacionales</h2>
+    <ul>
+      <li><strong>Word2Vec</strong> — Mikolov et al. <span class="sub">arXiv:1301.3781 (ene 2013) · NeurIPS 2013</span></li>
+      <li><strong>GloVe</strong> — Pennington, Socher &amp; Manning <span class="sub">EMNLP 2014, Doha</span></li>
+      <li>Primera ola: <em>embeddings estáticos</em> (1 palabra = 1 vector fijo)</li>
+      <li>Hoy: <strong>embeddings contextuales</strong> (vienen de los Transformers) → resuelven polisemia</li>
+    </ul>
+  </section>
+
+  <!-- 12 — Embeddings stack + demo -->
+  <section class="slide" data-blk="4 · Embeddings" data-notes="Analogía DevOps: pensá los embeddings como un hash semántico. Un hash criptográfico hace que strings parecidos den hashes totalmente distintos —para integridad. Un embedding hace lo contrario: strings parecidos dan vectores parecidos. Es el primitivo de búsqueda semántica, RAG, dedup inteligente, clustering. Todo el tooling de vector DB —Pinecone, Weaviate, pgvector, Milvus, Qdrant— existe para indexar y buscar por similitud coseno a escala. DEMO embeddings_similarity.py: tres frases, dos de mascotas y una de AFIP; tras el modelo cada una es un vector 384-D; coseno entre pares. Las dos de mascotas dan score alto; cualquiera contra AFIP, bajo. La geometría refleja el significado: esto hace funcionar a RAG.">
+    <h2><span class="num">04</span>Stack moderno + demo</h2>
+    <div class="cols">
+      <div class="col">
+        <h3>El stack</h3>
+        <ul>
+          <li>Modelo de embeddings <span class="sub">text-embedding-3, all-MiniLM-L6-v2…</span></li>
+          <li>Vector DB <span class="sub">pgvector, Pinecone, Weaviate, Milvus, Qdrant</span></li>
+          <li>Habilita: RAG, búsqueda semántica, dedup, recomendación</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>Idea clave</h3>
+        <p class="lead" style="font-size:1.05rem;margin-top:0">Es un <em>hash semántico</em>: al revés del hash cripto, strings parecidos → vectores parecidos.</p>
+        <div class="demo-tag">demos/embeddings_similarity.py</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 — Attention Is All You Need -->
+  <section class="slide" data-blk="5 · Transformers" data-notes="Llegamos al hito de 2017. Antes, para secuencias se usaban RNNs y LSTMs: leen token por token manteniendo un estado oculto. Funcionaban pero tenían dos problemas: son secuenciales —no paralelizás— y se olvidan de tokens lejanos (dependencias largas). En junio de 2017 ocho autores de Google publican 'Attention Is All You Need' en NeurIPS, arXiv:1706.03762. En sus palabras: 'una nueva arquitectura simple, el Transformer, basada únicamente en mecanismos de atención, prescindiendo de recurrencia y convoluciones'. El modelo original: 100M de parámetros, batió el SOTA de traducción EN-FR con 41.8 BLEU entrenando 3.5 días en 8 GPUs. Lo notable no es el resultado: es la receta.">
+    <h2><span class="num">05</span>2017 — Attention Is All You Need</h2>
+    <ul>
+      <li>Tira RNN/CNN; deja <strong>solo atención</strong></li>
+      <li>Antes: RNN/LSTM secuenciales y con memoria corta</li>
+      <li>Modelo original: <span class="metric">100M</span> params · <span class="metric">41.8 BLEU</span> EN-FR · 3.5 días en 8 GPUs</li>
+    </ul>
+    <span class="cite">Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, Polosukhin — NeurIPS 2017 · arXiv:1706.03762</span>
+  </section>
+
+  <!-- 14 — Self-attention -->
+  <section class="slide" data-blk="5 · Transformers" data-notes="La idea central en una línea: cada palabra puede mirar simultáneamente a todas las demás y decidir a cuáles prestar atención y cuánto. Concretamente: para cada token se calculan tres vectores —query, key, value— como un sistema de búsqueda interno. El query de 'la' pregunta 'qué necesito de los demás'; los keys responden 'esto ofrezco'; producto punto query·keys = similitud; softmax para normalizar; con esos pesos combinás los values. Resultado: una nueva representación de 'la' que ya incorpora contexto. En paralelo para todos los tokens, en múltiples cabezas que aprenden relaciones distintas —sintáctica, semántica, posicional—, apilado en muchas capas.">
+    <h2><span class="num">05</span>Self-attention en una línea</h2>
+    <p class="lead" style="margin-top:0;margin-bottom:1.4rem">Cada token mira <em>simultáneamente</em> a todos los demás y decide a cuáles prestar atención.</p>
+    <ul>
+      <li><strong>Query</strong> — "qué información necesito"</li>
+      <li><strong>Key</strong> — "esto es lo que yo ofrezco"</li>
+      <li><strong>Value</strong> — el contenido que se combina, ponderado por <code>softmax(Q·Kᵀ)</code></li>
+      <li><strong>Multi-head</strong> — varias atenciones en paralelo, cada una mira otra relación</li>
+    </ul>
+  </section>
+
+  <!-- 15 — Por qué la revolución -->
+  <section class="slide" data-blk="5 · Transformers" data-notes="¿Por qué fue la revolución? Por dos razones que les van a sonar familiares: paralelización y escalabilidad. RNN: secuencial, no aprovechás la GPU. Transformer: todas las posiciones en paralelo, un matmul gigante. GPU happy. Y al ser paralelizable, entrenás modelos mucho más grandes en mucho menos tiempo. Sin Transformers no había GPT. Y dependencias largas: en un Transformer el token 1 atiende directamente al token 1000 en una sola operación; en una RNN esa info tenía que sobrevivir 999 pasos. La atención lo resuelve de cuajo.">
+    <h2><span class="num">05</span>Por qué fue LA revolución</h2>
+    <ul>
+      <li><strong>Paralelizable en GPU</strong> → modelos mucho más grandes, mucho más rápido</li>
+      <li><strong>Dependencias largas en O(1) hops</strong> (vs O(N) en RNN)</li>
+      <li>Token 1 atiende al token 1000 en una sola operación</li>
+      <li><strong>Sin Transformers no había GPT</strong></li>
+    </ul>
+  </section>
+
+  <!-- 16 — Tokenización (demo) -->
+  <section class="slide" data-blk="5 · Transformers" data-notes="DEMO tokenization.py. Antes de la atención, miremos cómo entra el texto. Paso frases por tiktoken, el tokenizador BPE oficial de OpenAI, encoding o200k_base (GPT-4o+). No es 'una palabra = un token'. 'Hello, world!' se parte en pocos tokens limpios; 'Hola, mundo, ¿cómo andás?' en más, porque el vocabulario fue entrenado dominantemente en inglés —'andás' se rompe en pedacitos. Esto importa: cobran por token, el context window se mide en tokens, y explica por qué a veces el modelo se confunde con palabras inusuales. Si trabajan en español pagan más por la misma información.">
+    <h2><span class="num">05</span>Tokenización — cómo entra el texto</h2>
+    <div class="cols">
+      <div class="col">
+        <ul>
+          <li>Texto → IDs numéricos <span class="sub">no es 1 palabra = 1 token</span></li>
+          <li>BPE / <code>tiktoken</code> (<code>o200k_base</code> para GPT-4o+)</li>
+          <li>Costos y context windows se miden en <strong>tokens</strong></li>
+          <li>Español se fragmenta más que inglés → pagás más</li>
+        </ul>
+        <div class="demo-tag">demos/tokenization.py</div>
+      </div>
+      <div class="col">
+        <pre><span class="s">"Hello, world!"</span>
+  <span class="c">→ pocos tokens limpios</span>
+
+<span class="s">"Hola, mundo, ¿cómo andás?"</span>
+  <span class="c">→ "andás" se parte en subwords</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 — Attention viz (demo) -->
+  <section class="slide" data-blk="5 · Transformers" data-notes="DEMO attention_viz.py. Una matriz de atención simulada —no de un modelo real, una que armé para ilustrar el patrón. Cada fila es un token preguntando 'a quién miro'; cada columna, un token siendo mirado. Celdas más claras = atención fuerte. El verbo 'ajusta' atiende al sujeto 'modelo'; 'función', 'loss' y 'gradiente' se miran mutuamente porque van juntos. En un Transformer real esto emerge solo del entrenamiento, sin que nadie le diga, y hay muchas capas y muchas cabezas, cada una con su patrón.">
+    <h2><span class="num">05</span>Matriz de atención (ilustrativa)</h2>
+    <ul>
+      <li>Fila = token que mira · Columna = token mirado</li>
+      <li>El verbo atiende al sujeto; palabras del mismo tema se miran entre sí</li>
+      <li>No es magia: <strong>emerge solo del entrenamiento</strong></li>
+      <li>Muchas capas × muchas cabezas, cada una con su patrón</li>
+    </ul>
+    <div class="demo-tag">demos/attention_viz.py · (salteable si vas corto)</div>
+  </section>
+
+  <!-- 18 — De Transformers a LLMs -->
+  <section class="slide" data-blk="6 · LLMs" data-notes="Receta para un LLM, simple: tomá un Transformer decoder, escalalo a miles de millones de parámetros, entrenalo a predecir el siguiente token sobre, básicamente, todo internet. Eso es todo. No hay magia adicional en la receta base; la magia está en la escala. GPT-3, mayo 2020, 175B (arXiv:2005.14165, Brown et al., 'Language Models are Few-Shot Learners'): primer momento en que el mundo ve que escalar produce capacidades emergentes que no estaban en modelos más chicos —few-shot learning, razonamiento básico, traducción sin entrenamiento explícito. ChatGPT, 30 nov 2022, basado en GPT-3.5: producto masivo. GPT-4 el 14 de marzo de 2023. Hoy, junio 2026: Claude Opus 4.8, GPT-5.1, Gemini 3 Pro. Pero la arquitectura base sigue siendo el Transformer de 2017.">
+    <h2><span class="num">06</span>De Transformers a LLMs</h2>
+    <ul>
+      <li><strong>Receta:</strong> decoder Transformer + escala + corpus masivo + pre-entrenamiento autoregresivo</li>
+      <li><strong>GPT-3</strong> (175B, may 2020) — primer momento de <em>capacidades emergentes</em></li>
+      <li><strong>ChatGPT</strong> (30 nov 2022, GPT-3.5) — producto masivo</li>
+      <li><strong>GPT-4</strong> (14 mar 2023) · Claude Opus 4.8, GPT-5.1, Gemini 3 Pro (2025–26)</li>
+    </ul>
+    <p class="lead">"No hay magia adicional. La magia está en la escala."</p>
+  </section>
+
+  <!-- 19 — Scaling laws -->
+  <section class="slide" data-blk="6 · LLMs" data-notes="2020, otro paper crítico: 'Scaling Laws for Neural Language Models' —Kaplan et al., arXiv:2001.08361. Demuestran empíricamente que la loss escala como ley de potencia con tres variables: parámetros, datos y cómputo. No es magia: tirás más de los tres, mejora predeciblemente —tendencias que abarcan más de siete órdenes de magnitud. Eso convirtió 'cómo hacemos un mejor modelo' en 'cuánta plata tenés y cómo la asignás'. Marzo 2022, DeepMind publica Chinchilla —Hoffmann et al., arXiv:2203.15556— y corrige a Kaplan: los modelos estaban subentrenados; para un budget fijo el óptimo es ~20 tokens por parámetro. Un modelo de 70B sobre 1.4 billones de tokens (mismo cómputo que Gopher 280B) le ganó en todo. Por eso Llama, Mistral y los open source modernos entrenan modelos más chicos sobre muchísimos más datos —Llama 3.1 405B sobre 15+ billones de tokens en 16 mil H100.">
+    <h2><span class="num">06</span>Scaling laws</h2>
+    <ul>
+      <li><strong>Kaplan et al. 2020</strong> — la loss escala como <em>ley de potencia</em> en params, datos y cómputo <span class="sub">arXiv:2001.08361</span></li>
+      <li><strong>Chinchilla</strong> (Hoffmann et al. 2022) — el óptimo es <span class="metric">~20 tokens / parámetro</span> <span class="sub">arXiv:2203.15556 · 70B sobre 1.4T tokens &gt; Gopher 280B</span></li>
+      <li>Implicancia: el problema se vuelve <strong>presupuestario</strong></li>
+    </ul>
+  </section>
+
+  <!-- 20 — LLM = SO -->
+  <section class="slide" data-blk="6 · LLMs" data-notes="De ahí en adelante: escala, datos curados, y alineamiento —RLHF, instruction tuning, constitutional AI. Para que cierre la analogía DevOps: un LLM moderno es como un sistema operativo. Es infraestructura. Lo construye un puñado de organizaciones con capacidad de gastar cientos de millones en cómputo. Vos lo consumís. Lo configurás con prompts, system messages, herramientas, contexto. No lo recompilás.">
+    <h2><span class="num">06</span>El LLM es un sistema operativo</h2>
+    <ul>
+      <li>Es <strong>infraestructura</strong></li>
+      <li>Lo construyen <span class="metric">5–10</span> organizaciones en el mundo</li>
+      <li>Vos lo <strong>consumís</strong></li>
+      <li>Lo configurás con prompts, system messages, herramientas, contexto — no lo recompilás</li>
+    </ul>
+  </section>
+
+  <!-- 21 — De LLM a agente -->
+  <section class="slide" data-blk="7 · Agentes" data-notes="Llegamos al presente. Un LLM puro es una función texto → texto: le mandás un prompt, te devuelve tokens. Útil pero limitado: no corre código, no lee tu base, no abre un PR, no itera si se equivoca. Un agente es un patrón arquitectónico que pone un LLM en un loop con herramientas y un objetivo. Puede planificar, ejecutar una herramienta, observar el resultado, y volver a pensar. Repetir hasta resolver la tarea.">
+    <h2><span class="num">07</span>De LLM a agente</h2>
+    <div class="cols">
+      <div class="col"><div class="card classic">
+        <h3>LLM puro</h3>
+        <ul>
+          <li><code>texto → texto</code></li>
+          <li>No corre código, no lee tu DB, no abre PRs</li>
+          <li>No itera si se equivoca</li>
+        </ul>
+      </div></div>
+      <div class="col"><div class="card ml">
+        <h3>Agente</h3>
+        <ul>
+          <li>LLM en <strong>loop</strong> con herramientas + objetivo</li>
+          <li>Planifica → ejecuta → observa → itera</li>
+          <li>Repite hasta resolver la tarea</li>
+        </ul>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- 22 — Patrones canónicos -->
+  <section class="slide" data-blk="7 · Agentes" data-notes="El paper canónico es ReAct —Yao et al., arXiv:2210.03629, ICLR 2023. Alterna razonamiento (thought) con acción (action) y observación (observation). Del abstract: 'los rastros de razonamiento ayudan a inducir, rastrear y actualizar planes, así como manejar excepciones, mientras que las acciones permiten interactuar con fuentes externas para reunir información'. Loop: pensar, decidir herramienta, ejecutar, observar, volver a pensar. Toolformer —Schick et al., NeurIPS 2023 oral— mostró que los modelos pueden aprender a llamar APIs solos, self-supervised. Después vino el function calling, hoy estándar en todos los APIs.">
+    <h2><span class="num">07</span>Patrones canónicos</h2>
+    <ul>
+      <li><strong>ReAct</strong> — Thought → Action → Observation <span class="sub">Yao et al., arXiv:2210.03629 · ICLR 2023</span></li>
+      <li><strong>Toolformer</strong> — el modelo aprende a invocar APIs, self-supervised <span class="sub">Schick et al., NeurIPS 2023 (oral)</span></li>
+      <li><strong>Function calling</strong> — hoy estándar en todos los APIs de modelo</li>
+    </ul>
+  </section>
+
+  <!-- 23 — MCP -->
+  <section class="slide" data-blk="7 · Agentes" data-notes="El 25 de noviembre de 2024 Anthropic publicó el Model Context Protocol —MCP—, estándar abierto de David Soria Parra y Justin Spahr-Summers, para que cualquier LLM se conecte a cualquier fuente de datos o herramienta vía una interfaz uniforme. Lo describen como 'un puerto USB-C para AI'. El 9 de diciembre de 2025 Anthropic lo donó a la Linux Foundation bajo la nueva Agentic AI Foundation, co-fundada por Anthropic, Block y OpenAI, con miembros platino como AWS, Bloomberg, Cloudflare, Google y Microsoft. Para esa fecha ya había más de 97 millones de descargas mensuales de SDKs y más de 10.000 servidores MCP públicos activos, integrados por ChatGPT, Cursor, Gemini, Copilot y VS Code. Es el primer estándar real de interoperabilidad en este espacio.">
+    <h2><span class="num">07</span>Model Context Protocol (MCP)</h2>
+    <ul>
+      <li>Anthropic, <strong>25-nov-2024</strong> — "USB-C para AI" <span class="sub">D. Soria Parra &amp; J. Spahr-Summers</span></li>
+      <li>Donado a la <strong>Linux Foundation / Agentic AI Foundation</strong> (9-dic-2025)</li>
+      <li>Co-fundadores: Anthropic, Block, OpenAI · Platinum: AWS, Bloomberg, Cloudflare, Google, Microsoft</li>
+      <li><span class="metric">97M+</span> descargas/mes de SDKs · <span class="metric">10.000+</span> servidores activos</li>
+    </ul>
+  </section>
+
+  <!-- 24 — Building Effective Agents -->
+  <section class="slide" data-blk="7 · Agentes" data-notes="En diciembre 2024 Anthropic publicó 'Building Effective Agents'. La definición operativa más limpia que circula: distinguen workflows —donde LLMs y herramientas se orquestan por caminos predefinidos en código— de agents —donde el LLM dirige dinámicamente sus propios procesos y uso de herramientas, manteniendo control sobre cómo cumple las tareas. Es un gradiente de autonomía. Y la recomendación, que vale repetir: empezá simple. La mayoría de los problemas se resuelven con prompt chaining, routing o parallelization; no necesitás un agente completo.">
+    <h2><span class="num">07</span>Workflows vs. agents</h2>
+    <ul>
+      <li><strong>Workflows</strong> — caminos predefinidos en código</li>
+      <li><strong>Agents</strong> — el LLM dirige dinámicamente su propio proceso</li>
+      <li>Es un <em>gradiente de autonomía</em></li>
+      <li><strong>Recomendación: empezá simple.</strong> Escalá complejidad solo cuando hace falta</li>
+    </ul>
+    <span class="cite">Anthropic — "Building Effective Agents" (19-dic-2024)</span>
+  </section>
+
+  <!-- 25 — Coding agents + SWE-bench -->
+  <section class="slide" data-blk="7 · Agentes" data-notes="¿Por qué impacta tanto al software? Porque es el dominio ideal para agentes: el feedback es objetivo (los tests pasan o no), el espacio está bien definido (un repo), la calidad es medible. Por eso explotaron los coding agents: Claude Code (GA 22-may-2025), Devin (12-mar-2024), Cursor (mar 2023), Aider, Codex CLI. El benchmark estándar es SWE-bench Verified: 500 issues reales de GitHub curados por humanos con OpenAI. En el paper original (Jimenez et al., oct 2023) el mejor, Claude 2 con BM25, resolvía 1.96%. Devin saltó a 13.86% en marzo 2024. Hoy, junio 2026: Claude Opus 4.5 fue el primero en superar 80% (80.9%) en noviembre 2025, y Claude Mythos Preview lidera con 93.9%. De 2% a 94% en dos años y medio. Salto vertical.">
+    <h2><span class="num">07</span>Coding agents — el dominio que explotó</h2>
+    <p class="lead" style="font-size:1.05rem;margin-top:0;margin-bottom:1.2rem">Feedback objetivo (tests) · espacio bien definido (repo) · calidad medible. <span style="color:var(--muted)">SWE-bench Verified — 500 issues reales de GitHub:</span></p>
+    <div class="bars">
+      <div class="bar"><span class="lbl">Claude 2 + BM25 · oct 2023</span><span class="track"><span class="fill" style="width:2%"></span></span><span class="pct">1.96%</span></div>
+      <div class="bar"><span class="lbl">Devin · mar 2024</span><span class="track"><span class="fill" style="width:14%"></span></span><span class="pct">13.9%</span></div>
+      <div class="bar"><span class="lbl">Claude Opus 4.5 · nov 2025</span><span class="track"><span class="fill" style="width:81%"></span></span><span class="pct">80.9%</span></div>
+      <div class="bar"><span class="lbl">Claude Mythos Preview · jun 2026</span><span class="track"><span class="fill" style="width:94%"></span></span><span class="pct">93.9%</span></div>
+    </div>
+  </section>
+
+  <!-- 26 — Timeline -->
+  <section class="slide" data-blk="Línea de tiempo" data-notes="Línea de tiempo ancla, toda verificada. De backprop en 1986 a coding agents al 94% en SWE-bench en junio 2026. Lo notable: la arquitectura base —el Transformer de 2017— no cambió; lo que cambió fue la escala y, encima, el patrón de agente.">
+    <h2><span class="num">·</span>Línea de tiempo (verificada)</h2>
+    <div class="tl">
+      <div class="ev"><span class="d">1986</span><span class="t"><b>Backpropagation</b> — Rumelhart, Hinton, Williams</span></div>
+      <div class="ev"><span class="d">2012</span><span class="t"><b>AlexNet</b> rompe ImageNet</span></div>
+      <div class="ev"><span class="d">ene 2013</span><span class="t"><b>Word2Vec</b> (Mikolov et al.)</span></div>
+      <div class="ev"><span class="d">2014</span><span class="t"><b>GloVe</b> (EMNLP)</span></div>
+      <div class="ev"><span class="d">jun 2017</span><span class="t"><b>Transformer</b> — arXiv:1706.03762</span></div>
+      <div class="ev"><span class="d">oct 2018</span><span class="t"><b>BERT</b> (340M)</span></div>
+      <div class="ev"><span class="d">feb 2019</span><span class="t"><b>GPT-2</b> (1.5B, staged release)</span></div>
+      <div class="ev"><span class="d">may 2020</span><span class="t"><b>GPT-3</b> (175B) + Scaling Laws</span></div>
+      <div class="ev"><span class="d">mar 2022</span><span class="t"><b>Chinchilla</b> (Hoffmann et al.)</span></div>
+      <div class="ev"><span class="d">oct 2022</span><span class="t"><b>ReAct</b> — arXiv:2210.03629</span></div>
+      <div class="ev"><span class="d">30 nov 2022</span><span class="t"><b>ChatGPT</b></span></div>
+      <div class="ev"><span class="d">feb 2023</span><span class="t"><b>Toolformer</b></span></div>
+      <div class="ev"><span class="d">14 mar 2023</span><span class="t"><b>GPT-4</b></span></div>
+      <div class="ev"><span class="d">12 mar 2024</span><span class="t"><b>Devin</b> (Cognition)</span></div>
+      <div class="ev"><span class="d">25 nov 2024</span><span class="t"><b>MCP</b> (Anthropic)</span></div>
+      <div class="ev"><span class="d">19 dic 2024</span><span class="t"><b>Building Effective Agents</b></span></div>
+      <div class="ev"><span class="d">22 may 2025</span><span class="t"><b>Claude Code GA</b></span></div>
+      <div class="ev"><span class="d">nov 2025</span><span class="t"><b>Opus 4.5</b> &gt;80% SWE-bench</span></div>
+      <div class="ev"><span class="d">9 dic 2025</span><span class="t"><b>MCP</b> → Linux Foundation</span></div>
+      <div class="ev"><span class="d">jun 2026</span><span class="t"><b>SOTA ~94%</b> SWE-bench Verified</span></div>
+    </div>
+  </section>
+
+  <!-- 27 — Qué cambia para MLOps -->
+  <section class="slide" data-blk="Cierre" data-notes="El cambio práctico para ustedes: el agente no completa autocomplete, encara una tarea entera. 'Arreglá este bug': lee el repo, planifica, edita varios archivos, corre los tests, ve que fallan, ajusta, vuelve a correr, abre el PR. Pasan de escribir línea por línea a revisar diffs y dirigir varios agentes en paralelo. Esto no quiere decir que su rol desaparece: se mueve hacia arriba en el stack. Los agentes necesitan infra: sandboxing, observabilidad, control de permisos, gates de seguridad, evaluación continua. CI/CD para sus propios prompts y herramientas. Rate limiting y cost management de tokens. IaC para definir qué herramientas tiene cada agente. Todo lo que saben de MLOps se vuelve a aplicar, con un actor nuevo —el agente— que es no determinista y que actúa. El próximo módulo lo dedicamos a esto.">
+    <h2><span class="num">·</span>Qué cambia para MLOps</h2>
+    <ul>
+      <li>El <strong>"modelo"</strong> deja de ser algo que vos compilás</li>
+      <li>El <strong>"deploy"</strong> incluye tools, permisos, sandboxing</li>
+      <li>El <strong>"monitoreo"</strong> incluye evals, traces, cost por request</li>
+      <li><strong>IaC</strong> para herramientas y permisos de agentes · <strong>CI/CD</strong> para prompts y agent configs</li>
+      <li>Tu rol se mueve <em>hacia arriba en el stack</em> → próximo módulo: agentes en serio</li>
+    </ul>
+  </section>
+
+  <!-- 28 — Cierre -->
+  <section class="slide" data-blk="Cierre" data-notes="Resumen: pasamos de escribir reglas a entrenar modelos. Los modelos son artefactos compilados desde datos. Las redes neuronales son funciones gigantes con perillas que se ajustan por backprop. Los embeddings convierten texto en geometría. Los Transformers paralelizaron eso y desbloquearon la escala. Los LLMs son Transformers a escala extrema entrenados con todo internet. Y los agentes son LLMs en loop con herramientas. Próxima clase: cómo se construyen agentes en serio. Gracias.">
+    <div class="kicker">Cierre</div>
+    <h1>Reglas → datos → patrones</h1>
+    <p class="lead">Pesos → embeddings → atención → escala → agentes.<br><br><strong style="color:var(--accent)">Las habilidades de plataforma valen más que nunca.</strong></p>
+  </section>
+
+  <!-- 29 — Gracias -->
+  <section class="slide" data-blk="Cierre" data-notes="Gracias. Próximo módulo: cómo se construyen agentes en serio —sandboxing, evals, observabilidad, IaC para tools.">
+    <h1 style="font-size:clamp(3rem,9vw,7rem)">Gracias.</h1>
+    <p class="lead">Próximo módulo: cómo se construyen agentes <em>en serio</em>.</p>
+  </section>
+
+</div>
+
+<div class="notes" id="notes">
+  <h4>Notas del orador — guion</h4>
+  <p id="notesBody" class="empty">—</p>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let i = 0;
+  const progress = document.getElementById('progress');
+  const counter  = document.getElementById('counter');
+  const blk      = document.getElementById('blk');
+  const notes    = document.getElementById('notes');
+  const notesBody= document.getElementById('notesBody');
+  let notesOpen = false;
+
+  function render(){
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    progress.style.width = ((i+1)/total*100)+'%';
+    counter.textContent = (i+1)+' / '+total;
+    blk.textContent = slides[i].dataset.blk || '';
+    const n = slides[i].dataset.notes;
+    notesBody.textContent = n && n.trim() ? n : '—';
+    notesBody.classList.toggle('empty', !(n && n.trim()));
+    location.hash = (i+1);
+  }
+  function go(n){ i = Math.max(0, Math.min(total-1, n)); render(); }
+  function next(){ go(i+1); }
+  function prev(){ go(i-1); }
+
+  document.addEventListener('keydown', e=>{
+    switch(e.key){
+      case 'ArrowRight': case 'PageDown': case ' ': e.preventDefault(); next(); break;
+      case 'ArrowLeft':  case 'PageUp': e.preventDefault(); prev(); break;
+      case 'Home': go(0); break;
+      case 'End': go(total-1); break;
+      case 'n': case 'N': notesOpen=!notesOpen; notes.classList.toggle('show',notesOpen); break;
+      case 'f': case 'F':
+        if(!document.fullscreenElement){ document.documentElement.requestFullscreen?.(); }
+        else { document.exitFullscreen?.(); }
+        break;
+    }
+  });
+
+  // click izquierda/derecha (ignorando la zona de notas)
+  document.getElementById('deck').addEventListener('click', e=>{
+    if(notesOpen) return;
+    (e.clientX < window.innerWidth*0.32) ? prev() : next();
+  });
+
+  // arrancar en el hash si existe
+  const start = parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i = start-1;
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas al orador · Fundamentos de IA</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0f1622; --fg:#e8eef6; --muted:#9fb0c3;
+    --blue:#58a6ff; --green:#3fb950; --amber:#e3b341; --purple:#bc8cff;
+    --red:#f85149; --teal:#39d0d8; --line:#243043;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 800px at 70% -10%, #16203033, transparent), var(--bg);
+    color:var(--fg); display:flex; flex-direction:column; height:100vh;
+  }
+  code{ font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.88em;
+        background:#1b2433; color:var(--teal); padding:.08em .35em; border-radius:5px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:14px; padding:10px 20px;
+    background:var(--bg2); border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .topbar .title{ font-weight:800; font-size:15px; letter-spacing:-.01em; }
+  .topbar .title span{ color:var(--muted); font-weight:500; }
+  .topbar .spacer{ flex:1; }
+  .nav-btn{
+    background:#13294a; color:var(--blue); border:1px solid #1d3a66; border-radius:8px;
+    padding:7px 14px; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .nav-btn:hover{ filter:brightness(1.25); }
+  .nav-btn:disabled{ opacity:.35; cursor:default; }
+  .counter{ font-variant-numeric:tabular-nums; font-weight:800; color:#fff; font-size:15px; min-width:60px; text-align:center; }
+  select#jump{
+    background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:8px;
+    padding:7px 10px; font-size:13px; max-width:340px;
+  }
+  .time-chip{
+    font-variant-numeric:tabular-nums; font-family:monospace; font-weight:700;
+    background:#33270a; color:var(--amber); border:1px solid #5a4410;
+    padding:6px 12px; border-radius:999px; font-size:14px;
+  }
+
+  /* ---------- Cronómetro ---------- */
+  .timer{ display:flex; align-items:center; gap:8px; padding:4px 10px 4px 6px; background:#0c1320; border:1px solid var(--line); border-radius:12px; }
+  .tm-btn{ background:var(--green); color:#06140c; border:none; border-radius:8px; padding:7px 13px; font-weight:800; cursor:pointer; font-size:14px; white-space:nowrap; }
+  .tm-btn.running{ background:var(--amber); color:#1a1400; }
+  .tm-btn:hover{ filter:brightness(1.1); }
+  .tm-clock{ font-family:monospace; font-weight:800; font-size:21px; color:#fff; font-variant-numeric:tabular-nums; min-width:64px; text-align:center; }
+  .tm-reset{ background:#1b2433; color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:6px 9px; cursor:pointer; font-size:15px; }
+  .tm-reset:hover{ color:#fff; }
+  .tm-status{ font-size:12.5px; font-weight:700; font-family:monospace; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .tm-status.ontime{ background:#0f2e1c; color:var(--green); }
+  .tm-status.behind{ background:#3a1414; color:var(--red); }
+  .tm-status.ahead{  background:#13294a; color:var(--blue); }
+  .tm-status.idle{   color:var(--muted); }
+
+  /* ---------- Stage ---------- */
+  .stage{ flex:1 1 auto; overflow-y:auto; padding:36px 8vw 90px; }
+  .slide{ display:none; max-width:1000px; margin:0 auto; animation:fade .15s ease; }
+  .slide.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .kicker{ color:var(--blue); font-weight:700; font-size:13px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 6px; }
+  .slide h2{ font-size:34px; line-height:1.12; margin:0 0 6px; color:#fff; font-weight:800; letter-spacing:-.01em; }
+  .slide .range{ color:var(--muted); font-size:15px; margin:0 0 22px; font-family:monospace; }
+
+  .block{ background:var(--bg2); border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin:0 0 16px; }
+  .block.say{ border-left:4px solid var(--blue); }
+  .block.demo{ border-left:4px solid var(--green); background:#0d1a12; }
+  .block.goal{ border-left:4px solid var(--amber); background:#161202; }
+  .block.recap{ border-left:4px solid var(--purple); }
+  .block-label{ font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .say   .block-label{ color:var(--blue); }
+  .demo  .block-label{ color:var(--green); }
+  .goal  .block-label{ color:var(--amber); }
+  .recap .block-label{ color:var(--purple); }
+
+  .slide ul{ margin:0; padding-left:22px; }
+  .slide li{ font-size:20px; line-height:1.5; margin:7px 0; }
+  .slide li ul{ margin:4px 0 4px; }
+  .slide li li{ font-size:18px; color:var(--muted); margin:3px 0; }
+  .slide li li strong{ color:var(--fg); }
+  .slide strong{ color:#fff; }
+  .slide ol{ margin:0; padding-left:24px; }
+  .slide ol li{ font-size:20px; }
+
+  .goal .goal-text{ font-size:21px; line-height:1.45; margin:0; }
+
+  .hint{ text-align:center; color:var(--muted); font-size:13px; margin-top:24px; }
+  kbd{ background:#1b2433; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 7px; font-family:monospace; font-size:12px; color:var(--fg); }
+
+  /* progress bar */
+  .progress{ height:3px; background:#13294a; flex:0 0 auto; }
+  .progress > div{ height:100%; background:linear-gradient(90deg,var(--blue),var(--green),var(--purple)); transition:width .15s; }
+
+  /* extra cards inside slides */
+  .note-extra{ background:#0c1320; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:0 0 16px; font-size:16px; color:var(--muted); }
+  .note-extra b{ color:var(--fg); }
+
+  /* ---------- Guion hablado (teleprompter) ---------- */
+  .divider{ display:flex; align-items:center; gap:14px; margin:30px 0 16px; color:var(--teal); font-size:13px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+  .divider::before,.divider::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--teal),transparent); opacity:.5; }
+  .script{
+    background:#0a1418; border:1px solid #14333a; border-left:4px solid var(--teal);
+    border-radius:14px; padding:20px 26px; margin:0 0 16px;
+  }
+  .script p{ font-size:21px; line-height:1.62; margin:0 0 16px; color:#dbe8ee; }
+  .script p:last-child{ margin-bottom:0; }
+  .script ul,.script ol{ margin:0 0 16px; padding-left:24px; }
+  .script li{ font-size:20px; line-height:1.55; margin:6px 0; color:#dbe8ee; }
+  .script strong{ color:#fff; }
+  .script em{ color:var(--muted); }
+  .script .stage-note{ color:var(--green); font-style:italic; }
+  .script pre{ background:#06121a; border:1px solid #14333a; border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:15px; color:#bfe7ec; line-height:1.4; }
+
+  /* inline gloss para siglas */
+  .gloss{ color:var(--teal); font-weight:600; font-size:.8em; white-space:nowrap; }
+
+  /* ---------- Glosario (overlay) ---------- */
+  .glos-overlay{
+    position:fixed; inset:0; background:rgba(4,8,14,.82); backdrop-filter:blur(3px);
+    display:none; align-items:flex-start; justify-content:center; z-index:50; padding:40px 20px; overflow-y:auto;
+  }
+  .glos-overlay.open{ display:flex; }
+  .glos-modal{
+    background:var(--bg2); border:1px solid var(--line); border-radius:18px;
+    max-width:1000px; width:100%; padding:26px 30px 34px; box-shadow:0 30px 80px #000a;
+  }
+  .glos-modal h2{ margin:0 0 4px; font-size:26px; color:#fff; }
+  .glos-modal .sub{ color:var(--muted); font-size:14px; margin:0 0 20px; }
+  .glos-close{ float:right; background:#3a1414; color:var(--red); border:1px solid #5a1f1f; border-radius:8px; padding:6px 13px; font-weight:700; cursor:pointer; font-size:14px; }
+  .glos-close:hover{ filter:brightness(1.3); }
+  .glos-cols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
+  .glos-group h3{ color:var(--blue); font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin:0 0 8px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .glos-group dl{ margin:0; }
+  .glos-group div.row{ display:flex; gap:10px; margin:7px 0; align-items:baseline; }
+  .glos-group dt{ color:var(--teal); font-weight:800; font-family:monospace; font-size:15px; min-width:78px; flex:0 0 auto; }
+  .glos-group dd{ margin:0; color:#dbe8ee; font-size:15px; line-height:1.35; }
+  .glos-group dd em{ color:var(--muted); font-style:normal; }
+
+  /* ---------- Vista angosta / vertical (portrait) ---------- */
+  @media (max-width: 820px){
+    .topbar{ flex-wrap:wrap; gap:8px 10px; padding:8px 12px; }
+    .topbar .spacer{ display:none; }
+    .topbar .title{ flex:1 1 100%; font-size:14px; line-height:1.25; }
+    .topbar .title span{ display:none; }          /* ocultar subtítulo largo */
+
+    .timer{ flex:1 1 100%; flex-wrap:wrap; justify-content:flex-start; }
+    .tm-clock{ font-size:22px; }
+    .tm-status{ flex:1 1 auto; }
+
+    #glos-btn{ order:3; }
+    .time-chip{ order:3; margin-left:auto; }
+    #jump{ flex:1 1 100%; max-width:none; order:4; }
+    #prev,.counter,#next{ order:5; }
+    #prev,#next{ flex:1 1 0; }                     /* navegación grande y tocable */
+    .counter{ flex:0 0 auto; align-self:center; }
+
+    .stage{ padding:22px 18px 64px; }
+    .slide h2{ font-size:28px; }
+    .slide .range{ font-size:14px; }
+    .slide li, .slide ol li{ font-size:19px; }
+    .slide li li{ font-size:17px; }
+    .block{ padding:15px 17px; }
+    .hint{ font-size:12px; }
+
+    /* glosario a pantalla casi completa */
+    .glos-overlay{ padding:16px 10px; }
+    .glos-modal{ padding:20px 16px 26px; }
+    .glos-cols{ gap:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">Notas al orador<span> · Fundamentos de IA — M1·C1 · 75 min · MLOps senior</span></div>
+  <div class="timer" id="timer-group" title="Cronómetro de la charla (Espacio = iniciar/pausar)">
+    <button class="tm-btn" id="tm-toggle">▶ Iniciar</button>
+    <span class="tm-clock" id="tm-elapsed">00:00</span>
+    <button class="tm-reset" id="tm-reset" title="Reiniciar cronómetro">⟲</button>
+    <span class="tm-status idle" id="tm-status">cronómetro detenido</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="nav-btn" id="glos-btn" title="Abrir glosario de siglas (G)">📖 Glosario</button>
+  <span class="time-chip" id="time" title="Horario previsto de esta slide">⏱️ 00:00</span>
+  <select id="jump" title="Saltar a slide"></select>
+  <button class="nav-btn" id="prev">← Anterior</button>
+  <span class="counter" id="counter">1 / 18</span>
+  <button class="nav-btn" id="next">Siguiente →</button>
+</div>
+
+<div class="progress"><div id="bar"></div></div>
+
+<!-- ===== Glosario de siglas ===== -->
+<div class="glos-overlay" id="glos">
+  <div class="glos-modal">
+    <button class="glos-close" id="glos-close">✕ Cerrar (Esc)</button>
+    <h2>📖 Glosario de siglas</h2>
+    <p class="sub">Todas las siglas que aparecen en la clase, con su significado. Cerrá con <kbd>Esc</kbd> o el botón.</p>
+    <div class="glos-cols">
+
+      <div class="glos-group">
+        <h3>DevOps / MLOps (las que ya conocen)</h3>
+        <dl>
+          <div class="row"><dt>DevOps</dt><dd>Development + Operations</dd></div>
+          <div class="row"><dt>MLOps</dt><dd>Machine Learning Operations — <em>operación de modelos de ML en producción</em></dd></div>
+          <div class="row"><dt>IaC</dt><dd>Infrastructure as Code — <em>infraestructura como código</em></dd></div>
+          <div class="row"><dt>CI/CD</dt><dd>Continuous Integration / Continuous Delivery (o Deployment) — <em>integración y entrega continua</em></dd></div>
+          <div class="row"><dt>API</dt><dd>Application Programming Interface — <em>interfaz de programación</em></dd></div>
+          <div class="row"><dt>SDK</dt><dd>Software Development Kit — <em>kit de desarrollo</em></dd></div>
+          <div class="row"><dt>GA</dt><dd>General Availability — <em>disponibilidad general (release estable)</em></dd></div>
+          <div class="row"><dt>GPU / CPU</dt><dd>Graphics / Central Processing Unit — <em>unidad de procesamiento gráfico / central</em></dd></div>
+          <div class="row"><dt>LOC</dt><dd>Lines Of Code — <em>líneas de código</em></dd></div>
+          <div class="row"><dt>PoC</dt><dd>Proof of Concept — <em>prueba de concepto</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>IA / Machine Learning</h3>
+        <dl>
+          <div class="row"><dt>IA</dt><dd>Inteligencia Artificial</dd></div>
+          <div class="row"><dt>ML</dt><dd>Machine Learning — <em>aprendizaje automático</em></dd></div>
+          <div class="row"><dt>LLM</dt><dd>Large Language Model — <em>modelo grande de lenguaje</em></dd></div>
+          <div class="row"><dt>NLP / NLU</dt><dd>Natural Language Processing / Understanding — <em>procesamiento / comprensión del lenguaje natural</em></dd></div>
+          <div class="row"><dt>RAG</dt><dd>Retrieval-Augmented Generation — <em>generación aumentada por recuperación</em></dd></div>
+          <div class="row"><dt>RLHF</dt><dd>Reinforcement Learning from Human Feedback — <em>aprendizaje por refuerzo con feedback humano</em></dd></div>
+          <div class="row"><dt>RLAIF</dt><dd>Reinforcement Learning from AI Feedback — <em>ídem, pero con feedback de otra IA</em></dd></div>
+          <div class="row"><dt>BPE</dt><dd>Byte Pair Encoding — <em>algoritmo de tokenización</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Modelos clásicos / redes</h3>
+        <dl>
+          <div class="row"><dt>SVM</dt><dd>Support Vector Machine — <em>máquina de vectores de soporte</em></dd></div>
+          <div class="row"><dt>KNN</dt><dd>K-Nearest Neighbors — <em>k vecinos más cercanos</em></dd></div>
+          <div class="row"><dt>RNN</dt><dd>Recurrent Neural Network — <em>red neuronal recurrente</em></dd></div>
+          <div class="row"><dt>LSTM</dt><dd>Long Short-Term Memory — <em>tipo de RNN</em></dd></div>
+          <div class="row"><dt>GRU</dt><dd>Gated Recurrent Unit — <em>tipo de RNN</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Transformers / LLMs</h3>
+        <dl>
+          <div class="row"><dt>Q/K/V</dt><dd>Query / Key / Value — <em>consulta / clave / valor (mecanismo de atención)</em></dd></div>
+          <div class="row"><dt>GPT</dt><dd>Generative Pre-trained Transformer</dd></div>
+          <div class="row"><dt>BERT</dt><dd>Bidirectional Encoder Representations from Transformers</dd></div>
+          <div class="row"><dt>ReAct</dt><dd>Reasoning + Acting — <em>razonar + actuar (loop del agente)</em></dd></div>
+          <div class="row"><dt>175B</dt><dd>175 <em>billion</em> = 175 mil millones de parámetros</dd></div>
+          <div class="row"><dt>lr</dt><dd>learning rate — <em>tasa de aprendizaje</em></dd></div>
+        </dl>
+      </div>
+
+      <div class="glos-group">
+        <h3>Estudios y organismos citados</h3>
+        <dl>
+          <div class="row"><dt>METR</dt><dd>Model Evaluation &amp; Threat Research — <em>org de evaluación de modelos (estudio del −19%)</em></dd></div>
+          <div class="row"><dt>DORA</dt><dd>DevOps Research and Assessment — <em>reporte anual de Google Cloud</em></dd></div>
+          <div class="row"><dt>Gartner</dt><dd><em>(consultora, no es sigla)</em></dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- ===== Slide 0 ===== -->
+  <section class="slide" data-time="⏱️ 00:00–00:01">
+    <p class="kicker">Slide 0</p>
+    <h2>Portada</h2>
+    <p class="range">⏱️ 00:00–00:01</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Bienvenida corta. <em>"Fundamentos de IA, primera de las clases del módulo."</em></li>
+        <li>Setear la regla del juego: <em>"a vos no te explico qué es un modelo, un deploy ni un pipeline."</em></li>
+        <li>Tesis: <strong>no es magia, es ingeniería</strong>, y casi todo tiene análogo en DevOps.</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · Apertura</div>
+    <div class="script">
+      <p>"Buenas. Bienvenidos a <strong>Fundamentos de IA</strong>. Antes de arrancar, una aclaración importante: a vos no te tengo que explicar qué es un modelo, qué es un deploy, ni qué es un pipeline. Vos eso lo venís haciendo hace años."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 1 ===== -->
+  <section class="slide" data-time="⏱️ 00:01–00:03">
+    <p class="kicker">Slide 1 · Hoja de ruta</p>
+    <h2>Tender un puente, no empezar de cero</h2>
+    <p class="range">⏱️ 00:01–00:03</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li><em>"Hoy tendemos un puente: del ML clásico que ya manejás hacia LLMs y agentes."</em></li>
+        <li>Lo que ya saben lo usamos como <strong>analogía</strong> (Docker, IaC <span class="gloss">(infra como código)</span>, CI/CD <span class="gloss">(integración/entrega continua)</span>), no lo explicamos.</li>
+        <li>Adelanto: 4 demos en vivo, todo embebido en la presentación, nada de notebooks.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Que entiendan que el hilo conductor es la analogía DevOps/MLOps.</p>
+    </div>
+    <div class="divider">📜 Guion completo · Apertura (cont.)</div>
+    <div class="script">
+      <p>"Lo que vamos a hacer en estos 75 minutos es <strong>tender un puente</strong>: desde el ML clásico que ya conocés — entrenar un modelo, serializarlo, servirlo detrás de una API — hasta lo que está pasando hoy con los LLMs y los agentes. La tesis de la clase es simple: <strong>no es magia, es ingeniería</strong>, y casi todo tiene un análogo en el mundo DevOps que ya manejás. Vamos a usar esos análogos como muletas durante toda la clase."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 2 ===== -->
+  <section class="slide" data-time="⏱️ 00:03–00:06">
+    <p class="kicker">Slide 2 · Ancla de la clase</p>
+    <h2>Dos décadas en una transparencia</h2>
+    <p class="range">⏱️ 00:03–00:06</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Recorrer la década rapidísimo, sin frenar en cada hito.</li>
+        <li>Marcar tres quiebres: <strong>2012</strong> (AlexNet, deep learning sale del lab), <strong>2017</strong> (Transformers), <strong>2022-2025</strong> (LLMs <span class="gloss">(Large Language Models)</span> → agentes).</li>
+        <li>Cerrar con el dato fuerte: Claude Code llegó a <strong>$1B run-rate revenue en noviembre 2025</strong>, seis meses después de su lanzamiento público (Anthropic, comunicado 3-dic-2025).</li>
+        <li><em>"Esta slide queda de ancla; vamos a volver a ella mentalmente toda la clase."</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Ubicar la IA generativa actual como punto de llegada de una evolución, no como ruptura mágica.</p>
+    </div>
+    <div class="divider">📜 Guion completo · Décadas en una transparencia (de 1.1)</div>
+    <div class="script">
+      <p>"Décadas en una transparencia, rapidito:</p>
+      <ul>
+        <li><strong>2000–2010:</strong> ML clásico — árboles, random forest, SVM, regresión logística. La estrella era el <em>feature engineering</em> manual. El data scientist se rompía la cabeza extrayendo features a mano.</li>
+        <li><strong>2012:</strong> AlexNet en ImageNet. Deep learning sale del laboratorio. La GPU pasa a ser commodity. El feature engineering empieza a delegarse a la red.</li>
+        <li><strong>2017:</strong> sale el paper <em>Attention Is All You Need</em> de Vaswani y compañía en Google. Aparecen los Transformers. Casi nadie se dio cuenta de lo que acababa de pasar.</li>
+        <li><strong>2018–2020:</strong> BERT, GPT-2, GPT-3. Escala bestial — GPT-3 tiene 175 mil millones de parámetros. Aparece el <em>few-shot learning</em>: el modelo resuelve tareas que nunca vio, sólo con ejemplos en el prompt.</li>
+        <li><strong>2022–2023:</strong> ChatGPT estalla. El paper de ReAct (Yao et al., 2022) mete la idea de combinar razonamiento + acción, y el ecosistema arranca con los agentes.</li>
+        <li><strong>2024–2026:</strong> Año de los agentes y del <em>agentic coding</em>. Anthropic publica "Building Effective Agents" en diciembre 2024. Claude Code sale en research preview en febrero 2025 y GA en mayo 2025. Anthropic comunicó oficialmente el 3 de diciembre 2025: <em>'In November, Claude Code achieved a significant milestone: just six months after becoming available to the public, it reached $1 billion in run-rate revenue.'</em></li>
+      </ul>
+      <p>Hoy estamos parados acá: el LLM dejó de ser un chatbot de demo y se convirtió en un componente más del stack, que en muchos casos <strong>escribe, ejecuta y verifica código solo</strong>. Eso te cambia el laburo, y por eso este curso existe."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 3 ===== -->
+  <section class="slide" data-time="⏱️ 00:06–00:10">
+    <p class="kicker">Slide 3 · 1.1 · El cambio de paradigma</p>
+    <h2>De reglas a patrones</h2>
+    <p class="range">⏱️ 00:06–00:10</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>40 años de software = <strong>reglas explícitas</strong> (<code>if</code>, validaciones, reglas de negocio). El programador sabe y le dicta a la máquina.</li>
+        <li>Funciona mientras el dominio sea enumerable. Se rompe con "reconocé un gato", "esto es spam", "traducí esto".</li>
+        <li>ML invierte la lógica: <strong>le doy ejemplos y que descubra las reglas solo</strong>.</li>
+        <li>Pasamos de programar el <em>qué hacer</em> a programar el <em>cómo aprender</em>.</li>
+        <li>Costo del paradigma: opacidad, no determinismo, dependencia total de los datos.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El cambio mental: de dictar reglas a curar datos.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.1 El cambio de paradigma</div>
+    <div class="script">
+      <p>"Arranquemos por el principio conceptual. Durante 40 años el software fue, esencialmente, <strong>reglas explícitas</strong>: vos escribís un <code>if</code>, una validación, una regla de negocio. El programador es el que sabe, y le dicta al sistema. Eso funciona bárbaro mientras el dominio sea acotado y las reglas sean enumerables.</p>
+      <p>El problema aparece cuando querés que un sistema reconozca un gato en una foto, o entienda si un mail es spam, o traduzca del inglés al castellano. Ahí las reglas no escalan: nadie puede enumerarlas. Y ahí entra el machine learning con la idea opuesta: <strong>en vez de programar las reglas, le doy ejemplos al sistema y que las reglas las descubra él</strong>. Pasamos de programar el <em>qué hacer</em> a programar el <em>cómo aprender</em>."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 4 ===== -->
+  <section class="slide" data-time="⏱️ 00:10–00:20">
+    <p class="kicker">Slide 4 · 1.2 · ¿Qué es un modelo?</p>
+    <h2>Un modelo entrenado es un artefacto compilado</h2>
+    <p class="range">⏱️ 00:10–00:20</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>De dónde sale el ML: estadística aplicada (regresión lineal/logística = años 50-60). Cambió la escala y el cómputo, no la idea.</li>
+        <li>Repaso veloz (ya lo saben): regresión, árboles, <strong>Random Forest (Breiman 2001)</strong>, gradient boosting (XGBoost/LightGBM), SVM <span class="gloss">(Support Vector Machine)</span>/KNN <span class="gloss">(K-Nearest Neighbors)</span>/Naïve Bayes. Tabular sigue siendo de ellos hoy.</li>
+        <li><strong>El análogo clave</strong> (mostrar la tabla de la slide): un modelo entrenado es <strong>un artefacto compilado a partir de datos</strong>.
+          <ul>
+            <li>dataset ≈ código fuente</li>
+            <li><code>model.fit()</code> ≈ <code>docker build</code></li>
+            <li><code>.pkl</code>/<code>.safetensors</code> ≈ imagen de Docker</li>
+            <li>model registry ≈ container registry</li>
+            <li><code>model.predict()</code> ≈ <code>docker run</code></li>
+          </ul>
+        </li>
+        <li>Igual que un binario, es <strong>opaco</strong>: no leés un Random Forest entrenado como leés un <code>.py</code>.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">"Un modelo es un binario que compilás desde datos." Esta es la idea ancla del bloque.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.2 ¿Qué es un modelo de ML?</div>
+    <div class="script">
+      <p>"Bueno, conceptualmente: ¿de dónde sale un modelo de ML? Salió, literal, de la estadística aplicada. Si tomás una regresión lineal o logística — que es lo que usás cuando hacés <code>LogisticRegression()</code> en scikit-learn — eso es estadística pura de los años 50–60. Lo que cambió con el ML moderno fue la escala de los datos y la potencia de cómputo, no la idea de fondo: <strong>encontrar la función que mejor explica los datos</strong>.</p>
+      <p>Repaso veloz porque esto ya lo saben:</p>
+      <ul>
+        <li><strong>Regresión lineal/logística:</strong> la base. Una combinación lineal de features. Interpretable, rápida, todavía sirve para un montón de cosas.</li>
+        <li><strong>Árboles de decisión:</strong> una secuencia de <code>if</code>s aprendidos de los datos.</li>
+        <li><strong>Random Forest (Breiman, 2001):</strong> muchos árboles entrenados sobre subsets distintos de datos y features, y se vota. Es el caballito de batalla de tabular hasta hoy.</li>
+        <li><strong>Gradient boosting (XGBoost, LightGBM, CatBoost):</strong> árboles que aprenden de los errores de los árboles anteriores. Sigue ganando competencias de Kaggle en datos tabulares.</li>
+        <li><strong>SVM, KNN, Naïve Bayes:</strong> los clásicos del clásico.</li>
+      </ul>
+      <p>Ahora, acá viene el análogo que me importa que se lleven. <strong>Un modelo entrenado es un artefacto compilado a partir de datos.</strong> Piénsenlo así:</p>
+      <p>Cuando vos hacés <code>model.fit(X, y)</code> y después <code>joblib.dump(model, 'modelo.pkl')</code>, lo que estás haciendo es <strong>compilar un binario a partir de datos</strong>. Ese binario después lo subís a un registry, lo bajás, lo ponés detrás de un endpoint, y le pegás predicciones. Es un deploy igual al que ya hacés. La diferencia es que el "código fuente" son los datos, y el "compilador" es el algoritmo de entrenamiento. Y como cualquier binario, <strong>es opaco</strong>: vos no leés un Random Forest entrenado igual que leés un <code>.py</code>. Esa opacidad — la falta de interpretabilidad — es uno de los costos del paradigma."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 5 ===== -->
+  <section class="slide" data-time="⏱️ 00:20–00:23">
+    <p class="kicker">Slide 5 · 1.3 · Redes neuronales</p>
+    <h2>Backpropagation: un CI loop con auto-fix</h2>
+    <p class="range">⏱️ 00:20–00:23</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Una red es la generalización: encadenás muchas combinaciones lineales con no-linealidades. Cada neurona = <code>activación(W·x + b)</code>.</li>
+        <li>Funcionan por capacidad (universal approximation) y porque <strong>aprenden las features solas</strong> → adiós feature engineering manual.</li>
+        <li>Backprop (<strong>Rumelhart, Hinton, Williams, Nature 1986</strong>) en 6 pasos intuitivos:
+          <ol>
+            <li>pesos random</li>
+            <li>predigo (mal)</li>
+            <li>mido el error (loss)</li>
+            <li>propago el error hacia atrás → gradiente por parámetro</li>
+            <li>ajusto cada peso un poquito (descenso de gradiente)</li>
+            <li>repito millones de veces</li>
+          </ol>
+        </li>
+        <li>Analogía: <strong>un CI loop infinito</strong> donde el test es "cuánto te equivocaste" y el auto-fix ajusta los pesos.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El modelo se equivoca → se corrige. Millones de veces. Por eso entrenar es caro.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.3 Redes neuronales y backpropagation</div>
+    <div class="script">
+      <p>"Saltamos un escalón. Las redes neuronales son, en el fondo, una generalización: en vez de una combinación lineal de features, <strong>encadeno muchas combinaciones lineales con no-linealidades en el medio</strong>. Eso es todo. Cada 'neurona' es: <code>output = activación(W·x + b)</code>. Las apilás en capas, y tenés una red profunda.</p>
+      <p>¿Por qué funcionan tan bien? Por un teorema (el <em>universal approximation theorem</em>) que dice que con suficiente capacidad pueden aproximar cualquier función continua. Y por algo más práctico: aprenden las features solas. No necesitás el feature engineering manual del ML clásico.</p>
+      <p>Ahora, la pregunta clave: <strong>¿cómo se entrena una red?</strong> Con backpropagation, que se publicó como técnica práctica en 1986 por Rumelhart, Hinton y Williams en <em>Nature</em> (paper 'Learning representations by back-propagating errors'). La idea, intuitiva, sin matemática:</p>
+      <ol>
+        <li>La red tiene un montón de parámetros (pesos, <code>W</code>). Empiezan en valores random.</li>
+        <li>Le paso un ejemplo (entrada → predicción). La predicción va a ser pésima al principio.</li>
+        <li>Mido cuán pésima fue (loss function: cuánto se equivocó).</li>
+        <li><strong>Acá está la magia:</strong> propago ese error hacia atrás por la red, calculando para cada parámetro 'cuánto contribuyó a equivocarse'. Eso es la derivada parcial de la loss respecto a cada peso — el gradiente.</li>
+        <li>Ajusto cada parámetro un poquito en la dirección que reduce el error (descenso de gradiente).</li>
+        <li>Repito millones de veces.</li>
+      </ol>
+      <p>La analogía que les sirve: es un <strong>CI loop infinito</strong>, donde el test es 'qué tan lejos estuvo la predicción del label', y el <code>git commit --amend</code> automático ajusta los pesos. El modelo se equivoca, se corrige, se equivoca, se corrige. Por eso entrenar es caro: son millones de iteraciones de forward + backward."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 6 ===== -->
+  <section class="slide" data-time="⏱️ 00:23–00:30">
+    <p class="kicker">Slide 6 · 🎬 Demo 1</p>
+    <h2>El modelo se equivoca y se ajusta</h2>
+    <p class="range">⏱️ 00:23–00:30</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul><li><strong>Disparar la animación de la slide</strong> (punto rojo bajando al mínimo).</li></ul>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (mientras corre)</p>
+      <ul>
+        <li><em>"El punto rojo es el estado de los parámetros; la estrella es el óptimo."</em></li>
+        <li>Cada paso: medí el error, calculá el gradiente, movete en la dirección opuesta.</li>
+        <li><em>"Esto es backprop, pero en miles de millones de dimensiones en vez de dos."</em></li>
+        <li>Tocar el <strong>slider de learning rate</strong>: muy alto → diverge y pega saltos; muy bajo → tarda una eternidad. Es el mismo <code>lr</code> que ponés cuando entrenás.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Visualizar físicamente "se equivoca y se ajusta".</p>
+    </div>
+    <div class="divider">📜 Guion completo · Demo 1</div>
+    <div class="script">
+      <p class="stage-note">[Acá corremos la Demo 1: descenso de gradiente 2D. Mostrar la superficie de loss, el punto rojo bajando hacia el mínimo, paso a paso. Decir mientras corre: 'esto es lo que está pasando, multiplicado por millones de parámetros y millones de ejemplos, dentro de cada red neuronal que entrenan'.]</p>
+      <p>"El punto rojo es el estado de los parámetros. La estrella dorada es el óptimo. Cada paso de descenso es: 'medí cuánto te equivocaste, calculá el gradiente — la dirección de mayor subida — y movete en la dirección opuesta'. Esto es backprop: lo mismo pero en miles de millones de dimensiones, no en dos. Y el <code>learning_rate</code> es exactamente el <code>lr</code> que escribimos arriba: si lo subís mucho, el punto pega saltos y diverge; si lo bajás mucho, tarda una eternidad."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 7 ===== -->
+  <section class="slide" data-time="⏱️ 00:30–00:38">
+    <p class="kicker">Slide 7 · 1.4 · El puente hacia los LLMs</p>
+    <h2>Embeddings: coordenadas GPS del significado</h2>
+    <p class="range">⏱️ 00:30–00:38</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Pregunta disparadora: <em>"¿cómo le hago tragar la palabra 'perro' a una red que sólo entiende números?"</em></li>
+        <li>Idea ingenua: <strong>one-hot</strong> (vector de 50.000 dims, un 1 y el resto ceros). Problema: 'perro' y 'gato' tan lejos como 'perro' y 'factura'. Cero significado.</li>
+        <li>Idea embeddings: <strong>vector denso de pocas dims (100–3072)</strong>, entrenado para que significados parecidos queden cerca.</li>
+        <li>Papers: <strong>Word2Vec (Mikolov 2013)</strong> y <strong>GloVe (Pennington/Socher/Manning 2014)</strong>. Intuición de Firth: "una palabra se define por la compañía que mantiene".</li>
+        <li>El resultado que voló cabezas: <code>rey - hombre + mujer ≈ reina</code>. <strong>Aritmética sobre significado.</strong></li>
+        <li>Analogía: <strong>coordenadas GPS del significado</strong>. BA cerca de Montevideo, lejos de Tokio. 'perro' cerca de 'gato', lejos de 'factura'.</li>
+        <li>Métrica de cercanía: <strong>similitud coseno</strong>.</li>
+        <li>Esto es la base de <strong>RAG <span class="gloss">(Retrieval-Augmented Generation)</span>, búsqueda semántica, recomendadores, deduplicación, detección de fraude</strong> → medio stack moderno.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Que se vayan con la imagen: una palabra/token = un punto en un espacio vectorial donde la cercanía es significado. (Es el puente hacia LLMs.)</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.4 Embeddings</div>
+    <div class="script">
+      <p>"Ahora viene el concepto que más me importa que se lleven, porque es el puente conceptual hacia los LLMs: <strong>embeddings</strong>.</p>
+      <p>Pregunta: ¿cómo le hago tragar a una red neuronal la palabra 'perro'? La red espera números, no strings. La primera idea ingenua es <em>one-hot encoding</em>: tengo un vocabulario de, digamos, 50.000 palabras, y a cada una le asigno un vector de 50.000 dimensiones con un 1 en su posición y ceros en el resto. Funciona, pero es horrible: cada palabra es ortogonal a las demás, 'perro' y 'gato' están tan lejos entre sí como 'perro' y 'factura'. No hay noción de significado.</p>
+      <p>La idea de los embeddings es la opuesta: <strong>represento cada palabra como un vector denso de unas pocas dimensiones (típicamente 100, 300, 768, 1536, 3072 según el modelo), y entreno la red para que palabras con significados parecidos terminen cerca en ese espacio vectorial.</strong></p>
+      <p>El paper canónico es Word2Vec de Mikolov y compañía en Google, 2013 ('Efficient Estimation of Word Representations in Vector Space', arXiv:1301.3781). Después vino GloVe de Pennington, Socher y Manning en Stanford, 2014. La intuición de los dos: <em>"una palabra se define por la compañía que mantiene"</em> (la hipótesis distribucional de Firth). Si 'perro' y 'gato' aparecen en contextos parecidos ('mi ___ ladra', 'mi ___ duerme', 'compré comida para mi ___'), el algoritmo los acerca en el espacio.</p>
+      <p>El resultado famoso: <code>vector('rey') - vector('hombre') + vector('mujer') ≈ vector('reina')</code>. <strong>Aritmética sobre significado.</strong> Eso, en 2013, voló cabezas.</p>
+      <p>La analogía que les sirve: pensálo como <strong>coordenadas GPS del significado</strong>. Buenos Aires está cerca de Montevideo y lejos de Tokio en el mapa físico. 'perro' está cerca de 'gato' y lejos de 'factura' en el mapa semántico. Y la métrica que usamos para medir distancia es la <strong>similitud coseno</strong> — el coseno del ángulo entre los vectores. Cerca de 1: muy parecidos. Cerca de 0: no tienen nada que ver. Negativo: opuestos.</p>
+      <p>Esto es la base de <strong>RAG</strong> (Retrieval-Augmented Generation), de los buscadores semánticos, de los recomendadores modernos, de la deduplicación de tickets, de la detección de fraude — de medio stack moderno."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 8 ===== -->
+  <section class="slide" data-time="⏱️ 00:38–00:42">
+    <p class="kicker">Slide 8 · 🎬 Demo 2</p>
+    <h2>¿"perro" está más cerca de "gato" o de "factura"?</h2>
+    <p class="range">⏱️ 00:38–00:42</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul><li><strong>Disparar la matriz de similitud interactiva.</strong></li></ul>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (mientras se muestra)</p>
+      <ul>
+        <li>Tres cosas para resaltar:
+          <ul>
+            <li>'perro corre por el parque' vs 'gato duerme en el sillón' → similitud media-alta (comparten "animal doméstico").</li>
+            <li>'perro corre' vs 'cachorro persigue pelota' → paráfrasis, todavía más cerca.</li>
+            <li>'perro' vs 'factura de la luz' → casi cero.</li>
+          </ul>
+        </li>
+        <li><em>"El modelo que genera esto pesa 80 megas y corre en una laptop sin GPU."</em></li>
+        <li><em>"Esto es exactamente lo que hay atrás de la búsqueda semántica de Notion o Drive, y de RAG."</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Confirmar visualmente: cercanía numérica = similitud de significado.</p>
+    </div>
+    <div class="divider">📜 Guion completo · Demo 2</div>
+    <div class="script">
+      <p class="stage-note">[Acá corremos la Demo 2: embeddings y similitud coseno con sentence-transformers. Mostrar que 'perro' y 'gato' tienen similitud ~0.5, 'perro' y 'factura' ~0.05, y dos paráfrasis del mismo concepto ~0.85. Mientras corre el .encode(), decir: 'fíjense que esto está corriendo localmente, sin API key. El modelo all-MiniLM-L6-v2 pesa 80 megas y mete cada frase en 384 dimensiones'.]</p>
+      <p>"Fíjense en tres cosas. Uno: 'perro corre por el parque' y 'gato duerme en el sillón' tienen similitud relativamente alta porque comparten el espacio semántico de 'animal doméstico'. Dos: 'perro corre' y 'cachorro persigue pelota' son paráfrasis y van a estar todavía más cerca. Tres: 'perro' vs 'factura de la luz' están casi en cero. Esto es lo que está atrás de <strong>RAG</strong>, de la búsqueda semántica de Notion o Google Drive, de los recomendadores de Spotify. Y el modelo pesa 80 megas, corre en una laptop sin GPU."</p>
+      <p><em>Resultados típicos (orden de magnitud):</em> perro/gato ≈ 0.50 · perro/cachorro persigue pelota ≈ 0.65 · perro/factura ≈ 0.05 · factura/abonar servicio ≈ 0.65 · perro/inflación ≈ 0.00</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 9 ===== -->
+  <section class="slide" data-time="⏱️ 00:42–00:50">
+    <p class="kicker">Slide 9 · 1.5 · La revolución</p>
+    <h2>Transformers y atención</h2>
+    <p class="range">⏱️ 00:42–00:50</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Pre-2017: RNN <span class="gloss">(Recurrent Neural Network)</span>/LSTM <span class="gloss">(Long Short-Term Memory)</span>. Procesabas palabra por palabra con un estado oculto. Dos problemas: se diluye el contexto largo y <strong>no paraleliza</strong> (muerte con datasets grandes).</li>
+        <li>Junio 2017: <strong>Attention Is All You Need (Vaswani et al., Google)</strong>. Tiran las RNN, se quedan sólo con atención.</li>
+        <li>Idea en humano: al procesar una palabra, <strong>mira a todas las demás simultáneamente</strong> y decide a cuáles prestar atención.</li>
+        <li>Ejemplo: "El gato que vi ayer en el parque estaba durmiendo" → al procesar 'estaba', va directo a 'gato' (6 palabras atrás) en un solo paso.</li>
+        <li>Mecánica mínima: <strong>Query</strong> (qué busco) · <strong>Key</strong> (qué ofrezco) · <strong>Value</strong> (qué información tengo). Q·K = cuánta atención; softmax; pondero los Values. Multi-head = varios en paralelo, cada uno aprende relaciones distintas.</li>
+        <li>Por qué fue LA revolución (dos cosas juntas):
+          <ul>
+            <li><strong>Paraleliza</strong> → destrabó la escala (tirale todas las GPUs).</li>
+            <li><strong>Captura contexto largo</strong> sin pérdida de señal.</li>
+          </ul>
+        </li>
+        <li>Analogía: RNN = build secuencial (Jenkins viejo). Transformer = build masivamente paralelo (Bazel/Buildkite bien armado).</li>
+        <li><em>"Sin esto no hay GPT, BERT, Claude ni Gemini. Toda la IA generativa está parada sobre este paper."</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">La atención rompe la secuencialidad → desbloquea la escala.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.5 Transformers y atención</div>
+    <div class="script">
+      <p>"Bueno, ya tenemos embeddings: palabras → vectores. Ahora la pregunta es cómo procesamos una <strong>secuencia</strong> de esos vectores. Hasta 2017 la respuesta era: redes recurrentes (RNN, LSTM, GRU). Procesabas la oración palabra por palabra, manteniendo un estado oculto. Problema 1: la dependencia entre palabras lejanas se diluía. Problema 2: era inherentemente secuencial — no podías paralelizar el entrenamiento, lo cual con datasets grandes era la muerte.</p>
+      <p>En junio de 2017 se publica <em>Attention Is All You Need</em> (Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser y Polosukhin — Google). Proponen una arquitectura nueva, el <strong>Transformer</strong>, que tira las RNN a la basura y se queda sólo con el mecanismo de atención.</p>
+      <p>La idea de la atención, en lenguaje humano: cuando estás procesando una palabra de la oración, en vez de tener un estado oculto que arrastraste palabra por palabra, <strong>cada palabra mira a todas las otras palabras de la oración simultáneamente</strong> y decide a cuáles 'prestarle atención' para entenderse a sí misma.</p>
+      <p>Ejemplo: 'El gato que vi ayer en el parque estaba durmiendo.' Cuando el modelo procesa 'estaba', necesita saber que el sujeto es 'gato' (que está 6 palabras atrás). La atención le permite ir directo, en un solo paso, a 'gato', sin tener que arrastrar información a través de 'que', 'vi', 'ayer', 'en', 'el', 'parque'.</p>
+      <p>Mecánicamente: cada token genera tres vectores — <strong>Query</strong> ('qué estoy buscando'), <strong>Key</strong> ('qué ofrezco') y <strong>Value</strong> ('qué información tengo'). El producto punto Query·Key entre dos tokens te dice cuánta atención el primero le presta al segundo. Se aplica un softmax para que las atenciones sumen 1, y se pondera la suma de los Values. <em>Scaled dot-product attention</em>, fórmula 1 del paper.</p>
+      <p>Encima de eso, <strong>multi-head attention</strong>: hacés esto varias veces en paralelo con cabezales distintos, cada uno aprende a mirar relaciones diferentes (sintácticas, semánticas, de correferencia).</p>
+      <p>¿Por qué fue una revolución? Por dos razones combinadas:</p>
+      <ol>
+        <li><strong>Paraleliza.</strong> Como cada token se computa con todos los demás simultáneamente, podés tirarle todas las GPUs que tengas. Eso destrabó la escala.</li>
+        <li><strong>Captura contexto largo.</strong> No hay 'pérdida de señal' por distancia.</li>
+      </ol>
+      <p>Sin Transformers no había GPT, no había BERT, no había Claude, no había Gemini. <strong>Toda la IA generativa moderna está parada arriba de ese paper de 2017.</strong></p>
+      <p>Análogo MLOps: si las RNN eran un build secuencial (un step espera al anterior, como Jenkins viejo), los Transformers son un build masivamente paralelo (todos los steps en paralelo en un cluster, como Buildkite o Bazel bien armado). Misma diferencia de orden de magnitud en performance."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 10 ===== -->
+  <section class="slide" data-time="⏱️ 00:50–00:54">
+    <p class="kicker">Slide 10 · 🎬 Demo 3</p>
+    <h2>¿Quién mira a quién?</h2>
+    <p class="range">⏱️ 00:50–00:54</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul><li><strong>Disparar el heatmap interactivo</strong> (cambiar entre las 2-3 oraciones precargadas).</li></ul>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (mientras se muestra)</p>
+      <ul>
+        <li>Aclarar que es simplificación didáctica (en un Transformer real Q/K/V son proyecciones aprendidas y hay multi-head).</li>
+        <li><em>"Cada fila es un token preguntando: ¿a quién tengo que prestarle atención para entenderme?"</em></li>
+        <li>Señalar cómo un token de verbo "atrae" hacia su sujeto.</li>
+        <li><em>"En una red entrenada con trillones de tokens, distintos cabezales se especializan: correferencia, sintaxis, semántica."</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">Ver, literalmente, "quién mira a quién".</p>
+    </div>
+    <div class="divider">📜 Guion completo · Demo 3</div>
+    <div class="script">
+      <p class="stage-note">[Acá corremos la Demo 3: mapa de atención. Una oración corta, el heatmap muestra qué token mira a cuál. Decir: 'fíjense cómo 'gato' atrae la atención de 'durmiendo' — el modelo aprendió solo, sin que nadie le dijera explícitamente qué es el sujeto'.]</p>
+      <p>"Esto es una simplificación didáctica — en un Transformer real, Q, K y V son proyecciones lineales aprendidas, no el embedding crudo, y hay múltiples cabezales (multi-head). Pero la mecánica visual es ésta: cada fila es un token preguntando 'a quién tengo que prestar atención para entenderme'. En una red real, después de entrenar trillones de tokens, distintos cabezales se especializan: uno aprende correferencia sujeto-verbo, otro aprende sintaxis, otro semántica."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 11 ===== -->
+  <section class="slide" data-time="⏱️ 00:54–01:00">
+    <p class="kicker">Slide 11 · 1.6 · La conexión completa</p>
+    <h2>De Transformers a LLMs</h2>
+    <p class="range">⏱️ 00:54–01:00</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Receta para llegar a un LLM:
+          <ol>
+            <li>Transformer <strong>decoder-only</strong> (la mitad que genera).</li>
+            <li>Escalalo bestialmente (GPT-3 = 175B; los frontier de 2025 más grandes, muchos sin número público).</li>
+            <li>Entrenalo con una tarea tonta: <strong>predecir el próximo token</strong> sobre medio internet (trillions de tokens).</li>
+            <li>Fine-tuning + RLHF <span class="gloss">(Reinforcement Learning from Human Feedback)</span> para alinearlo.</li>
+          </ol>
+        </li>
+        <li><strong>Un LLM es un autocomplete cósmico.</strong> Predice token por token la continuación más probable.</li>
+        <li>Dato MLOps 1 — <strong>tokenización</strong>: el LLM ve enteros, no strings. BPE <span class="gloss">(Byte Pair Encoding)</span>. <code>cl100k_base</code> (GPT-4) vs <code>o200k_base</code> (GPT-4o, GPT-5, o1/o3/o4). Facturás, contás context window y batcheás <strong>por token</strong>.</li>
+        <li>Dato MLOps 2 — <strong>NO ES DETERMINÍSTICO</strong> (este es el que les choca):
+          <ul>
+            <li>Muestrea de una distribución (<code>temperature</code>, <code>top_p</code>, <code>top_k</code>).</li>
+            <li>Mismo prompt → outputs distintos.</li>
+            <li>Se rompe el <code>assert output == "..."</code>. Hay que evaluar por propiedades, LLM-as-judge, golden sets semánticos.</li>
+            <li><code>temperature=0</code> + seed ayuda pero no garantiza; y el proveedor te cambia el modelo sin avisar → versionalo explícito.</li>
+          </ul>
+        </li>
+        <li>Analogía: una API externa que devuelve respuestas <strong>similares pero no idénticas</strong> y que se actualiza sola. Diseñá asumiendo eso: caching, idempotencia, schema validation, retries, observability.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">LLM = autocomplete gigante, potente pero no determinístico y caro de operar.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.6 De transformers a LLMs</div>
+    <div class="script">
+      <p>"Bueno, ya tenemos la arquitectura. ¿Cómo se llega de un Transformer a un LLM como GPT, Claude o Llama?</p>
+      <p>La receta — sorprendentemente simple en concepto — es:</p>
+      <ol>
+        <li><strong>Tomá un Transformer decoder-only</strong> (sólo la mitad derecha del paper original, la que genera).</li>
+        <li><strong>Escalalo bestialmente:</strong> miles de millones de parámetros. GPT-3 tuvo 175B; los frontier de 2025 son bastante más grandes y muchos no publican el número.</li>
+        <li><strong>Entrenalo con una tarea tonta:</strong> predecir la siguiente palabra (en realidad, el siguiente <em>token</em> — que es un trozo de palabra) sobre una porción enorme de internet. Trillions de tokens.</li>
+        <li>Después fine-tuning con instrucciones humanas y RLHF/RLAIF para alinearlo.</li>
+      </ol>
+      <p>Eso es todo. <strong>Un LLM es, fundamentalmente, un autocomplete cósmico.</strong> Le das un prompt, y va prediciendo token por token cuál es la continuación más probable según lo que vio en entrenamiento.</p>
+      <p>Dos consecuencias técnicas que les importan a ustedes como MLOps:</p>
+      <p><strong>Primera: tokenización.</strong> El LLM no ve strings. Ve enteros. El tokenizador parte el texto en pedacitos (típicamente BPE — Byte Pair Encoding) y cada pedacito tiene un ID en un vocabulario fijo. Para los modelos de OpenAI:</p>
+      <ul>
+        <li><code>cl100k_base</code> — GPT-3.5, GPT-4 (vocabulario ~100k).</li>
+        <li><code>o200k_base</code> — GPT-4o, GPT-4.1, GPT-5, la familia o1/o3/o4 (vocabulario ~200k, mejor para multilingüe y código). Esto está documentado en <code>tiktoken/model.py</code> del repo oficial de OpenAI.</li>
+      </ul>
+      <p>Cuando facturás por tokens, cuando calculás context windows, cuando hacés batching — todo es a nivel token. Hay que pensarlo así."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 12 ===== -->
+  <section class="slide" data-time="(incluido en 1.6)">
+    <p class="kicker">Slide 12 · 1.6 · Implicancias</p>
+    <h2>El no-determinismo te cambia el MLOps</h2>
+    <p class="range">⏱️ (incluido en 1.6)</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Reforzar los puntos de la slide: testing, eval, versionado, caching.</li>
+        <li><em>"Esto es lo que más les va a cambiar el día a día como MLOps."</em></li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · 1.6 (cont.) · No-determinismo</div>
+    <div class="script">
+      <p>"<strong>Segunda: NO ES DETERMINÍSTICO.</strong> Y esto es lo que más les va a chocar. Un Random Forest, dado el mismo input, te da siempre el mismo output. <strong>Un LLM, no.</strong> En cada paso de generación, en vez de elegir el token de probabilidad más alta, <strong>muestrea</strong> de la distribución (controlada por hiperparámetros como <code>temperature</code>, <code>top_p</code>, <code>top_k</code>). Eso quiere decir:</p>
+      <ul>
+        <li><strong>Mismo prompt → outputs diferentes.</strong> El testing tradicional (assert igualdad) se rompe.</li>
+        <li><strong>No podés hacer regression testing sobre el output literal.</strong> Hay que evaluar por propiedades, por LLM-as-judge, por golden sets con tolerancia semántica.</li>
+        <li><strong>El monitoreo de drift se complica.</strong> No es sólo distribución de inputs, también de outputs.</li>
+        <li><strong>Reproducibilidad parcial:</strong> podés fijar <code>temperature=0</code> y <code>seed</code>, pero igual no es totalmente determinístico en ambientes con paralelismo de hardware. Y, fundamentalmente, el modelo subyacente cambia: el proveedor te actualiza el modelo y tu test 'flaky' aparece de la nada. Hay que versionar el modelo explícitamente.</li>
+      </ul>
+      <p>Análogo: pensálo como una API externa que devuelve <strong>respuestas similares pero no idénticas</strong> y que el proveedor puede actualizar sin avisar. Hay que diseñar el sistema asumiendo eso desde el día cero — caching agresivo, idempotencia donde puedas, validación de schema en outputs, retries con backoff, y observability fuerte."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 13 ===== -->
+  <section class="slide" data-time="⏱️ 01:00–01:04">
+    <p class="kicker">Slide 13 · 🎬 Demo 4</p>
+    <h2>Lo que el modelo realmente ve</h2>
+    <p class="range">⏱️ 01:00–01:04</p>
+    <div class="block demo">
+      <p class="block-label">🎬 Disparar</p>
+      <ul><li><strong>Disparar el tokenizador en vivo</strong> (tipear texto y ver los tokens; switch <code>cl100k_base</code> / <code>o200k_base</code>).</li></ul>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir (mientras se muestra)</p>
+      <ul>
+        <li>Tres observaciones:
+          <ul>
+            <li>El <strong>español gasta más tokens</strong> que el inglés para el mismo significado → impacta costo y context window.</li>
+            <li>Código y emojis se tokenizan distinto.</li>
+            <li><code>o200k_base</code> suele usar menos tokens en multilingüe → por eso OpenAI lo introdujo.</li>
+          </ul>
+        </li>
+        <li><em>"Cuando estimen costos, no estimen por caracteres ni palabras: <strong>por tokens</strong>."</em></li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El token es la unidad real con la que opera y factura el modelo.</p>
+    </div>
+    <div class="divider">📜 Guion completo · Demo 4</div>
+    <div class="script">
+      <p class="stage-note">[Acá corremos la Demo 4: tokenización con tiktoken. Mostrar cómo 'Hola, ¿cómo andás che?' se parte en tokens; comparar cl100k_base vs o200k_base; mostrar que el español 'gasta' más tokens que el inglés. Decir: 'cada uno de estos enteros es lo que el modelo realmente ve; cuando OpenAI te factura por tokens, te factura por estos numeritos'.]</p>
+      <p>"Tres observaciones. Una: el español 'gasta' más tokens que el inglés para el mismo significado — eso impacta directo el costo de API y el uso del context window. Dos: el código y los emojis se tokenizan distinto que el texto plano. Tres: <code>o200k_base</code> (el de GPT-4o y GPT-5) suele usar menos tokens que <code>cl100k_base</code> para texto multilingüe — por eso OpenAI lo introdujo. Cuando estimen costos de un sistema con LLM, <strong>no estimen por caracteres ni por palabras, estimen por tokens</strong> — son entre 0,75 y 4 caracteres por token según el idioma."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 14 ===== -->
+  <section class="slide" data-time="⏱️ 01:04–01:08">
+    <p class="kicker">Slide 14 · 1.7 · Lo más importante para el resto del curso</p>
+    <h2>De LLM a Agente</h2>
+    <p class="range">⏱️ 01:04–01:08</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Hasta acá: el LLM <strong>genera texto</strong>. Punto. Le falta <strong>hacer cosas</strong>.</li>
+        <li>Definición Anthropic (Building Effective Agents, dic 2024): <em>workflows</em> = caminos de código predefinidos; <em>agents</em> = el LLM <strong>dirige dinámicamente su propio proceso y uso de herramientas</strong>.</li>
+        <li>Definición de la página de Claude Code: un sistema agéntico <strong>actúa hacia un objetivo con autonomía</strong>: lee, planifica, ejecuta con herramientas reales, evalúa el resultado y ajusta.</li>
+        <li>El loop (<strong>ReAct <span class="gloss">(Reasoning + Acting)</span>, Yao et al. 2022</strong>): <strong>PENSAR → ACTUAR (tool) → OBSERVAR → ¿terminé? → loop</strong>.</li>
+        <li>Bloque mínimo (Anthropic): <strong>augmented LLM</strong> = LLM + retrieval + tools + memory.</li>
+      </ul>
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">La imagen mental del agente: un loop donde el LLM piensa, actúa, observa e itera. (Esta imagen sostiene el resto del curso.)</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.7 De LLM a Agente</div>
+    <div class="script">
+      <p>"Último bloque, y el más importante para el resto del curso. Hasta acá tenemos un LLM, que dado un prompt, <strong>genera texto.</strong> Punto. Es un autocomplete muy bueno, pero sigue siendo un autocomplete. ¿Qué le falta para ser útil de verdad en un sistema productivo?</p>
+      <p>Le falta poder <strong>hacer cosas en el mundo</strong>. Llamar APIs, leer archivos, ejecutar comandos, consultar bases de datos, escribir código, correr tests. Ahí entra el concepto de <strong>agente</strong>.</p>
+      <p>Anthropic, en su artículo <em>'Building Effective Agents'</em> (diciembre 2024), lo define así, textual: <em>'Workflows are systems where LLMs and tools are orchestrated through predefined code paths. Agents, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks.'</em></p>
+      <p>Más en concreto, en la página oficial de Claude Code definen un sistema agéntico así, textual: <em>'An agentic system acts toward a goal with a degree of autonomy, rather than responding to one prompt at a time. Claude Code reads a codebase, plans a sequence of actions, executes them using real development tools, evaluates the result, and adjusts its approach.'</em></p>
+      <p>El loop conceptual — formalizado por Yao et al. en el paper <strong>ReAct</strong> (2022, arXiv:2210.03629) — es:</p>
+      <pre>    ┌──────────────────────────────────────┐
+    │                                      │
+    ▼                                      │
+ PENSAR (reasoning) ──► ACTUAR (tool call) ──► OBSERVAR (resultado)
+                                             │
+                                             └──► ¿terminé? sí → fin / no → loop</pre>
+      <p>El LLM piensa qué hacer, llama a una herramienta (una función, una API, un comando de shell), recibe el resultado, lo incorpora al contexto, y vuelve a pensar. Itera hasta que considera que cumplió el objetivo. Anthropic lo describe textual así: <em>'Agents begin their work with either a command from, or interactive discussion with, the human user. Once the task is clear, agents plan and operate independently, potentially returning to the human for further information or judgement. During execution, it's crucial for the agents to gain ground truth from the environment at each step (such as tool call results or code execution) to assess its progress.'</em></p>
+      <p>El bloque mínimo, según Anthropic, es el <strong>'augmented LLM'</strong>: un LLM con tres aumentos — <em>retrieval</em> (buscar info externa, típicamente con RAG), <em>tools</em> (llamar funciones) y <em>memory</em> (recordar entre pasos). Sobre ese bloque se construyen patrones más complejos: prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer loops.</p>
+      <p>En el post <em>Building agents with the Claude Agent SDK</em> (septiembre 2025), Anthropic resume el principio de diseño: <em>'The key design principle behind the Claude Agent SDK is to give your agents a computer, allowing them to work like humans do.'</em> Bash, edición de archivos, búsqueda, ejecución de código — las mismas herramientas que usás vos."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 15 ===== -->
+  <section class="slide" data-time="⏱️ 01:08–01:11">
+    <p class="kicker">Slide 15 · Impacto real en software · 2025–2026</p>
+    <h2>La fábrica automatizada: producción y defectos</h2>
+    <p class="range">⏱️ 01:08–01:11 · <em>la slide de "esto ya no es teoría"</em></p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>Enterprise wins (página oficial de Claude Code):
+          <ul>
+            <li><strong>Stripe</strong>: 1.370 ingenieros; migración Scala→Java de 10k líneas en 4 días (vs 10 engineer-weeks).</li>
+            <li><strong>Ramp</strong>: −80% en tiempo de investigación de incidentes.</li>
+            <li><strong>Wiz</strong>: 50k líneas Python→Go en ~20 horas (vs 2-3 meses).</li>
+            <li><strong>Rakuten</strong>: delivery de features de 24 a 5 días hábiles.</li>
+          </ul>
+        </li>
+        <li><strong>Ser honesto con el contraste</strong> (no es todo color de rosa):
+          <ul>
+            <li><strong>METR <span class="gloss">(Model Evaluation &amp; Threat Research)</span> 2025</strong> (arXiv:2507.09089): devs open-source experimentados resultaron <strong>19% más lentos</strong> con la herramienta, aunque se autopercibían más rápidos.</li>
+            <li><strong>Veracode 2025</strong>: cuando el modelo puede elegir, eligió el método <strong>inseguro el 45% de las veces</strong>.</li>
+            <li><strong>Gartner (jun 2025)</strong>: predicen que <strong>&gt;40% de los proyectos agénticos se cancelan</strong> antes de fin de 2027 (mucho hype, PoCs <span class="gloss">(Proofs of Concept)</span> mal aplicados).</li>
+            <li><strong>DORA <span class="gloss">(DevOps Research and Assessment)</span> 2025</strong>: la IA <em>"magnifica las fortalezas de las organizaciones de alto rendimiento y las disfunciones de las que luchan"</em>.</li>
+          </ul>
+        </li>
+        <li>Conectar con el curso: <em>"por esto el módulo que sigue entra a fondo en <strong>tools y skills</strong> — prender el agente no alcanza, hay que armarlo bien."</em></li>
+      </ul>
+    </div>
+    <div class="note-extra">
+      ⚠️ <b>Errata a evitar:</b> la cifra "2,74x más vulnerabilidades en código IA" es de <b>CodeRabbit</b> (470 PRs), <b>NO</b> de Veracode. El dato citable de Veracode es el <b>45% de elecciones inseguras</b>.
+    </div>
+    <div class="block goal">
+      <p class="block-label">🎯 No se pueden ir sin entender</p>
+      <p class="goal-text">El impacto es real y enorme, pero amplifica lo bueno y lo malo. El control de calidad es responsabilidad de ustedes.</p>
+    </div>
+    <div class="divider">📜 Guion completo · 1.7 (cont.) · Impacto en software</div>
+    <div class="script">
+      <p><strong>Impacto concreto en desarrollo de software (2025–2026):</strong></p>
+      <p>"Esto ya no es teoría. Claude Code (Anthropic), Cursor, GitHub Copilot Agent Mode, Codex CLI, Devin — todos son agentes que <strong>escriben, ejecutan y verifican código</strong>. Los números que están saliendo son inéditos. Cito de la página oficial de Claude Code:</p>
+      <ul>
+        <li>Anthropic comunicó oficialmente (3 de diciembre 2025): <em>'In November, Claude Code achieved a significant milestone: just six months after becoming available to the public, it reached $1 billion in run-rate revenue.'</em></li>
+        <li><strong>Stripe:</strong> <em>'Stripe deployed Claude Code across 1,370 engineers of all levels through a zero-configuration enterprise binary. One team completed a 10,000-line Scala-to-Java migration in four days, work estimated at ten engineer-weeks.'</em></li>
+        <li><strong>Ramp:</strong> <em>'Ramp integrated Claude Code into their development workflow and cut incident investigation time by 80%.'</em></li>
+        <li><strong>Wiz:</strong> <em>'Wiz migrated a 50,000-line Python library to Go in roughly 20 hours of active development, a project the team estimated at two to three months of manual work.'</em></li>
+        <li><strong>Rakuten:</strong> <em>'Rakuten reduced the average delivery time for new features from 24 working days to 5.'</em></li>
+      </ul>
+      <p>Hay que ser honestos con los datos: no es todo color de rosa.</p>
+      <ul>
+        <li>El estudio <strong>METR</strong> (Becker, Rush, Barnes &amp; Rein, <em>'Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity'</em>, arXiv:2507.09089, julio 2025), un ensayo aleatorizado con 16 devs experimentados usando principalmente Cursor Pro con Claude 3.5/3.7 Sonnet, encontró que los devs <strong>se hicieron un 19% más lentos</strong> con la herramienta, aunque ellos mismos esperaban un 24% de speedup antes de empezar y se autopercibieron 20% más rápidos después.</li>
+        <li>El <strong>2025 GenAI Code Security Report de Veracode</strong> (basado en 100+ LLMs evaluados en 80 tareas de coding en Java, JS, Python y C#) encontró, citando textual: <em>'when given a choice between a secure and insecure method to write code, GenAI models chose the insecure option 45 percent of the time.'</em></li>
+        <li><strong>Gartner</strong> (press release del 25 de junio 2025, vocera Anushree Verma) predice que <strong>más del 40% de los proyectos de IA agéntica van a ser cancelados</strong> antes de fin de 2027, con el argumento de que <em>'most agentic AI projects right now are early stage experiments or proof of concepts that are mostly driven by hype and are often misapplied.'</em></li>
+        <li>El reporte <strong>DORA 2025</strong> (<em>State of AI-assisted Software Development</em>, Google Cloud/DORA, ~5.000 profesionales encuestados) resume así su hallazgo central, textual: <em>'It magnifies the strengths of high-performing organizations and the dysfunctions of struggling ones.'</em></li>
+      </ul>
+      <p>La fábrica automatizada produce más, pero también produce defectos más rápido si no hay control de calidad. Esto es justamente por lo que están haciendo este curso, y por lo que el módulo siguiente entra a fondo en <strong>tools y skills</strong>: porque saber prendar el agente no alcanza — hay que saber armarlo bien, darle el contexto correcto, las herramientas correctas, los guardrails correctos."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 16 ===== -->
+  <section class="slide" data-time="⏱️ 01:11–01:12">
+    <p class="kicker">Slide 16 · El gran cambio en tu carrera</p>
+    <h2>Tu rol está cambiando</h2>
+    <p class="range">⏱️ 01:11–01:12</p>
+    <div class="block say">
+      <p class="block-label">💬 Qué decir</p>
+      <ul>
+        <li>De "write code, run tests, fix, repeat" a "set goal, review, approve".</li>
+        <li><strong>Diseñás la fábrica, no atornillás cada pieza.</strong></li>
+        <li>Puente: <em>"la próxima clase, tools y skills, ahora con las manos en la masa."</em></li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · 1.7 (cont.) · Tu rol cambia</div>
+    <div class="script">
+      <p>"El paradigma del rol del desarrollador está cambiando. <strong>Vos pasás de tipear cada línea a diseñar la fábrica, configurar las máquinas, y revisar el output.</strong></p>
+      <p>Hoy no entramos en eso. Hoy quería que se llevaran <strong>la imagen mental</strong> del agente: un loop donde el LLM piensa, actúa, observa, e itera. Esa imagen es la que va a estar atrás de todo el resto del curso."</p>
+    </div>
+  </section>
+
+  <!-- ===== Slide 17 ===== -->
+  <section class="slide" data-time="⏱️ 01:12–01:15">
+    <p class="kicker">Slide 17 · Cruzamos el puente entero</p>
+    <h2>Recap: 6 ideas</h2>
+    <p class="range">⏱️ 01:12–01:15</p>
+    <div class="block recap">
+      <p class="block-label">💬 Recap de las 6 ideas</p>
+      <ol>
+        <li>ML clásico = estadística que compila <strong>artefactos</strong> desde datos.</li>
+        <li>Redes + backprop = aprenden features solas vía loop error/corrección.</li>
+        <li>Embeddings = significado convertido en <strong>coordenadas geométricas</strong>.</li>
+        <li>Transformers = atención rompe la secuencialidad → escala.</li>
+        <li>LLMs = Transformers gigantes que autocompletan, <strong>no determinísticos</strong>.</li>
+        <li>Agentes = el LLM que <strong>actúa</strong>: piensa, usa tools, observa, itera.</li>
+      </ol>
+    </div>
+    <div class="block say">
+      <p class="block-label">💬 Cerrar</p>
+      <ul>
+        <li><em>"Van a dejar de implementar y empezar a orquestar. Para orquestar bien, hay que saber qué hay en la caja. Eso fue hoy."</em></li>
+        <li>Abrir a <strong>preguntas</strong>.</li>
+      </ul>
+    </div>
+    <div class="divider">📜 Guion completo · Cierre y puente</div>
+    <div class="script">
+      <p>"Cerremos. En 75 minutos cruzamos el puente entero:</p>
+      <ol>
+        <li>ML clásico es estadística aplicada que produce <strong>artefactos compilados</strong> desde datos.</li>
+        <li>Las redes neuronales y backprop generalizan eso: aprenden las features solas mediante un loop de error/corrección.</li>
+        <li>Los <strong>embeddings</strong> convierten significado en coordenadas geométricas: la base del NLP moderno y de RAG.</li>
+        <li>Los <strong>Transformers</strong> rompen la secuencialidad con atención, destrabando la escala.</li>
+        <li>Los <strong>LLMs</strong> son Transformers gigantes entrenados para autocompletar — potentes pero <strong>no determinísticos</strong> y caros de operar.</li>
+        <li>Los <strong>agentes</strong> convierten al LLM en un sistema que <strong>actúa</strong>: piensa, llama tools, observa, itera.</li>
+      </ol>
+      <p>El gran cambio que ya está ocurriendo en su carrera es: <strong>van a dejar de implementar y empezar a orquestar</strong>. Y para orquestar bien necesitan entender qué hay adentro de la caja. Eso fue esto. La próxima clase entramos a tools, skills y patrones de diseño de agentes, ahora sí con las manos en la masa. ¿Preguntas?"</p>
+    </div>
+  </section>
+
+  <!-- ===== Plan B (extra, no es slide) ===== -->
+  <section class="slide" data-time="Referencia">
+    <p class="kicker">Referencia · no proyectar</p>
+    <h2>Plan B de timing · Bloques</h2>
+    <p class="range">Para tenerlo a mano si te corre el reloj</p>
+    <div class="block goal">
+      <p class="block-label">⏱️ Plan B de timing</p>
+      <ul>
+        <li><strong>Si te quedás corto:</strong> comprimí 1.5 y 1.7; recortá los números de impacto (METR/Veracode/Gartner/DORA) y dejá sólo los enterprise wins.</li>
+        <li><strong>Si te sobra:</strong> extendé la Demo 3 cambiando oraciones, o mostrá aritmética de embeddings (<code>rey - hombre + mujer</code>).</li>
+        <li><strong>Bloques más comprimibles:</strong> 1.5 (Transformers) y 1.7 (Agentes).</li>
+        <li><strong>Bloques intocables:</strong> 1.4 (Embeddings) y la idea de no-determinismo en 1.6 — son los puentes conceptuales.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="hint">Navegá con <kbd>←</kbd> <kbd>→</kbd> · <kbd>Home</kbd>/<kbd>End</kbd> a los extremos · <kbd>Espacio</kbd> inicia/pausa el cronómetro · <kbd>G</kbd> abre el glosario.</p>
+
+</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let i = 0;
+  const counter = document.getElementById('counter');
+  const time = document.getElementById('time');
+  const bar = document.getElementById('bar');
+  const jump = document.getElementById('jump');
+  const stage = document.getElementById('stage');
+
+  // parsea "⏱️ 00:06–00:10" → start/end en segundos (H:MM = minutos acumulados)
+  function parseTimes(txt){
+    const m = (txt || '').match(/(\d{1,2}):(\d{2})(?:\s*[–-]\s*(\d{1,2}):(\d{2}))?/);
+    if (!m) return { start:null, end:null };
+    const start = (+m[1]*60 + +m[2]) * 60;
+    const end   = m[3] != null ? (+m[3]*60 + +m[4]) * 60 : start;
+    return { start, end };
+  }
+
+  // build jump menu + cachear horarios
+  slides.forEach((s, k) => {
+    const h2 = s.querySelector('h2').textContent;
+    const kick = s.querySelector('.kicker').textContent;
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = `${kick} — ${h2}`;
+    jump.appendChild(o);
+    const t = parseTimes(s.dataset.time);
+    s._startSec = t.start; s._endSec = t.end;
+  });
+
+  function show(n){
+    i = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    counter.textContent = `${i + 1} / ${total}`;
+    time.textContent = slides[i].dataset.time || '';
+    bar.style.width = ((i + 1) / total * 100) + '%';
+    jump.value = i;
+    document.getElementById('prev').disabled = (i === 0);
+    document.getElementById('next').disabled = (i === total - 1);
+    stage.scrollTop = 0;
+    tmRender();
+  }
+
+  document.getElementById('prev').addEventListener('click', () => show(i - 1));
+  document.getElementById('next').addEventListener('click', () => show(i + 1));
+  jump.addEventListener('change', e => show(+e.target.value));
+
+  // ----- Cronómetro -----
+  let tmRunning = false, tmStart = 0, tmAcc = 0, tmInt = null;
+  const tmToggleBtn = document.getElementById('tm-toggle');
+  const tmElapsedEl = document.getElementById('tm-elapsed');
+  const tmStatusEl  = document.getElementById('tm-status');
+
+  const tmElapsedSec = () => (tmAcc + (tmRunning ? Date.now() - tmStart : 0)) / 1000;
+  function fmt(s){
+    s = Math.max(0, Math.round(s));
+    const m = Math.floor(s / 60), ss = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+  }
+  function tmRender(){
+    const el = tmElapsedSec();
+    tmElapsedEl.textContent = fmt(el);
+    const start = slides[i]._startSec, end = slides[i]._endSec;
+    if (!tmRunning && tmAcc === 0){ tmStatusEl.className = 'tm-status idle'; tmStatusEl.textContent = 'cronómetro detenido'; return; }
+    if (start == null || end == null){ tmStatusEl.className = 'tm-status idle'; tmStatusEl.textContent = '— sin horario —'; return; }
+    if (el < start){ tmStatusEl.className = 'tm-status ahead'; tmStatusEl.textContent = '⏩ adelantado ' + fmt(start - el); }
+    else if (el <= end){ tmStatusEl.className = 'tm-status ontime'; tmStatusEl.textContent = '✓ en horario · corte en ' + fmt(end - el); }
+    else { tmStatusEl.className = 'tm-status behind'; tmStatusEl.textContent = '⚠ atrasado +' + fmt(el - end); }
+  }
+  function tmStartFn(){ if (tmRunning) return; tmRunning = true; tmStart = Date.now(); tmToggleBtn.textContent = '⏸ Pausar'; tmToggleBtn.classList.add('running'); tmInt = setInterval(tmRender, 250); tmRender(); }
+  function tmPause(){ if (!tmRunning) return; tmAcc = tmElapsedSec() * 1000; tmRunning = false; tmToggleBtn.textContent = '▶ Reanudar'; tmToggleBtn.classList.remove('running'); clearInterval(tmInt); tmInt = null; tmRender(); }
+  function tmToggle(){ tmRunning ? tmPause() : tmStartFn(); }
+  function tmReset(){ tmRunning = false; clearInterval(tmInt); tmInt = null; tmAcc = 0; tmToggleBtn.textContent = '▶ Iniciar'; tmToggleBtn.classList.remove('running'); tmRender(); }
+  tmToggleBtn.addEventListener('click', tmToggle);
+  document.getElementById('tm-reset').addEventListener('click', tmReset);
+
+  // ----- Glosario -----
+  const glos = document.getElementById('glos');
+  const openGlos = () => glos.classList.add('open');
+  const closeGlos = () => glos.classList.remove('open');
+  document.getElementById('glos-btn').addEventListener('click', openGlos);
+  document.getElementById('glos-close').addEventListener('click', closeGlos);
+  glos.addEventListener('click', e => { if (e.target === glos) closeGlos(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'SELECT') return;
+    if (e.key === 'Escape') { closeGlos(); return; }
+    // Espacio = iniciar/pausar cronómetro (salvo que el foco esté en un botón)
+    if (e.key === ' ' && e.target.tagName !== 'BUTTON') { tmToggle(); e.preventDefault(); return; }
+    if (e.key === 'g' || e.key === 'G') { glos.classList.toggle('open'); e.preventDefault(); return; }
+    if (glos.classList.contains('open')) return;   // no navegar slides con el glosario abierto
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { show(i + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(i - 1); e.preventDefault(); }
+    else if (e.key === 'Home') { show(0); e.preventDefault(); }
+    else if (e.key === 'End') { show(total - 1); e.preventDefault(); }
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de IA · Módulo 1 · Clase 1</title>
+
+<!-- Assets 100% locales (vendor/) — funciona sin internet -->
+<link rel="stylesheet" href="../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../vendor/reveal/theme/black.css" id="theme">
+<link rel="stylesheet" href="../vendor/reveal/plugin/highlight/monokai.css">
+<link rel="stylesheet" href="../vendor/fonts/fonts.css">
+
+<style>
+  :root{
+    --bg:#0b0f17;
+    --bg2:#0f1622;
+    --fg:#e8eef6;
+    --muted:#9fb0c3;
+    --blue:#58a6ff;
+    --green:#3fb950;
+    --amber:#e3b341;
+    --purple:#bc8cff;
+    --red:#f85149;
+    --teal:#39d0d8;
+    --line:#243043;
+  }
+
+  /* ---------- Base / tipografía de proyección ---------- */
+  .reveal{
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 30px;
+    color: var(--fg);
+  }
+  .reveal .slides{ text-align:left; }
+  .reveal h1,.reveal h2,.reveal h3,.reveal h4{
+    font-weight:800; letter-spacing:-.01em; text-transform:none; line-height:1.1; color:#fff;
+  }
+  .reveal h1{ font-size:2.1em; }
+  .reveal h2{ font-size:1.55em; }
+  .reveal h3{ font-size:1.15em; color:var(--blue); }
+  .reveal p,.reveal li{ line-height:1.4; }
+  .reveal ul{ margin-left:1em; }
+  .reveal li{ margin:.28em 0; }
+  .reveal strong{ color:#fff; }
+  .reveal em{ color:var(--muted); font-style:italic; }
+  .reveal code{ font-family:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em; }
+  .reveal :not(pre)>code{ background:#1b2433; color:var(--teal); padding:.08em .35em; border-radius:5px; }
+  .reveal section img{ border:none; box-shadow:none; }
+  .reveal .slide-number{ font-size:18px; color:var(--muted); background:transparent; }
+
+  body{ background:radial-gradient(1200px 800px at 70% -10%, #16203033, transparent), var(--bg); }
+  .reveal .backgrounds{ background:transparent; }
+
+  /* kicker / eyebrow */
+  .kicker{ color:var(--blue); font-weight:700; font-size:.62em; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .3em; }
+
+  /* citation footer */
+  .cite{ margin-top:1.1em; font-size:.5em; color:var(--muted); font-style:italic; }
+
+  /* pill / tag */
+  .pill{ display:inline-block; font-size:.55em; font-weight:700; letter-spacing:.05em; padding:.25em .7em; border-radius:999px; text-transform:uppercase; }
+  .pill.blue{ background:#13294a; color:var(--blue); }
+  .pill.green{ background:#0f2e1c; color:var(--green); }
+  .pill.amber{ background:#33270a; color:var(--amber); }
+  .pill.purple{ background:#241a3a; color:var(--purple); }
+  .pill.red{ background:#3a1414; color:var(--red); }
+
+  /* lead bullets a bit larger */
+  .lead li{ font-size:1.02em; }
+
+  /* ---------- Portada ---------- */
+  .cover{ display:flex; flex-direction:column; justify-content:center; height:100%; }
+  .cover h1{ font-size:3.1em; background:linear-gradient(90deg,#fff, #9fc7ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .cover .sub{ color:var(--muted); font-size:1.05em; margin-top:.2em; }
+  .cover .tag{ color:var(--blue); font-style:italic; font-size:1.15em; margin-top:1.1em; font-weight:600; }
+  .cover .meta{ margin-top:2em; color:var(--muted); font-size:.7em; letter-spacing:.04em; }
+
+  /* ---------- Dos columnas ---------- */
+  .cols{ display:grid; grid-template-columns:1fr auto 1fr; gap:1.2em; align-items:center; }
+  .card{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:.9em 1.1em; }
+  .card h3{ margin-top:0; }
+  .arrow-mid{ font-size:2.4em; color:var(--blue); }
+
+  /* ---------- Tablas ---------- */
+  .reveal table{ width:100%; border-collapse:collapse; font-size:.82em; margin-top:.3em; }
+  .reveal table th{ background:#13203a; color:var(--blue); text-align:left; padding:.5em .7em; border-bottom:2px solid var(--line); }
+  .reveal table td{ padding:.45em .7em; border-bottom:1px solid var(--line); }
+  .reveal table tr:nth-child(even) td{ background:#0e1622; }
+  .reveal table td code{ background:#1b2433; }
+
+  /* ---------- Timeline ---------- */
+  .tl-zones{ display:grid; grid-template-columns:3fr 4fr 4fr; gap:8px; margin-bottom:14px; }
+  .tl-zone{ border-radius:10px; padding:.35em .6em; font-size:.55em; font-weight:700; text-align:center; letter-spacing:.04em; }
+  .tl-zone.z1{ background:#13203a; color:var(--blue); border:1px solid #1d3a66; }
+  .tl-zone.z2{ background:#0f2e1c; color:var(--green); border:1px solid #1d5234; }
+  .tl-zone.z3{ background:#241a3a; color:var(--purple); border:1px solid #3c2c66; }
+  .tl-rail{ position:relative; display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:6px; }
+  .tl-rail::before{ content:""; position:absolute; top:11px; left:2%; right:2%; height:3px; background:linear-gradient(90deg,var(--blue),var(--green),var(--purple)); border-radius:3px; }
+  .tl-item{ position:relative; padding-top:30px; text-align:center; }
+  .tl-dot{ position:absolute; top:4px; left:50%; transform:translateX(-50%); width:16px; height:16px; border-radius:50%; background:#0b0f17; border:3px solid var(--blue); }
+  .tl-item.z2 .tl-dot{ border-color:var(--green); }
+  .tl-item.z3 .tl-dot{ border-color:var(--purple); }
+  .tl-year{ font-weight:800; font-size:.62em; color:#fff; }
+  .tl-item.z1 .tl-year{ color:var(--blue);} .tl-item.z2 .tl-year{ color:var(--green);} .tl-item.z3 .tl-year{ color:var(--purple); }
+  .tl-label{ font-size:.44em; color:var(--muted); line-height:1.25; margin-top:.2em; }
+  .tl-label b{ color:#cdd9e6; }
+
+  /* ---------- Reglas / if-else block ---------- */
+  .codeblock{ background:#0c1320; border:1px solid var(--line); border-radius:12px; padding:.7em .9em; font-family:monospace; font-size:.72em; color:#cfe0f2; white-space:pre; }
+  .twoblock{ display:grid; grid-template-columns:1fr 1fr; gap:1.1em; align-items:stretch; }
+
+  /* ---------- Loop de pasos (backprop) ---------- */
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:.7em; }
+  .step{ background:var(--bg2); border:1px solid var(--line); border-left:4px solid var(--blue); border-radius:10px; padding:.5em .7em; font-size:.7em; }
+  .step b{ color:var(--blue); }
+
+  /* ---------- Demos ---------- */
+  .demo{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:1em; }
+  .demo .demo-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:.7em; margin:.7em 0; font-size:.72em; }
+  .demo button{ background:var(--blue); color:#06101f; border:none; border-radius:8px; padding:.45em .9em; font-weight:700; cursor:pointer; font-size:1em; }
+  .demo button:hover{ filter:brightness(1.1); }
+  .demo input[type=range]{ accent-color:var(--blue); width:200px; vertical-align:middle; }
+  .demo .status{ color:var(--amber); font-family:monospace; font-weight:700; }
+  #gd-canvas{ border-radius:10px; display:block; background:#070b12; width:500px; height:380px; max-width:100%; }
+  #nn-svg{ width:100%; max-width:700px; height:auto; display:block; background:#070b12; border-radius:12px; }
+  .demo-flex{ display:flex; gap:1.4em; align-items:flex-start; flex-wrap:wrap; }
+  .demo-flex > .demo-col{ flex:1 1 260px; min-width:240px; }
+
+  /* heatmap embeddings */
+  #emb-grid{ display:grid; gap:3px; }
+  .emb-cell{ border-radius:5px; font-size:.62em; font-family:monospace; font-weight:700; padding:14px 6px; text-align:center; }
+  .emb-cell:hover{ outline:3px solid #fff; outline-offset:-3px; cursor:pointer; }
+  .emb-head{ font-family:monospace; font-weight:800; font-size:.62em; color:var(--blue); display:flex; align-items:center; justify-content:center; }
+  .emb-hover{ color:var(--amber); font-size:.72em; min-height:4.4em; font-family:monospace; width:0; min-width:100%; }
+  .reveal .emb-leg{ font-size:.66em; color:#cfe0f2; margin:0; padding-left:0; list-style:none !important; counter-reset:fr -1; }
+  .emb-leg li{ margin:.12em 0; counter-increment:fr; }
+  .emb-leg li::before{ content:"f" counter(fr) "  "; color:var(--blue); font-weight:800; font-family:monospace; }
+
+  /* heatmap atención */
+  #attn-grid{ display:grid; gap:2px; }
+  .attn-head{ font-size:.55em; color:var(--muted); display:flex; align-items:center; justify-content:center; text-align:center; padding:2px; font-weight:700; }
+  .attn-cell{ border-radius:4px; font-size:.55em; font-family:monospace; color:#eaf2ff; text-align:center; display:flex; align-items:center; justify-content:center; padding:6px 2px; }
+  .attn-cell.hot{ outline:2px solid #fff; }
+  #attn-sel{ background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:.4em .6em; font-size:.8em; }
+  .attn-hover{ color:var(--amber); font-size:.74em; min-height:1.4em; }
+
+  /* tokenizer */
+  #tok-input{ background:#0c1320; color:var(--fg); border:1px solid var(--line); border-radius:10px; padding:.6em; font-size:.8em; font-family:inherit; width:100%; resize:vertical; }
+  #tok-chips{ line-height:2.4; margin-top:.5em; }
+  .tok-chip{ color:#fff; padding:3px 8px; margin:2px; border-radius:6px; font-family:monospace; font-size:.78em; display:inline-block; }
+  .tok-samples{ display:flex; flex-wrap:wrap; gap:.4em; margin-top:.5em; }
+  .tok-samples button{ background:#16213a; color:var(--blue); border:1px solid var(--line); border-radius:8px; padding:.3em .6em; font-size:.62em; cursor:pointer; }
+  #tok-count{ color:var(--amber); font-family:monospace; font-weight:700; }
+
+  /* ---------- ReAct loop ---------- */
+  .react{ display:flex; align-items:center; justify-content:center; gap:.35em; margin:.4em 0 1em; flex-wrap:nowrap; }
+  .react .node{ background:var(--bg2); border:2px solid var(--blue); border-radius:14px; padding:.55em .7em; text-align:center; min-width:128px; }
+  .react .node .t{ font-weight:800; color:#fff; font-size:.92em; }
+  .react .node .d{ color:var(--muted); font-size:.58em; }
+  .react .node.act{ border-color:var(--green);} .react .node.obs{ border-color:var(--purple); }
+  .react .ar{ color:var(--blue); font-size:1.6em; font-weight:800; }
+  .react-loop{ text-align:center; color:var(--amber); font-size:.7em; border:1.5px dashed var(--amber); border-radius:999px; padding:.3em 1.2em; display:inline-block; }
+  .loopwrap{ text-align:center; }
+
+  /* ---------- Slide 15 impacto: verde / ámbar ---------- */
+  .impact{ display:grid; grid-template-rows:auto auto; gap:.7em; }
+  .impact .band{ border-radius:14px; padding:.7em 1em; }
+  .impact .wins{ background:linear-gradient(180deg,#0f2e1c66,#0f2e1c22); border:1px solid #1d5234; }
+  .impact .cautions{ background:linear-gradient(180deg,#33270a66,#33270a22); border:1px solid #5a4410; }
+  .impact h3{ color:#fff; margin:0 0 .3em; font-size:.92em; }
+  .impact .wins h3{ color:var(--green);} .impact .cautions h3{ color:var(--amber); }
+  .impact ul{ margin:0 0 0 1em; }
+  .impact li{ font-size:.72em; margin:.18em 0; }
+
+  /* ---------- recap grid ---------- */
+  .recap{ display:grid; grid-template-columns:1fr 1fr; gap:.6em; }
+  .recap .r{ background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:.55em .8em; font-size:.78em; display:flex; gap:.6em; align-items:flex-start; }
+  .recap .ic{ font-size:1.3em; line-height:1; }
+
+  /* rol cambiando (vertical) */
+  .rolewrap{ display:flex; flex-direction:column; gap:.5em; align-items:center; }
+  .rolecard{ background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:.9em 1.4em; text-align:center; width:100%; max-width:760px; }
+  .rolecard .big{ font-size:1.15em; font-weight:700; color:#fff; margin:.15em 0; }
+  .rolecard.before{ border-color:#5a4410; } .rolecard.after{ border-color:#1d5234; }
+  .role-ar{ color:var(--blue); font-size:2em; line-height:1; }
+
+  /* ---------- Flujo backprop (slide 5) ---------- */
+  .bp{ display:flex; flex-direction:column; gap:.35em; align-items:center; margin:.4em 0; }
+  .bp-row{ display:flex; align-items:stretch; gap:.5em; justify-content:center; width:100%; }
+  .bp-row.rev{ flex-direction:row-reverse; }
+  .bp-box{ background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:.55em .7em; font-size:.74em; flex:1 1 0; display:flex; align-items:center; gap:.5em; min-width:0; }
+  .bp-box .bp-n{ flex:0 0 auto; width:1.7em; height:1.7em; border-radius:50%; background:#13294a; color:var(--blue); font-weight:800; display:flex; align-items:center; justify-content:center; font-size:.85em; }
+  .bp-box.hot{ border-color:var(--blue); box-shadow:0 0 0 1px var(--blue) inset; }
+  .bp-box.hot .bp-n{ background:var(--blue); color:#06101f; }
+  .bp-box.amber{ border-color:var(--amber); }
+  .bp-box.amber .bp-n{ background:var(--amber); color:#06101f; }
+  .bp-ar{ color:var(--blue); font-size:1.3em; font-weight:800; align-self:center; flex:0 0 auto; }
+  .bp-down{ color:var(--blue); font-size:1.4em; font-weight:800; align-self:flex-end; margin-right:1.6em; line-height:.6; }
+  .bp-loop{ margin-top:.2em; color:var(--amber); font-size:.72em; border:1.5px dashed var(--amber); border-radius:999px; padding:.3em 1.1em; display:inline-block; }
+
+  /* ---------- Receta LLM + generación (slide 11) ---------- */
+  .recipe{ display:flex; align-items:stretch; gap:.45em; justify-content:center; flex-wrap:wrap; margin:.3em 0 .6em; }
+  .recipe .rc{ background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:.5em .7em; font-size:.66em; text-align:center; flex:1 1 0; min-width:120px; }
+  .recipe .rc .rc-n{ display:block; color:var(--blue); font-weight:800; font-size:.85em; margin-bottom:.2em; }
+  .recipe .rc-ar{ color:var(--blue); font-size:1.2em; align-self:center; font-weight:800; }
+  .gen{ background:#0c1320; border:1px solid var(--line); border-radius:14px; padding:.7em .9em; }
+  .gen-flow{ display:flex; align-items:center; gap:.5em; justify-content:center; flex-wrap:wrap; font-size:.72em; }
+  .gen-chip{ background:#16213a; border:1px solid var(--line); border-radius:8px; padding:.35em .6em; }
+  .gen-chip.tf{ border-color:var(--blue); color:var(--blue); font-weight:700; }
+  .gen-chip.dice{ border-color:var(--amber); }
+  .gen-chip.out{ border-color:var(--green); color:#dffbe9; font-weight:700; }
+  .gen-ar{ color:var(--muted); font-weight:800; }
+  .bars{ margin-top:.6em; display:flex; flex-direction:column; gap:.28em; }
+  .bar-row{ display:flex; align-items:center; gap:.6em; font-size:.66em; }
+  .bar-row .lab{ flex:0 0 130px; text-align:right; font-family:monospace; color:#cfe0f2; }
+  .bar-row .track{ flex:1 1 auto; background:#1b2433; border-radius:6px; height:1.35em; overflow:hidden; }
+  .bar-row .fill{ display:block; height:100%; min-width:2px; background:linear-gradient(90deg,var(--blue),var(--teal)); border-radius:6px; }
+  .bar-row.pick .fill{ background:linear-gradient(90deg,var(--green),#7bedb0); }
+  .bar-row .pct{ flex:0 0 46px; font-family:monospace; color:var(--amber); }
+  .bar-row.pick .lab{ color:var(--green); font-weight:700; }
+
+  .note{ color:var(--muted); font-size:.68em; }
+  .center{ text-align:center; }
+  .mono{ font-family:monospace; }
+  .hl-blue{ color:var(--blue);} .hl-green{ color:var(--green);} .hl-amber{ color:var(--amber);} .hl-red{ color:var(--red);} .hl-purple{ color:var(--purple);}
+
+  /* ============ V2 · capa de diseño ============ */
+  /* Mono unificado: JetBrains Mono en todo lo "código" */
+  .mono,.codeblock,.demo .status,.emb-cell,.emb-head,.emb-hover,.attn-cell,.attn-hover,
+  .tok-chip,#tok-count,.bar-row .lab,.bar-row .pct,.emb-leg li::before{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+
+  /* Barra de progreso con gradiente */
+  .reveal .progress{ height:4px; background:#10182466; }
+  .reveal .progress span{ background:linear-gradient(90deg,var(--blue),var(--teal),var(--purple)); }
+
+  /* Footer global (sección + número), estilo serie */
+  #footer{ position:fixed; bottom:10px; left:24px; right:24px; display:flex; justify-content:space-between;
+           font-size:14px; color:var(--muted); letter-spacing:.03em; z-index:30; pointer-events:none;
+           font-family:"JetBrains Mono",monospace; }
+  #footer .blk{ color:var(--blue); }
+  .reveal .slide-number{ display:none; }
+
+  /* Kicker como chip con punto luminoso */
+  .kicker{
+    display:inline-flex; align-items:center; gap:.6em;
+    background:linear-gradient(180deg,#13294a66,#13294a2e);
+    border:1px solid #1d3a66; border-radius:999px; padding:.34em 1em .34em .8em;
+  }
+  .cover .kicker{ align-self:flex-start; }  /* dentro del flex de portada, que no se estire */
+  .kicker::before{
+    content:""; flex:0 0 auto; width:.42em; height:.42em; border-radius:50%;
+    background:linear-gradient(135deg,var(--blue),var(--teal));
+    box-shadow:0 0 10px 1px #58a6ff88;
+  }
+
+  /* Acento gradiente bajo los títulos (absoluto: no empuja el layout) */
+  .reveal section h2{ position:relative; }
+  .reveal section h2::after{
+    content:""; position:absolute; left:2px; bottom:-.22em; width:1.9em; height:.13em;
+    border-radius:99px; background:linear-gradient(90deg,var(--blue),var(--teal)); opacity:.85;
+  }
+
+  /* Profundidad sutil en cards y bloques */
+  .card,.demo,.rolecard,.recap .r,.step,.bp-box,.recipe .rc,.impact .band{
+    box-shadow:0 16px 36px -20px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.045);
+  }
+
+  /* Botones de demo con gradiente y glow (solo los de control, no los samples) */
+  .demo .demo-controls button{
+    background:linear-gradient(135deg,var(--blue),var(--teal));
+    box-shadow:0 6px 18px -6px #58a6ff66;
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .demo .demo-controls button:hover{ transform:translateY(-1px); box-shadow:0 9px 22px -6px #58a6ff88; }
+  .tok-samples button{ background:#16213a; color:var(--blue); box-shadow:none; }
+
+  /* Portada: aurora + grilla de puntos + título con gradiente más rico */
+  .cover{ position:relative; }
+  .cover::before,.cover::after{
+    content:""; position:absolute; border-radius:50%; filter:blur(72px); pointer-events:none; z-index:-1;
+  }
+  .cover::before{
+    width:560px; height:560px; right:-150px; top:-220px;
+    background:radial-gradient(circle at 32% 32%, #2563eb59, #39d0d824 58%, transparent 74%);
+  }
+  .cover::after{
+    width:460px; height:460px; left:-170px; bottom:-180px;
+    background:radial-gradient(circle at 68% 68%, #bc8cff30, transparent 70%);
+  }
+  .cover{
+    background-image:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.4px);
+    background-size:26px 26px;
+  }
+  .cover h1{
+    background:linear-gradient(100deg,#fff 25%,#9fc7ff 58%,#6ee7ef 85%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .cover .tag{ border-left:3px solid var(--teal); padding-left:.6em; font-style:normal; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ SLIDE 0 — Portada ============ -->
+<section data-background-gradient="radial-gradient(900px 600px at 75% 0%, #16294d, #0b0f17)">
+  <div class="cover">
+    <p class="kicker">Charla de IA Aplicada</p>
+    <h1>Fundamentos de IA</h1>
+    <p class="tag">De machine learning a agentes: el puente conceptual</p>
+    <p class="meta">No es magia, es ingeniería.</p>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2 — Línea de tiempo (ANCLA) ============ -->
+<section>
+  <p class="kicker">Ancla de la clase</p>
+  <h2 style="margin-bottom:.3em">Dos décadas de ML</h2>
+  <div class="tl-zones">
+    <div class="tl-zone z1">ML clásico · 2001–2012</div>
+    <div class="tl-zone z2">Deep learning + Transformers · 2012–2020</div>
+    <div class="tl-zone z3">LLMs + Agentes · 2020–hoy</div>
+  </div>
+  <div class="tl-rail">
+    <div class="tl-item z1"><div class="tl-dot"></div><div class="tl-year">2001</div><div class="tl-label"><b>Random Forest</b><br>Breiman · tabular sigue vigente</div></div>
+    <div class="tl-item z1"><div class="tl-dot"></div><div class="tl-year">2012</div><div class="tl-label"><b>AlexNet</b><br>DL sale del laboratorio</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2013</div><div class="tl-label"><b>Word2Vec</b><br>Mikolov · embeddings</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2017</div><div class="tl-label"><b>Attention Is All You Need</b><br>Vaswani · Transformers</div></div>
+    <div class="tl-item z2"><div class="tl-dot"></div><div class="tl-year">2018–20</div><div class="tl-label"><b>BERT · GPT-2 · GPT-3</b><br>escala</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2022</div><div class="tl-label"><b>ReAct</b> + ChatGPT<br>Yao et al.</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2024</div><div class="tl-label"><b>Building Effective Agents</b><br>Anthropic</div></div>
+    <div class="tl-item z3"><div class="tl-dot"></div><div class="tl-year">2025</div><div class="tl-label"><b>Claude Code GA</b><br>$1B run-rate · nov</div></div>
+  </div>
+  <p class="note center" style="margin-top:1.4em">Hoy el LLM dejó de ser un chatbot de demo: <strong>escribe, ejecuta y verifica código solo.</strong></p>
+</section>
+
+<!-- ============ SLIDE 3 — 1.1 De reglas a patrones ============ -->
+<section>
+  <p class="kicker">1.1 · El cambio de paradigma</p>
+  <h2>De reglas a patrones</h2>
+  <div class="twoblock" style="margin-top:.5em">
+    <div class="card">
+      <h3 class="hl-amber">Software tradicional</h3>
+      <p style="font-size:.8em">Programás el <strong>qué hacer</strong></p>
+      <div class="codeblock">if mail.tiene("ganaste $$$"):
+    marcar_spam()
+elif remitente in lista_negra:
+    bloquear()</div>
+      <p class="note">El programador sabe y dicta las reglas.</p>
+    </div>
+    <div class="card">
+      <h3 class="hl-blue">Machine learning</h3>
+      <p style="font-size:.8em">Programás el <strong>cómo aprender</strong></p>
+      <div class="codeblock">datos = [(mail, "spam"), (mail, "ok"), ...]
+model.fit(X, y)
+# las reglas las descubre el modelo</div>
+      <p class="note">Le das ejemplos y descubre las reglas solo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4 — 1.2 Artefacto compilado ============ -->
+<section>
+  <p class="kicker">1.2 · ¿Qué es un modelo?</p>
+  <h2>Un modelo entrenado es un <span class="hl-blue">artefacto compilado</span></h2>
+  <p style="font-size:.78em; margin:.2em 0 .4em">Viene de la estadística (regresión = años 50–60). Cambió la <strong>escala</strong>, no la idea. Clásicos vigentes: regresión · árboles · <strong>Random Forest</strong> · gradient boosting · SVM.</p>
+  <table>
+    <thead><tr><th>Mundo DevOps</th><th>Mundo ML</th></tr></thead>
+    <tbody>
+      <tr><td>Código fuente</td><td>Dataset de entrenamiento</td></tr>
+      <tr><td><code>docker build</code></td><td><code>model.fit(X, y)</code></td></tr>
+      <tr><td>Imagen de Docker</td><td>Modelo serializado (<code>.pkl</code>, <code>.safetensors</code>)</td></tr>
+      <tr><td>Container registry</td><td>Model registry (MLflow, SageMaker)</td></tr>
+      <tr><td><code>docker run</code></td><td><code>model.predict()</code></td></tr>
+    </tbody>
+  </table>
+  <div class="cite">Breiman, L. (2001). <em>Random Forests</em>. Machine Learning 45(1):5–32.</div>
+</section>
+
+<!-- ============ SLIDE 5 — 1.3 Redes y backprop ============ -->
+<section>
+  <p class="kicker">1.3 · Redes neuronales</p>
+  <h2>Backpropagation: un CI loop con auto-fix</h2>
+  <p style="font-size:.82em; margin:.1em 0 .5em">Una red = <code>activación(W·x + b)</code> apilado en capas. <strong>Aprenden las features solas</strong> → adiós feature engineering manual.</p>
+  <div class="bp">
+    <div class="bp-row">
+      <div class="bp-box"><span class="bp-n">1</span>Pesos <strong>random</strong></div>
+      <span class="bp-ar">→</span>
+      <div class="bp-box"><span class="bp-n">2</span>Predigo (sale <strong>mal</strong>)</div>
+      <span class="bp-ar">→</span>
+      <div class="bp-box"><span class="bp-n">3</span>Mido el error (<em>loss</em>)</div>
+    </div>
+    <div class="bp-down">↓</div>
+    <div class="bp-row rev">
+      <div class="bp-box hot"><span class="bp-n">4</span><span><strong class="hl-blue">Propago el error hacia atrás</strong> · gradiente</span></div>
+      <span class="bp-ar">←</span>
+      <div class="bp-box"><span class="bp-n">5</span>Ajusto cada peso un poquito</div>
+      <span class="bp-ar">←</span>
+      <div class="bp-box amber"><span class="bp-n">6</span>Repito ×<strong>millones</strong></div>
+    </div>
+    <div class="bp-loop">↻ el loop se repite millones de veces — y va bajando el error</div>
+  </div>
+  <p style="font-size:.82em; margin-top:.5em; text-align:center">Analogía: un <strong>CI loop infinito</strong> donde el test es <em>"cuánto se equivocó la predicción"</em> y el <code>commit --amend</code> automático ajusta los pesos.</p>
+  <div class="cite">Rumelhart, Hinton & Williams (1986). <em>Learning representations by back-propagating errors</em>. Nature 323:533–536.</div>
+</section>
+
+<!-- ============ SLIDE 5b — Red neuronal animada ============ -->
+<section data-autoslide="0">
+  <p class="kicker">1.3 · Redes neuronales</p>
+  <h2>Una red = pesos que se ajustan solos</h2>
+  <p style="font-size:.78em; margin:.1em 0 .4em">Ejemplo clásico (MNIST): entra la <strong>foto de un dígito</strong> y sale el <strong>número predicho</strong>. Cada <strong>línea</strong> es un <strong>peso</strong>; entrenar = ajustarlos para acertar. Dale <strong>Entrenar</strong>:</p>
+  <div class="demo" id="demo-nn">
+    <div class="demo-flex">
+      <div style="flex:0 0 auto">
+        <svg id="nn-svg" viewBox="0 0 1120 440" role="img" aria-label="Red neuronal: una imagen de un dígito entra y sale el número predicho"></svg>
+        <div class="demo-controls">
+          <button id="nn-run">▶ Entrenar</button>
+          <button id="nn-reset">↺ Reiniciar</button>
+          <span class="status">época <span id="nn-epoch">0</span> · loss = <span id="nn-loss">1.00</span></span>
+        </div>
+      </div>
+      <div class="demo-col">
+        <p style="font-size:.74em"><span class="hl-blue">▬</span> peso positivo · <span style="color:#f0883e">▬</span> peso negativo · <strong>grosor</strong> = magnitud</p>
+        <p style="font-size:.74em">Antes de entrenar, la predicción es <strong>random</strong>. A medida que baja el <em>loss</em>, la red <strong class="hl-green">acierta</strong> el dígito.</p>
+        <p class="note" style="margin-top:.5em">Acá hay ~50 pesos. Un LLM moderno tiene <strong>miles de millones</strong>. El principio es idéntico: backprop los empuja a todos, un poquito, en cada paso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6 — DEMO 1 ============ -->
+<section data-autoslide="0">
+  <p class="kicker">🎬 Demo 1</p>
+  <h2>El modelo se equivoca y se ajusta</h2>
+  <div class="demo" id="demo-gd">
+    <div class="demo-flex">
+      <div style="flex:0 0 auto">
+        <canvas id="gd-canvas" width="500" height="380"></canvas>
+        <div class="demo-controls">
+          <label>learning rate: <span id="gd-lr-val" class="mono hl-amber">0.10</span></label>
+          <input type="range" id="gd-lr" min="0.01" max="0.55" step="0.01" value="0.10">
+          <button id="gd-run">▶ Correr</button>
+          <button id="gd-reset">↺ Reiniciar</button>
+          <span id="gd-status" class="status"></span>
+        </div>
+      </div>
+      <div class="demo-col">
+        <p style="font-size:.8em"><span class="hl-amber">★</span> = óptimo (pesos ideales)<br><span class="hl-red">●</span> = parámetros actuales.</p>
+        <p style="font-size:.8em">Cada paso: medí el error, calculá el gradiente, movete en la dirección opuesta.</p>
+        <p class="note" style="margin-top:.6em">Subí el <em>lr</em> al máximo → <span class="hl-red">diverge</span> (saltos). Bajalo al mínimo → <span class="hl-amber">se arrastra</span>. Es el mismo <code>lr</code> del training real.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Esto es backprop: lo mismo pero en miles de millones de dimensiones, no en dos.</aside>
+</section>
+
+<!-- ============ SLIDE 7 — 1.4 Embeddings ============ -->
+<section>
+  <p class="kicker">1.4 · El puente hacia los LLMs</p>
+  <h2>Embeddings: coordenadas GPS del significado</h2>
+  <ul style="font-size:.84em">
+    <li><strong>Embedding:</strong> cada palabra (o frase) → un vector denso (100–3072 dim) donde <strong class="hl-blue">proximidad = similitud semántica</strong></li>
+    <li><code>vector(rey) − vector(hombre) + vector(mujer) ≈ vector(reina)</code> — aritmética sobre significado</li>
+  </ul>
+  <div class="card" style="margin-top:.5em; font-size:.78em">
+    <strong>Buenos Aires</strong> está cerca de <strong>Montevideo</strong> y lejos de <strong>Tokio</strong> en el mapa físico.<br>
+    <strong>"perro"</strong> está cerca de <strong>"gato"</strong> y lejos de <strong>"factura"</strong> en el mapa semántico.
+  </div>
+  <p style="font-size:.78em; margin-top:.5em">Base de: <strong>RAG</strong> · búsqueda semántica · recomendadores · deduplicación · detección de fraude.</p>
+  <div class="cite">Mikolov et al. (2013), arXiv:1301.3781 (Word2Vec) · Pennington et al. (2014), EMNLP (GloVe).</div>
+</section>
+
+<!-- ============ SLIDE 8 — DEMO 2 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 2</p>
+  <h2>¿"perro" está más cerca de "gato" o de "factura"?</h2>
+  <div class="demo" id="demo-emb">
+    <p style="font-size:.72em; margin:0 0 .5em; color:var(--muted)">Cada celda = similitud coseno entre <strong style="color:#fff">dos frases completas</strong> (no palabras sueltas). <span class="hl-amber">1.00</span> = idénticas · <span class="hl-blue">0.00</span> = sin relación.</p>
+    <div class="demo-flex">
+      <div style="flex:0 0 auto">
+        <div id="emb-grid"></div>
+        <p id="emb-hover" class="emb-hover">Pasá el mouse sobre una celda…</p>
+      </div>
+      <div class="demo-col">
+        <ol class="emb-leg" start="0">
+          <li>El perro corre por el parque</li>
+          <li>Mi gato duerme arriba del sillón</li>
+          <li>El cachorro persigue una pelota</li>
+          <li>Pagué la factura de la luz ayer</li>
+          <li>Tengo que abonar el servicio eléctrico</li>
+          <li>La inflación de Argentina en 2026</li>
+        </ol>
+        <p class="note" style="margin-top:.5em">Fijate: <b>f0/f2</b> (perro/cachorro) alto · <b>f0/f3</b> (perro/factura) casi cero · <b>f3/f4</b> (factura/abonar) alto. <code>all-MiniLM-L6-v2</code>, local.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Matriz precomputada con sentence-transformers (all-MiniLM-L6-v2) -->
+  <script type="application/json" id="emb-data">
+{"frases": ["El perro corre por el parque", "Mi gato duerme arriba del sillón", "El cachorro persigue una pelota", "Pagué la factura de la luz ayer", "Tengo que abonar el servicio eléctrico", "La inflación de Argentina en 2026"], "sim": [[1.0, 0.5, 0.65, 0.05, 0.04, 0.02], [0.5, 1.0, 0.47, 0.06, 0.05, 0.03], [0.65, 0.47, 1.0, 0.04, 0.03, 0.02], [0.05, 0.06, 0.04, 1.0, 0.65, 0.27], [0.04, 0.05, 0.03, 0.65, 1.0, 0.22], [0.02, 0.03, 0.02, 0.27, 0.22, 1.0]]}
+  </script>
+</section>
+
+<!-- ============ SLIDE 9 — 1.5 Transformers ============ -->
+<section>
+  <p class="kicker">1.5 · La revolución</p>
+  <h2>Transformers y atención</h2>
+  <ul style="font-size:.8em">
+    <li><strong>Pre-2017:</strong> RNN/LSTM → secuenciales, pierden contexto largo, <span class="hl-red">no paralelizan</span></li>
+    <li><strong>2017:</strong> <em>Attention Is All You Need</em> (Vaswani et al., Google) tira las RNN a la basura</li>
+    <li><strong class="hl-blue">Idea:</strong> cada token mira a <strong>todos los demás simultáneamente</strong> y decide a cuáles prestar atención</li>
+  </ul>
+  <div class="card" style="font-size:.74em; margin:.4em 0">
+    <strong>Q</strong>uery (qué busco) · <strong>K</strong>ey (qué ofrezco) · <strong>V</strong>alue (qué tengo) → <code>softmax(Q·Kᵀ / √dₖ)·V</code><br>
+    <span class="note">Multi-head: varios en paralelo, cada cabezal aprende relaciones distintas (sintaxis, semántica, correferencia).</span>
+  </div>
+  <p style="font-size:.8em">Por qué fue <strong>LA</strong> revolución: <strong class="hl-green">paraleliza</strong> (destraba la escala) + <strong class="hl-green">captura contexto largo</strong>.</p>
+  <div class="cite">Vaswani et al. (2017). <em>Attention Is All You Need</em>. arXiv:1706.03762 (NeurIPS 2017).</div>
+</section>
+
+<!-- ============ SLIDE 10 — DEMO 3 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 3</p>
+  <h2>¿Quién mira a quién?</h2>
+  <div class="demo" id="demo-attn">
+    <div class="demo-controls">
+      <label>Oración: <select id="attn-sel"></select></label>
+      <span class="note">Cada fila = un token preguntando "¿a quién presto atención?"</span>
+    </div>
+    <div id="attn-grid"></div>
+    <p id="attn-hover" class="attn-hover">Pasá el mouse sobre una celda…</p>
+  </div>
+  <p class="note" style="font-size:.66em; margin-top:.3em">Simplificación didáctica: Q/K/V crudos, sin proyecciones aprendidas ni multi-head. Fijate cómo <strong>"estaba"</strong> y <strong>"durmiendo"</strong> miran al sujeto <strong>"gato"</strong>.</p>
+  <!-- Matrices de atención precomputadas (self-attention didáctica) -->
+  <script type="application/json" id="attn-data">
+[{"tokens": ["El", "gato", "que", "vi", "ayer", "en", "el", "parque", "estaba", "durmiendo"], "attn": [[0.281, 0.106, 0.081, 0.069, 0.069, 0.081, 0.106, 0.069, 0.069, 0.069], [0.052, 0.258, 0.052, 0.099, 0.044, 0.036, 0.044, 0.06, 0.147, 0.21], [0.089, 0.174, 0.237, 0.089, 0.058, 0.068, 0.079, 0.068, 0.068, 0.068], [0.044, 0.149, 0.052, 0.262, 0.149, 0.044, 0.044, 0.085, 0.069, 0.101], [0.042, 0.061, 0.051, 0.173, 0.304, 0.061, 0.051, 0.07, 0.117, 0.07], [0.071, 0.049, 0.06, 0.06, 0.06, 0.245, 0.114, 0.245, 0.049, 0.049], [0.091, 0.059, 0.07, 0.059, 0.059, 0.124, 0.242, 0.199, 0.048, 0.048], [0.045, 0.07, 0.045, 0.095, 0.054, 0.153, 0.136, 0.269, 0.062, 0.07], [0.034, 0.244, 0.041, 0.094, 0.086, 0.034, 0.034, 0.049, 0.169, 0.214], [0.035, 0.256, 0.043, 0.083, 0.051, 0.035, 0.035, 0.059, 0.224, 0.177]]}, {"tokens": ["La", "factura", "que", "llegó", "hoy", "tiene", "un", "error", "grave"], "attn": [[0.302, 0.141, 0.087, 0.074, 0.074, 0.074, 0.101, 0.074, 0.074], [0.062, 0.27, 0.054, 0.17, 0.054, 0.154, 0.046, 0.12, 0.071], [0.093, 0.202, 0.246, 0.104, 0.06, 0.082, 0.082, 0.071, 0.06], [0.045, 0.231, 0.053, 0.263, 0.134, 0.093, 0.045, 0.077, 0.061], [0.046, 0.076, 0.056, 0.188, 0.33, 0.117, 0.056, 0.066, 0.066], [0.043, 0.208, 0.051, 0.098, 0.082, 0.255, 0.051, 0.129, 0.082], [0.099, 0.076, 0.076, 0.064, 0.064, 0.088, 0.263, 0.193, 0.076], [0.042, 0.142, 0.042, 0.073, 0.042, 0.126, 0.08, 0.249, 0.203], [0.046, 0.097, 0.046, 0.067, 0.056, 0.087, 0.056, 0.313, 0.231]]}]
+  </script>
+</section>
+
+<!-- ============ SLIDE 11 — 1.6 De Transformers a LLMs ============ -->
+<section>
+  <p class="kicker">1.6 · La conexión completa</p>
+  <h2>De Transformers a LLMs</h2>
+  <p class="note" style="font-size:.7em; margin:.1em 0 .2em">La receta, paso a paso:</p>
+  <div class="recipe">
+    <div class="rc"><span class="rc-n">1</span>Transformer <strong>decoder-only</strong></div>
+    <span class="rc-ar">→</span>
+    <div class="rc"><span class="rc-n">2</span><strong>Escalar</strong> (GPT-3 = 175B params)</div>
+    <span class="rc-ar">→</span>
+    <div class="rc"><span class="rc-n">3</span>Entrenar para <strong>predecir el próximo token</strong> sobre medio internet</div>
+  </div>
+  <p style="font-size:.95em; text-align:center; margin:.2em 0 .4em"><strong class="hl-blue">Un LLM es un autocomplete cósmico.</strong></p>
+
+  <div class="gen">
+    <div class="gen-flow">
+      <span class="gen-chip">prompt: <em>"El gato está…"</em></span>
+      <span class="gen-ar">→</span>
+      <span class="gen-chip tf">Transformer</span>
+      <span class="gen-ar">→</span>
+      <span class="gen-chip">distribución P(token)</span>
+      <span class="gen-ar">→</span>
+      <span class="gen-chip dice">🎲 muestreo</span>
+      <span class="gen-ar">→</span>
+      <span class="gen-chip out">"durmiendo"</span>
+    </div>
+    <div class="bars">
+      <div class="bar-row pick"><span class="lab">durmiendo</span><span class="track"><span class="fill" style="width:41%"></span></span><span class="pct">0.41</span></div>
+      <div class="bar-row"><span class="lab">jugando</span><span class="track"><span class="fill" style="width:23%"></span></span><span class="pct">0.23</span></div>
+      <div class="bar-row"><span class="lab">acá</span><span class="track"><span class="fill" style="width:14%"></span></span><span class="pct">0.14</span></div>
+      <div class="bar-row"><span class="lab">cansado</span><span class="track"><span class="fill" style="width:9%"></span></span><span class="pct">0.09</span></div>
+      <div class="bar-row"><span class="lab">…resto</span><span class="track"><span class="fill" style="width:13%"></span></span><span class="pct">0.13</span></div>
+    </div>
+    <p class="note" style="font-size:.62em; text-align:center; margin:.45em 0 0">⚠️ <strong class="hl-red">No es determinístico</strong>: no elige el más probable, <strong>muestrea</strong> de la distribución (<code>temperature</code>, <code>top_p</code>) · y arranca de nuevo con el token elegido</p>
+  </div>
+  <p style="font-size:.72em; margin-top:.4em"><strong>Tokenización:</strong> el modelo ve <strong>enteros</strong>, no strings · <code>cl100k_base</code> (GPT-4) · <code>o200k_base</code> (GPT-4o, GPT-5)</p>
+  <div class="cite">Brown et al. (2020), arXiv:2005.14165 (GPT-3) · Devlin et al. (2018), arXiv:1810.04805 (BERT).</div>
+</section>
+
+<!-- ============ SLIDE 13 — DEMO 4 ============ -->
+<section>
+  <p class="kicker">🎬 Demo 4</p>
+  <h2>Lo que el modelo realmente ve</h2>
+  <div class="demo" id="demo-tok">
+    <textarea id="tok-input" rows="2">Hola, ¿cómo andás che?</textarea>
+    <div class="demo-controls">
+      <label><input type="radio" name="enc" value="cl100k" checked> <code>cl100k_base</code> (GPT-4)</label>
+      <label><input type="radio" name="enc" value="o200k"> <code>o200k_base</code> (GPT-4o/5)</label>
+      <span id="tok-count">…</span>
+    </div>
+    <div id="tok-chips"></div>
+    <div class="tok-samples" id="tok-samples"></div>
+  </div>
+  <p class="note" style="font-size:.68em; margin-top:.3em">El español <strong>gasta más tokens</strong> que el inglés (= más costo + context window). Código y emojis se tokenizan distinto. Estimá costos <strong>por token</strong>, no por caracteres.</p>
+</section>
+
+<!-- ============ SLIDE 14 — 1.7 De LLM a Agente ============ -->
+<section>
+  <p class="kicker">1.7 · Lo más importante para el resto del curso</p>
+  <h2>De LLM a Agente</h2>
+  <p style="font-size:.8em; margin:.1em 0 .3em">LLM solo: <strong>genera texto</strong>. Un agente: <strong class="hl-green">planifica, usa tools, ejecuta acciones, observa, itera.</strong></p>
+  <div class="loopwrap">
+    <div class="react">
+      <div class="node"><div class="t">PENSAR</div><div class="d">reasoning</div></div>
+      <div class="ar">→</div>
+      <div class="node act"><div class="t">ACTUAR</div><div class="d">tool call</div></div>
+      <div class="ar">→</div>
+      <div class="node obs"><div class="t">OBSERVAR</div><div class="d">resultado</div></div>
+      <div class="ar">→</div>
+      <div class="node"><div class="t">¿terminé?</div><div class="d">sí → fin</div></div>
+    </div>
+    <div class="react-loop">↻ no → vuelve a PENSAR (itera hasta cumplir el objetivo)</div>
+  </div>
+  <div class="cite">Yao et al. (2022), arXiv:2210.03629 (ReAct) · Anthropic (2024), Building Effective Agents.</div>
+</section>
+
+<!-- ============ SLIDE 15 — Impacto real ============ -->
+<section>
+  <p class="kicker">Impacto real en software · 2025–2026</p>
+  <h2 style="font-size:1.3em; margin-bottom:.25em">La fábrica automatizada: producción y defectos</h2>
+  <div class="impact">
+    <div class="band wins">
+      <h3>✅ Los wins de empresa (Claude Code)</h3>
+      <ul>
+        <li><strong>$1B run-rate revenue en nov-2025</strong> (Anthropic, 3-dic-2025)</li>
+        <li><strong>Stripe:</strong> migración Scala→Java de 10k líneas en <strong>4 días</strong> (vs 10 engineer-weeks)</li>
+        <li><strong>Wiz:</strong> 50k líneas Python→Go en <strong>~20 horas</strong> (vs 2-3 meses)</li>
+      </ul>
+    </div>
+    <div class="band cautions">
+      <h3>⚖️ El contraste honesto</h3>
+      <ul>
+        <li><strong>METR 2025</strong> (arXiv:2507.09089): devs experimentados <strong>19% más lentos</strong> con la herramienta</li>
+        <li><strong>Veracode 2025:</strong> el modelo eligió el método <strong>inseguro el 45% de las veces</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="cite">Fuentes: páginas oficiales de Anthropic · METR · Veracode GenAI Code Security Report.</div>
+</section>
+
+<!-- ============ SLIDE 16 — Tu rol cambia ============ -->
+<section>
+  <p class="kicker">El gran cambio en tu carrera</p>
+  <h2>Tu rol está cambiando</h2>
+  <div class="rolewrap" style="margin-top:.8em">
+    <div class="rolecard before">
+      <p class="note">Antes — operario de la línea</p>
+      <p class="big">write code → run tests → fix → repeat</p>
+    </div>
+    <div class="role-ar">↓</div>
+    <div class="rolecard after">
+      <p class="note">Ahora — diseñador de la fábrica</p>
+      <p class="big">set goal → review changes → approve</p>
+    </div>
+  </div>
+  <p class="center" style="margin-top:1em; font-size:.95em"><strong>Diseñás la fábrica, no atornillás cada pieza.</strong></p>
+  <p class="center note" style="margin-top:.8em">Para orquestar bien necesitás entender qué hay adentro de la caja.<br>Próxima clase: <strong class="hl-blue">tools, skills y patrones de diseño de agentes</strong> — con las manos en la masa.</p>
+</section>
+
+<!-- ============ SLIDE 17 — Recap ============ -->
+<section data-background-gradient="radial-gradient(900px 600px at 50% 120%, #16294d, #0b0f17)">
+  <p class="kicker">Cruzamos el puente entero</p>
+  <h2>Recap: 6 ideas</h2>
+  <div class="recap" style="margin-top:.5em">
+    <div class="r"><span class="ic">📦</span><div><strong>ML clásico</strong> = artefactos compilados desde datos</div></div>
+    <div class="r"><span class="ic">🔁</span><div><strong>Redes + backprop</strong> = aprenden features vía loop error/corrección</div></div>
+    <div class="r"><span class="ic">🧭</span><div><strong>Embeddings</strong> = significado en coordenadas geométricas</div></div>
+    <div class="r"><span class="ic">👁️</span><div><strong>Transformers</strong> = la atención rompe la secuencialidad → escala</div></div>
+    <div class="r"><span class="ic">🎲</span><div><strong>LLMs</strong> = Transformers gigantes que autocompletan, no determinísticos</div></div>
+    <div class="r"><span class="ic">🤖</span><div><strong>Agentes</strong> = el LLM que actúa: piensa, usa tools, observa, itera</div></div>
+  </div>
+  <p class="center" style="margin-top:1.1em; font-size:1.5em"><strong>¿Preguntas?</strong></p>
+</section>
+
+</div>
+</div>
+
+<div id="footer"><span class="blk" id="f-blk"></span><span id="f-num"></span></div>
+
+<!-- ============ reveal.js core + plugins (locales) ============ -->
+<script src="../vendor/reveal/reveal.js"></script>
+<script src="../vendor/reveal/plugin/highlight/highlight.js"></script>
+<script src="../vendor/reveal/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1000, height: 1000, margin: 0.045,
+    minScale: 0.2, maxScale: 1.6, center: true,
+    hash: true, slideNumber: false, transition: 'slide',
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+
+  // Footer: sección (kicker) + número de slide
+  (function () {
+    const fBlk = document.getElementById('f-blk');
+    const fNum = document.getElementById('f-num');
+    function updateFooter(){
+      const cur = Reveal.getCurrentSlide();
+      const k = cur ? cur.querySelector('.kicker') : null;
+      fBlk.textContent = (Reveal.getIndices().h === 0) ? '' : (k ? k.textContent : '');
+      fNum.textContent = (Reveal.getIndices().h + 1) + ' / ' + Reveal.getTotalSlides();
+    }
+    Reveal.on('ready', updateFooter);
+    Reveal.on('slidechanged', updateFooter);
+  })();
+</script>
+
+<!-- ============ Red neuronal animada (SVG, JS puro) ============ -->
+<script>
+(function () {
+  const svg = document.getElementById('nn-svg');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const layers = [3, 4, 4, 4, 1];
+  const H = 440, netX0 = 250, netX1 = 880, cy = H / 2 - 18;
+  const cols = layers.length;
+  const xs = layers.map((_, k) => netX0 + k * ((netX1 - netX0) / (cols - 1)));
+  const pos = layers.map((n, k) => {
+    const gap = (H - 80) / (n + 1);
+    return Array.from({ length: n }, (_, i) => ({ x: xs[k], y: 40 + gap * (i + 1) }));
+  });
+  const rnd = () => Math.random() * 2 - 1;
+
+  // --- Entrada: imagen de un dígito "3" (bitmap 7×8) ---
+  const D3 = ["0111110","1100011","0000011","0001110","0000011","0000011","1100011","0111110"];
+  const CS = 15, gx = 12, gy = cy - (D3.length * CS) / 2;
+  D3.forEach((row, r) => [...row].forEach((v, c) =>
+    svg.appendChild(mk('rect', { x: gx + c * CS, y: gy + r * CS, width: CS - 1.5, height: CS - 1.5, rx: 2,
+      fill: v === '1' ? '#eaf2ff' : '#1a2333' }))));
+
+  // --- Flechas ---
+  function arrow(x1, x2, y, col) {
+    svg.appendChild(mk('line', { x1, y1: y, x2: x2 - 11, y2: y, stroke: col, 'stroke-width': 3.5 }));
+    svg.appendChild(mk('polygon', { points: `${x2 - 11},${y - 8} ${x2},${y} ${x2 - 11},${y + 8}`, fill: col }));
+  }
+  arrow(gx + 7 * CS + 6, netX0 - 26, cy, '#6b7a90');
+  arrow(netX1 + 26, 968, cy, '#6b7a90');
+
+  // --- Edges (detrás de los nodos) ---
+  const edges = [];
+  for (let l = 0; l < layers.length - 1; l++)
+    for (let i = 0; i < layers[l]; i++)
+      for (let j = 0; j < layers[l + 1]; j++)
+        edges.push({ a: pos[l][i], b: pos[l + 1][j], w: rnd(), t: rnd() });
+  function style(e) {
+    const m = Math.abs(e.w);
+    e.line.setAttribute('stroke', e.w >= 0 ? '#58a6ff' : '#f0883e');
+    e.line.setAttribute('stroke-width', (0.6 + m * 5).toFixed(2));
+    e.line.setAttribute('stroke-opacity', (0.16 + m * 0.6).toFixed(2));
+  }
+  edges.forEach(e => { e.line = mk('line', { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y }); svg.appendChild(e.line); style(e); });
+
+  // --- Nodos ---
+  const fills = ['#f5a623', '#8bc34a', '#8bc34a', '#8bc34a', '#e5534b'];
+  const nodeEls = [];
+  pos.forEach((layer, l) => layer.forEach(p => {
+    const c = mk('circle', { cx: p.x, cy: p.y, r: 19, fill: fills[l], stroke: '#0b0f17', 'stroke-width': 3 });
+    svg.appendChild(c); nodeEls.push({ el: c, l });
+  }));
+
+  // --- Salida: caja de predicción ---
+  const predBox = mk('rect', { x: 972, y: cy - 62, width: 138, height: 124, rx: 14, fill: '#0c1320', stroke: '#2a3650', 'stroke-width': 2.5 });
+  svg.appendChild(predBox);
+  const predEl = mk('text', { x: 1041, y: cy + 26, 'text-anchor': 'middle', 'font-size': 86, 'font-weight': 800, fill: '#9fb0c3' });
+  predEl.textContent = '?'; svg.appendChild(predEl);
+
+  // --- Etiquetas ---
+  [['entra: un dígito', gx + 7 * CS / 2, '#f5a623'], ['la red ajusta sus pesos', xs[2], '#8bc34a'], ['predicción', 1041, '#e5534b']].forEach(([t, x, col]) =>
+    svg.appendChild(Object.assign(mk('text', { x, y: H - 8, 'text-anchor': 'middle', fill: col, 'font-size': 15, 'font-weight': 700 }), { textContent: t })));
+
+  // --- Entrenamiento ---
+  let timer = null, epoch = 0;
+  const $ = id => document.getElementById(id);
+  function setPred(t, col, boxCol) { predEl.textContent = t; predEl.setAttribute('fill', col); predBox.setAttribute('stroke', boxCol); }
+  function tick() {
+    epoch++;
+    edges.forEach(e => { e.w += (e.t - e.w) * 0.09 + rnd() * 0.02; style(e); });
+    const hl = epoch % layers.length;
+    nodeEls.forEach(n => n.el.setAttribute('r', n.l === hl ? 22 : 19));
+    if (epoch < 34) { if (epoch % 3 === 0) setPred(String(Math.floor(Math.random() * 10)), '#9fb0c3', '#2a3650'); }
+    else setPred('3', '#3fb950', '#3fb950');
+    $('nn-epoch').textContent = epoch;
+    $('nn-loss').textContent = Math.max(0.02, Math.pow(0.92, epoch)).toFixed(2);
+    if (epoch >= 60) stop();
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } nodeEls.forEach(n => n.el.setAttribute('r', 19)); }
+  function reset() { stop(); epoch = 0; edges.forEach(e => { e.w = rnd(); style(e); }); setPred('?', '#9fb0c3', '#2a3650'); $('nn-epoch').textContent = 0; $('nn-loss').textContent = '1.00'; }
+  function run() { if (timer) return; if (epoch >= 60) reset(); edges.forEach(e => e.t = rnd()); timer = setInterval(tick, 110); }
+  $('nn-run').addEventListener('click', run);
+  $('nn-reset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+
+<!-- ============ DEMO 1 — Descenso de gradiente (live, JS puro) ============ -->
+<script>
+(function () {
+  const cv = document.getElementById('gd-canvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const loss = (x, y) => (x - 3) ** 2 + 2 * (y + 2) ** 2;   // mínimo en (3,-2)
+  const grad = (x, y) => [2 * (x - 3), 4 * (y + 2)];
+  const X0 = -6, X1 = 6, Y0 = -6, Y1 = 6;
+  const sx = x => (x - X0) / (X1 - X0) * W;
+  const sy = y => H - (y - Y0) / (Y1 - Y0) * H;
+  const $ = id => document.getElementById(id);
+
+  function drawContours() {
+    ctx.clearRect(0, 0, W, H);
+    const step = 5;
+    for (let i = 0; i < W; i += step) for (let j = 0; j < H; j += step) {
+      const wx = X0 + i / W * (X1 - X0);
+      const wy = Y0 + (H - j) / H * (Y1 - Y0);
+      const t = Math.min(1, loss(wx, wy) / 130);
+      ctx.fillStyle = `hsl(${230 - t * 180}, 65%, ${10 + t * 34}%)`;
+      ctx.fillRect(i, j, step, step);
+    }
+    ctx.fillStyle = 'gold';
+    ctx.beginPath(); ctx.arc(sx(3), sy(-2), 10, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
+  }
+  let pt, traj, timer = null;
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    pt = [-4, 3]; traj = [pt.slice()];
+    drawContours(); drawPoint();
+    $('gd-status').textContent = `loss = ${loss(pt[0], pt[1]).toFixed(2)}`;
+  }
+  function drawPoint() {
+    ctx.strokeStyle = '#ff5a52'; ctx.lineWidth = 2.5; ctx.beginPath();
+    traj.forEach((p, k) => k ? ctx.lineTo(sx(p[0]), sy(p[1])) : ctx.moveTo(sx(p[0]), sy(p[1])));
+    ctx.stroke();
+    ctx.fillStyle = '#ff3b30';
+    ctx.beginPath(); ctx.arc(sx(pt[0]), sy(pt[1]), 8, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  function stepFn() {
+    const lr = parseFloat($('gd-lr').value);
+    const g = grad(pt[0], pt[1]);
+    pt = [pt[0] - lr * g[0], pt[1] - lr * g[1]];
+    traj.push(pt.slice());
+    drawContours(); drawPoint();
+    const l = loss(pt[0], pt[1]);
+    $('gd-status').textContent = `loss = ${l.toFixed(2)}`;
+    if (Math.abs(pt[0]) > 12 || Math.abs(pt[1]) > 12) { $('gd-status').textContent = '⚠ diverge — bajá el learning rate'; clearInterval(timer); timer = null; }
+    else if (traj.length > 70 || l < 1e-3) { clearInterval(timer); timer = null; }
+  }
+  $('gd-lr').addEventListener('input', e => $('gd-lr-val').textContent = parseFloat(e.target.value).toFixed(2));
+  $('gd-run').addEventListener('click', () => { if (!timer) timer = setInterval(stepFn, 110); });
+  $('gd-reset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+
+<!-- ============ DEMO 2 — Embeddings + coseno (precomputado) ============ -->
+<script>
+(function () {
+  const el = document.getElementById('emb-data');
+  if (!el) return;
+  const { frases, sim } = JSON.parse(el.textContent);
+  const grid = document.getElementById('emb-grid');
+  const n = frases.length;
+  grid.style.gridTemplateColumns = `42px repeat(${n}, 1fr)`;
+  const hover = document.getElementById('emb-hover');
+  const corner = document.createElement('div'); grid.appendChild(corner); // esquina vacía
+  for (let j = 0; j < n; j++) { const h = document.createElement('div'); h.className = 'emb-head'; h.textContent = 'f' + j; grid.appendChild(h); }
+  for (let i = 0; i < n; i++) {
+    const rh = document.createElement('div'); rh.className = 'emb-head'; rh.textContent = 'f' + i; grid.appendChild(rh);
+    for (let j = 0; j < n; j++) {
+      const v = sim[i][j];
+      const cell = document.createElement('div');
+      cell.className = 'emb-cell';
+      cell.textContent = v.toFixed(2);
+      // escala monótona: oscuro (0) -> teal brillante (1)
+      cell.style.background = `hsl(188, 68%, ${10 + v * 46}%)`;
+      cell.style.color = v > 0.5 ? '#06141a' : '#cfe9f0';
+      cell.addEventListener('mouseenter', () => {
+        hover.innerHTML = `sim(<b>f${i}</b> "${frases[i]}", <b>f${j}</b> "${frases[j]}") = <span class="hl-amber">${v.toFixed(3)}</span>`;
+      });
+      grid.appendChild(cell);
+    }
+  }
+})();
+</script>
+
+<!-- ============ DEMO 3 — Mapa de atención (precomputado) ============ -->
+<script>
+(function () {
+  const el = document.getElementById('attn-data');
+  if (!el) return;
+  const data = JSON.parse(el.textContent);
+  const sel = document.getElementById('attn-sel');
+  const grid = document.getElementById('attn-grid');
+  const hover = document.getElementById('attn-hover');
+  data.forEach((d, i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = d.tokens.join(' ');
+    sel.appendChild(o);
+  });
+  function render(idx) {
+    const { tokens, attn } = data[idx];
+    const n = tokens.length;
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `110px repeat(${n}, 1fr)`;
+    grid.appendChild(document.createElement('div')); // esquina
+    tokens.forEach(t => { const h = document.createElement('div'); h.textContent = t; h.className = 'attn-head'; grid.appendChild(h); });
+    for (let i = 0; i < n; i++) {
+      const rh = document.createElement('div'); rh.textContent = tokens[i]; rh.className = 'attn-head'; rh.style.justifyContent = 'flex-end'; rh.style.paddingRight = '6px'; grid.appendChild(rh);
+      for (let j = 0; j < n; j++) {
+        const v = attn[i][j];
+        const c = document.createElement('div');
+        c.className = 'attn-cell';
+        c.textContent = v.toFixed(2);
+        c.style.background = `hsl(${255 - v * 210}, 72%, ${16 + v * 42}%)`;
+        c.addEventListener('mouseenter', () => {
+          hover.innerHTML = `<b>"${tokens[i]}"</b> presta <span class="hl-amber">${(v * 100).toFixed(0)}%</span> de atención a <b>"${tokens[j]}"</b>`;
+        });
+        grid.appendChild(c);
+      }
+    }
+  }
+  sel.addEventListener('change', e => render(+e.target.value));
+  render(0);
+})();
+</script>
+
+<!-- ============ DEMO 4 — Tokenización (gpt-tokenizer local, vendor/tokenizer) ============ -->
+<script src="../vendor/tokenizer/cl100k_base.js"></script>
+<script src="../vendor/tokenizer/o200k_base.js"></script>
+<script>
+(function () {
+  const palette = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#eab308'];
+  const samples = ['Hello, how are you today?', 'Hola, ¿cómo andás che?', 'import numpy as np', '🚀 La IA está cambiando todo en 2026 🤖'];
+  const input = document.getElementById('tok-input');
+  const count = document.getElementById('tok-count');
+  const chips = document.getElementById('tok-chips');
+  const cl100k = window.GPTTokenizer_cl100k_base || null;
+  const o200k = window.GPTTokenizer_o200k_base || null;
+
+  // botones de ejemplo
+  const sbox = document.getElementById('tok-samples');
+  samples.forEach(s => { const b = document.createElement('button'); b.textContent = s; b.onclick = () => { input.value = s; render(); }; sbox.appendChild(b); });
+
+  if (!cl100k || !o200k) {
+    count.textContent = '⚠ no se pudo cargar gpt-tokenizer (revisá vendor/tokenizer/)';
+  }
+  function render() {
+    if (!cl100k || !o200k) return;
+    const txt = input.value;
+    const useO2 = document.querySelector('input[name=enc]:checked').value === 'o200k';
+    const enc = useO2 ? o200k : cl100k;
+    const ids = enc.encode(txt);
+    count.textContent = `${ids.length} tokens · ${txt.length} caracteres`;
+    chips.innerHTML = '';
+    ids.forEach((id, k) => {
+      const piece = enc.decode([id]).replace(/ /g, '␣').replace(/\n/g, '⏎');
+      const chip = document.createElement('span');
+      chip.className = 'tok-chip';
+      chip.textContent = piece || '∅';
+      chip.title = `id ${id}`;
+      chip.style.background = palette[k % palette.length];
+      chips.appendChild(chip);
+    });
+  }
+  input.addEventListener('input', render);
+  document.querySelectorAll('input[name=enc]').forEach(r => r.addEventListener('change', render));
+  render();
+})();
+</script>
+</body>
+</html>

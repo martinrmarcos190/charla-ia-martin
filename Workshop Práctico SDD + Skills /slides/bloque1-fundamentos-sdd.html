@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloque 1 — Fundamentos de SDD</title>
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--fg:#e6e8ee;--muted:#9aa4b2;--a:#ff9e64;--a-bg:rgba(255,158,100,.12);--a-br:rgba(255,158,100,.45);--b:#a78bfa;--b-bg:rgba(167,139,250,.12);--b-br:rgba(167,139,250,.45);--ok:#7ee787;--ok-bg:rgba(126,231,135,.12);--accent:#58a6ff;--code:#0a0c10;--border:#30363d}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+.deck{height:100vh;width:100vw;position:relative}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5vh 7vw;animation:fade .35s ease}
+.slide.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(38px,5.2vw,72px);line-height:1.05;margin-bottom:.35em;color:#fff}
+h2{font-size:clamp(28px,3.6vw,48px);margin-bottom:.6em;color:#fff;line-height:1.1}
+h3{font-size:clamp(20px,2.1vw,30px);margin-bottom:.4em;color:var(--fg)}
+p,li{font-size:clamp(18px,1.9vw,27px);line-height:1.5}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.4em 0}
+.lead{font-size:clamp(22px,2.4vw,34px);color:var(--muted)}
+.muted{color:var(--muted)}
+.big{font-size:clamp(26px,3vw,42px)}
+code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:rgba(255,255,255,.07);padding:.08em .35em;border-radius:5px;font-size:.9em}
+pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:.9em 1.1em;overflow:auto;margin:.5em 0}
+pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21px);line-height:1.55;display:block}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:2.2vw;align-items:start}
+.track{border-radius:14px;padding:1.1em 1.3em;border:1px solid}
+.track.a{background:var(--a-bg);border-color:var(--a-br)}
+.track.b{background:var(--b-bg);border-color:var(--b-br)}
+.track h3{display:flex;align-items:center;gap:.5em}
+.tag{display:inline-block;font-size:.62em;font-weight:800;padding:.25em .8em;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
+.tag.a{background:var(--a);color:#1a1205}
+.tag.b{background:var(--b);color:#160e2e}
+.tag.both{background:var(--ok);color:#06210d}
+.pill{display:inline-block;padding:.2em .7em;border-radius:8px;font-size:.8em;font-weight:600;margin:.15em .2em}
+.callout{border-left:4px solid var(--accent);background:var(--bg2);border-radius:0 10px 10px 0;padding:1em 1.3em;margin:.6em 0}
+.callout.ok{border-color:var(--ok)}
+.flow{display:flex;flex-wrap:wrap;gap:.5em;align-items:center;margin:.6em 0}
+.flow .step{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.5em .9em;font-size:clamp(15px,1.5vw,22px);font-weight:600}
+.flow .arrow{color:var(--muted);font-size:1.3em}
+.kicker{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:clamp(14px,1.4vw,20px);margin-bottom:.4em}
+.center{align-items:center;text-align:center}
+.bar{position:fixed;bottom:0;left:0;height:5px;background:linear-gradient(90deg,var(--a),var(--b));transition:width .3s;z-index:10}
+.counter{position:fixed;bottom:14px;right:22px;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums;z-index:10}
+.foot{position:fixed;bottom:12px;left:22px;color:var(--muted);font-size:15px;z-index:10}
+table{border-collapse:collapse;width:100%;margin:.5em 0;font-size:clamp(15px,1.55vw,23px)}
+th,td{border:1px solid var(--border);padding:.5em .7em;text-align:left}
+th{background:var(--bg2);color:#fff}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<section class="slide center">
+  <div class="kicker">Taller práctico · Clase 3</div>
+  <h1>Bloque 1<br>Fundamentos de SDD</h1>
+  <p class="lead">Spec-Driven Development: la spec gobierna, el código es output.</p>
+  <p style="margin-top:1.2em"><span class="tag a">A</span> &nbsp;Claude Code + Spec Kit &nbsp;&nbsp; <span class="tag b">B</span> &nbsp;Kiro (AWS) &nbsp;&nbsp; <span class="tag both">Ambos</span> &nbsp;común</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">Qué es SDD y por qué</div>
+  <h2>El "vibe coding" no escala</h2>
+  <div class="cols">
+    <div>
+      <h3>El problema</h3>
+      <ul>
+        <li>Prompts sueltos, resultados irreproducibles.</li>
+        <li>Nadie sabe qué se pidió ni por qué.</li>
+        <li>Imposible de revisar o versionar como intención.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>La idea de SDD</h3>
+      <ul>
+        <li>La <b>spec es la fuente de verdad</b>.</li>
+        <li>El <b>código es un artefacto de build</b>.</li>
+        <li>Reproducible, versionable, revisable.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">SDD es a tu <b>código</b> lo que <b>Infrastructure-as-Code</b> es a tu infraestructura: declarás el <b>QUÉ</b>, la herramienta genera el <b>CÓMO</b>.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">El flujo en abstracto</div>
+  <h2>Las fases del SDD</h2>
+  <div class="flow">
+    <span class="step">constitución / reglas</span><span class="arrow">→</span>
+    <span class="step">specify</span><span class="arrow">→</span>
+    <span class="step">clarify</span><span class="arrow">→</span>
+    <span class="step">plan</span><span class="arrow">→</span>
+    <span class="step">tasks</span><span class="arrow">→</span>
+    <span class="step">analyze</span><span class="arrow">→</span>
+    <span class="step">implement</span>
+  </div>
+  <ul>
+    <li><b>specify</b> = el QUÉ · <b>clarify</b> = cerrar ambigüedades · <b>plan</b> = el CÓMO técnico.</li>
+    <li><b>tasks</b> = descomponer · <b>analyze</b> = gate de consistencia · <b>implement</b> = generar el código.</li>
+    <li>Entre fases hay <b>gates de aprobación humana</b>: vos revisás antes de avanzar.</li>
+  </ul>
+</section>
+
+<section class="slide center">
+  <div class="kicker">La idea de fondo · anti lock-in</div>
+  <h2>SDD, MCP y Skills son estándares abiertos</h2>
+  <div class="callout ok" style="max-width:1100px">
+    El <code>.md</code> del problema, el server <b>MCP</b> en Python y el <code>SKILL.md</code> son <b>idénticos</b> en las dos herramientas.<br><br>
+    Solo cambia <b>DÓNDE se registran</b>, no <b>QUÉ son</b>.
+  </div>
+  <p class="lead">El 90% del taller es igual vengas con el Camino A o el Camino B.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">Dos implementaciones · lado a lado</div>
+  <h2>El mismo concepto, dos caminos</h2>
+  <div class="cols">
+    <div class="track a">
+      <h3><span class="tag a">A</span> Spec Kit + Claude Code</h3>
+      <p>Le <b>agrega</b> SDD a Claude Code.</p>
+      <pre><code>/speckit.constitution
+/speckit.specify
+/speckit.clarify
+/speckit.plan
+/speckit.tasks
+/speckit.analyze
+/speckit.implement</code></pre>
+    </div>
+    <div class="track b">
+      <h3><span class="tag b">B</span> Kiro (AWS)</h3>
+      <p>SDD <b>nativo</b>: no instalás nada extra.</p>
+      <p>Creás un <b>Feature Spec</b>, con variantes:</p>
+      <ul>
+        <li>Requirements-First</li>
+        <li>Design-First</li>
+        <li>Quick Plan (sin gates)</li>
+      </ul>
+      <p class="muted">Requirements en notación EARS.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Dos implementaciones · los artefactos</div>
+  <h2>¿Dónde quedan las cosas?</h2>
+  <div class="cols">
+    <div class="track a">
+      <h3><span class="tag a">A</span> Spec Kit</h3>
+      <ul>
+        <li>Constitución → <code>.specify/memory/constitution.md</code></li>
+        <li>Por feature → <code>specs/&lt;N&gt;-&lt;feature&gt;/</code></li>
+        <li>Comandos → <code>.claude/commands/</code></li>
+      </ul>
+    </div>
+    <div class="track b">
+      <h3><span class="tag b">B</span> Kiro</h3>
+      <ul>
+        <li>Por feature → <code>.kiro/specs/&lt;feature&gt;/</code></li>
+        <li><code>requirements.md</code> → <code>design.md</code> → <code>tasks.md</code></li>
+      </ul>
+    </div>
+  </div>
+  <p class="big" style="text-align:center;margin-top:.6em">Mismo concepto. Distinta caja. 🎯</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">Adaptar SDD a tu empresa</div>
+  <h2>Las reglas viven en un lado</h2>
+  <div class="cols">
+    <div class="track a">
+      <h3><span class="tag a">A</span> Constitución</h3>
+      <p><code>.specify/memory/constitution.md</code></p>
+      <p>Stack obligatorio, convenciones, prohibiciones.</p>
+    </div>
+    <div class="track b">
+      <h3><span class="tag b">B</span> Steering files</h3>
+      <p><code>.kiro/steering/</code></p>
+      <p>Modos de inclusión: <code>always</code> / <code>auto</code> / <code>fileMatch</code> / <code>manual</code>.</p>
+    </div>
+  </div>
+  <div class="callout">✍️ <b>Anotá ahora:</b> ¿qué 3 reglas pondrías para tu equipo? (stack, naming, qué está prohibido)</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Tabla maestra de equivalencias</div>
+  <h2>Camino A ↔ Camino B</h2>
+  <table>
+    <tr><th>Pieza</th><th><span class="tag a">A</span> Claude Code + Spec Kit</th><th><span class="tag b">B</span> Kiro</th></tr>
+    <tr><td>Flujo SDD</td><td><code>/speckit.*</code></td><td>Feature Spec nativo</td></tr>
+    <tr><td>Reglas</td><td><code>.specify/memory/</code></td><td>Steering files</td></tr>
+    <tr><td>El <code>.md</code> del problema</td><td colspan="2" style="text-align:center"><b>Idéntico</b></td></tr>
+    <tr><td>Server MCP (Python)</td><td colspan="2" style="text-align:center"><b>Mismo código</b></td></tr>
+    <tr><td>Registrar MCP</td><td><code>claude mcp add</code></td><td><code>.kiro/settings/mcp.json</code></td></tr>
+    <tr><td>La Skill</td><td><code>.claude/skills/</code> · <b>mismo <code>SKILL.md</code></b></td><td><code>.kiro/skills/</code></td></tr>
+  </table>
+</section>
+
+<section class="slide center">
+  <h1>El mismo concepto,<br>dos implementaciones.</h1>
+  <p class="lead">Ahora: armamos el entorno. → Bloque 2</p>
+</section>
+
+</div>
+<div class="bar" id="bar"></div>
+<div class="counter" id="counter"></div>
+<div class="foot">Bloque 1 · Fundamentos de SDD</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(n){slides[i].classList.remove('active');i=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.add('active');document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';}
+document.addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
+if(slides.length){slides[0].classList.add('active');document.getElementById('counter').textContent='1 / '+slides.length;document.getElementById('bar').style.width=(1/slides.length*100)+'%'}
+</script>
+</body>
+</html>
