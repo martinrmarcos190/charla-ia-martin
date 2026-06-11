@@ -15,8 +15,7 @@ Edición **dual-track** · 150 min · 🟧 **[A]** Claude Code + Spec Kit · �
 Workshop Práctico SDD + Skills/
 ├── README.md                         ← este archivo (índice)
 ├── material-previo.md                ← Parte 1 · para participantes (mandar 3-4 días antes)
-├── guion-facilitador.md              ← Parte 2 · guion minuto a minuto (150')
-├── guion-facilitador.html            ← mismo guion en HTML para leer/proyectar (índice + timeline)
+├── guion-facilitador.html            ← Parte 2 · guion minuto a minuto (150') — índice + timeline
 ├── slides/
 │   ├── bloque1-fundamentos-sdd.html  ← deck Bloque 1 (qué es SDD)
 │   ├── bloque2-setup.html            ← deck Bloque 2 (setup hands-on por camino)
@@ -35,6 +34,13 @@ Workshop Práctico SDD + Skills/
 SDD; las soluciones de referencia quedaron archivadas en OLDS/recursos/.)
 ```
 
+## Distribución a participantes
+
+Lo que reciben los participantes (material-previo + specs + examples + seed.sh,
+**sin** soluciones de referencia) vive en el repo público:
+**https://github.com/martinrmarcos190/repo-charla-ia** — mandales ese link junto
+con el material previo. Si cambiás una spec acá, replicá el cambio allá y pusheá.
+
 ## Cómo presentar los slides
 
 Abrí cualquier `.html` de `slides/` en Chrome (doble clic). Navegación:
@@ -45,11 +51,11 @@ slide. Son autocontenidos (no necesitan internet) y tema oscuro para proyección
 
 | Bloque | Tiempo | Material |
 |---|---|---|
-| B0 · Apertura | 10' | `guion-facilitador.md` |
+| B0 · Apertura | 10' | `guion-facilitador.html` |
 | B1 · Fundamentos de SDD | 25' | `slides/bloque1-fundamentos-sdd.html` |
 | B2 · Setup hands-on | 25' | `slides/bloque2-setup.html` |
 | B3 · Práctica guiada | 45' | `recursos/problema.md` (ref. en `OLDS/recursos/app.py`) |
-| B4 · Skill + MCP | 35' | `recursos/spec-mcp.md`, `recursos/spec-skill.md`, `recursos/examples/mcp.json.example` (ref. en `OLDS/recursos/`) |
+| B4 · Skill + MCP | 35' | `recursos/spec-mcp.md`, `recursos/spec-skill.md`, `recursos/examples/mcp.json.example`, `recursos/seed.sh` (ref. en `OLDS/recursos/`) |
 | B5 · Reflexión | 10' | `slides/bloque5-reflexion.html` |
 
 ## Checklist de versiones (verificar el día del taller)
