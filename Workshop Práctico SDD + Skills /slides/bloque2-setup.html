@@ -89,15 +89,13 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
   <h2>Base común — verificar antes</h2>
   <pre><code>uv --version
 python3 --version   # necesitás ≥ 3.11
-git --version
-docker --version</code></pre>
+git --version</code></pre>
   <div class="expected">
     <b>Salida esperada:</b><br>
-    <code>uv 0.x.x</code> &nbsp;·&nbsp; <code>Python 3.11.x</code> o superior &nbsp;·&nbsp; <code>git version 2.x</code> &nbsp;·&nbsp; <code>Docker version 2x.x</code>
+    <code>uv 0.x.x</code> &nbsp;·&nbsp; <code>Python 3.11.x</code> o superior &nbsp;·&nbsp; <code>git version 2.x</code>
   </div>
   <div class="callout" style="margin-top:.9em">
     Si <code>uv</code> falla: <code>curl -LsSf https://astral.sh/uv/install.sh | sh</code> y reabrí la terminal.<br>
-    Docker: instalá Docker Desktop desde el sitio oficial.<br>
     Python &lt; 3.11: <code>uv python install 3.12</code>
   </div>
 </section>
@@ -197,7 +195,7 @@ ls .claude/commands/</code></pre>
   <h2>Instalar y loguear Kiro</h2>
   <div class="track b" style="margin-bottom:1em">
     <h3><span class="tag b">B</span> Kiro — IDE con SDD nativo</h3>
-    <p>No instalás Spec Kit ni Claude Code. De la base común solo necesitás <code>uv</code>, Python, Git y Docker (para el Bloque 4).</p>
+    <p>No instalás Spec Kit ni Claude Code. De la base común solo necesitás <code>uv</code> (para el MCP del Bloque 4), Python y Git.</p>
   </div>
   <ol>
     <li>Descargar desde <code>kiro.dev/downloads</code> — disponible para macOS, Linux y Windows</li>
@@ -251,7 +249,7 @@ ls .claude/commands/</code></pre>
         <li>Abrí una carpeta (<code>taller-sdd</code>) con Open Folder</li>
         <li>Veo el panel <b>Specs</b> en la barra lateral</li>
         <li>El botón "+" bajo Specs funciona</li>
-        <li><code>uv</code>, <code>python3 ≥ 3.11</code>, <code>git</code> y <code>docker</code> responden</li>
+        <li><code>uv</code>, <code>python3 ≥ 3.11</code> y <code>git</code> responden</li>
       </ul>
     </div>
   </div>
