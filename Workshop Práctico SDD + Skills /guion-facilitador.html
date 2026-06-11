@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guion del facilitador — Taller SDD + Skills (150 min)</title>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2230;--fg:#e6e8ee;--muted:#9aa4b2;
+  --a:#ff9e64;--a-bg:rgba(255,158,100,.10);--a-br:rgba(255,158,100,.40);
+  --b:#a78bfa;--b-bg:rgba(167,139,250,.10);--b-br:rgba(167,139,250,.40);
+  --ok:#7ee787;--ok-bg:rgba(126,231,135,.10);--ok-br:rgba(126,231,135,.40);
+  --dice:#58a6ff;--hace:#e3b341;--part:#7ee787;
+  --accent:#58a6ff;--code:#0a0c10;--border:#30363d;--warn:#f0883e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55;font-size:17px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 120px;display:grid;grid-template-columns:230px 1fr;gap:40px;align-items:start}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;align-self:start;padding-top:28px;max-height:100vh;overflow-y:auto}
+nav .brand{font-weight:800;font-size:15px;letter-spacing:.02em;color:#fff;margin-bottom:4px}
+nav .brand small{display:block;color:var(--muted);font-weight:500;font-size:12.5px;margin-top:3px}
+nav ul{list-style:none;margin:18px 0 0}
+nav li{margin:2px 0}
+nav a{display:flex;justify-content:space-between;gap:8px;text-decoration:none;color:var(--muted);
+  padding:7px 10px;border-radius:8px;font-size:13.5px;border-left:2px solid transparent;transition:.15s}
+nav a:hover{background:var(--bg2);color:var(--fg)}
+nav a.active{color:#fff;background:var(--bg2);border-left-color:var(--accent)}
+nav a .t{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+nav .legend{margin-top:22px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:12.5px;line-height:1.7}
+nav .legend b{color:var(--fg)}
+
+/* ---------- MAIN ---------- */
+main{padding-top:28px;min-width:0}
+header.hero{border-bottom:1px solid var(--border);padding-bottom:24px;margin-bottom:8px}
+header.hero .kicker{color:var(--accent);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:13px}
+header.hero h1{font-size:34px;line-height:1.15;color:#fff;margin:8px 0 14px}
+header.hero p{color:var(--muted);max-width:62ch}
+.tracks-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* time badge */
+.block{margin-top:48px;scroll-margin-top:20px}
+.block-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:20px}
+.block-head h2{font-size:25px;color:#fff;line-height:1.1}
+.time{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;color:#fff;
+  background:linear-gradient(90deg,var(--a),var(--b));padding:5px 11px;border-radius:999px;white-space:nowrap}
+.dur{color:var(--muted);font-size:13px;font-weight:600}
+.res{color:var(--muted);font-size:13.5px;margin:-8px 0 18px}
+.res code{font-size:.9em}
+
+/* beats */
+.beat{display:grid;grid-template-columns:74px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.beat:last-child{border-bottom:none}
+.beat .clk{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;padding-top:3px;white-space:nowrap}
+.beat .body > :first-child{margin-top:0}
+.role{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;
+  padding:2px 8px;border-radius:6px;margin-right:7px;vertical-align:1.5px}
+.role.dice{background:rgba(88,166,255,.16);color:var(--dice)}
+.role.hace{background:rgba(227,179,65,.16);color:var(--hace)}
+.role.part{background:rgba(126,231,135,.16);color:var(--part)}
+.role.res{background:rgba(240,136,62,.16);color:var(--warn)}
+
+/* track tags + boxes */
+.tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;
+  letter-spacing:.03em;text-transform:uppercase;vertical-align:1.5px}
+.tag.a{background:var(--a);color:#1a1205}
+.tag.b{background:var(--b);color:#160e2e}
+.tag.both{background:var(--ok);color:#06210d}
+.track{border-radius:12px;padding:12px 16px;border:1px solid;margin:10px 0}
+.track.a{background:var(--a-bg);border-color:var(--a-br)}
+.track.b{background:var(--b-bg);border-color:var(--b-br)}
+.track > :first-child{margin-top:0}
+.track .lbl{font-weight:700;display:inline-flex;align-items:center;gap:7px;margin-bottom:6px}
+
+ul,ol{padding-left:1.25em;margin:.45em 0}
+li{margin:.3em 0}
+p{margin:.5em 0}
+strong,b{color:#fff}
+em{color:var(--fg);font-style:italic}
+code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  background:rgba(255,255,255,.08);padding:.1em .4em;border-radius:5px;font-size:.86em}
+pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:13px 15px;overflow:auto;margin:10px 0}
+pre code{background:none;padding:0;color:#c9d1d9;font-size:13.5px;line-height:1.6;display:block;white-space:pre}
+
+.callout{border-left:4px solid var(--accent);background:var(--bg2);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0}
+.callout.ok{border-color:var(--ok)}
+.callout.a{border-color:var(--a)}
+.callout.b{border-color:var(--b)}
+.callout.warn{border-color:var(--warn)}
+.callout .h{font-weight:700;color:#fff;display:block;margin-bottom:3px}
+
+/* troubleshooting */
+.ts-group{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:14px 0}
+.ts-group > summary{cursor:pointer;font-weight:700;color:#fff;font-size:16px;list-style:none;display:flex;align-items:center;gap:9px}
+.ts-group > summary::-webkit-details-marker{display:none}
+.ts-group > summary::before{content:"▸";color:var(--muted);transition:.15s}
+.ts-group[open] > summary::before{transform:rotate(90deg)}
+.ts-group[open] > summary{margin-bottom:12px}
+.ts-group ul{margin:0}
+.ts-group li{margin:.45em 0}
+.ts-q{color:#fff;font-weight:600}
+
+.rec li{margin:.5em 0}
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--border);color:var(--muted);font-size:13.5px}
+
+@media (max-width:880px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  nav{position:static;max-height:none;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:8px}
+  nav ul{display:flex;flex-wrap:wrap;gap:4px}
+  nav .legend{display:none}
+  .beat{grid-template-columns:1fr;gap:4px}
+  .beat .clk{padding-top:0}
+}
+@media print{
+  nav{display:none}.wrap{grid-template-columns:1fr;max-width:none}
+  body{background:#fff;color:#111;font-size:12px}
+  .block{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="brand">Guion del facilitador
+    <small>Taller SDD + Skills · 150 min · dual-track</small>
+  </div>
+  <ul>
+    <li><a href="#b0"><span>B0 · Apertura</span><span class="t">10'</span></a></li>
+    <li><a href="#b1"><span>B1 · Fundamentos</span><span class="t">25'</span></a></li>
+    <li><a href="#b2"><span>B2 · Setup</span><span class="t">25'</span></a></li>
+    <li><a href="#b3"><span>B3 · Práctica</span><span class="t">45'</span></a></li>
+    <li><a href="#b4"><span>B4 · Skill + MCP</span><span class="t">35'</span></a></li>
+    <li><a href="#b5"><span>B5 · Reflexión</span><span class="t">10'</span></a></li>
+    <li><a href="#ts"><span>4.G · Troubleshooting</span><span class="t">⚑</span></a></li>
+    <li><a href="#rec"><span>Recomendaciones</span><span class="t">★</span></a></li>
+  </ul>
+  <div class="legend">
+    <b>Convención</b><br>
+    <span class="role dice">Dice</span> lo que explicás<br>
+    <span class="role hace">Hace</span> lo que mostrás<br>
+    <span class="role part">Particip.</span> lo que tipean<br>
+    <span class="role res">Resuelve</span> acción rápida<br>
+    <hr style="border:none;border-top:1px solid var(--border);margin:10px 0">
+    <span class="tag a">A</span> Claude Code + Spec Kit<br>
+    <span class="tag b" style="margin-top:6px">B</span> Kiro (AWS)
+  </div>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main>
+  <header class="hero">
+    <div class="kicker">Clase 3 · Guion minuto a minuto</div>
+    <h1>Taller práctico: Spec-Driven Development + Claude Skills</h1>
+    <p>Reparto: <b>B0</b> apertura 10' · <b>B1</b> Fundamentos 25' · <b>B2</b> Setup 25' ·
+       <b>B3</b> Práctica guiada 45' · <b>B4</b> Skill + MCP 35' · <b>B5</b> Reflexión 10'.
+       Total <b>150 min</b>. Donde hay divergencia se marca el camino.</p>
+    <div class="callout" style="margin-top:18px">
+      <span class="h">Tené siempre a mano</span>
+      la <b>tabla maestra de equivalencias</b> en pantalla (slide 8 del Bloque 1) y el
+      <code>4.G</code> de troubleshooting (al final de este guion).
+    </div>
+    <div class="tracks-line">
+      <span class="tag a">A</span><span class="dur">Claude Code + Spec Kit</span>
+      <span style="color:var(--border)">·</span>
+      <span class="tag b">B</span><span class="dur">Kiro (AWS)</span>
+    </div>
+  </header>
+
+  <!-- ===== B0 ===== -->
+  <section class="block" id="b0">
+    <div class="block-head"><span class="time">0:00 – 0:10</span><h2>Bloque 0 — Apertura</h2><span class="dur">10 min</span></div>
+
+    <div class="beat">
+      <div class="clk">0:00–0:03</div>
+      <div class="body">
+        <p><span class="role dice">Dice</span>"Bienvenidos a la Clase 3. Hoy construimos SDD end-to-end. El grupo viene mixto:
+        algunos con Claude Code + Spec Kit, otros con Kiro. La buena noticia: SDD, MCP y Skills son
+        <b>estándares abiertos</b>, así que el 90% es igual."</p>
+        <p>Compartí la agenda y la <b>tabla maestra de equivalencias</b>.</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:03–0:08</div>
+      <div class="body">
+        <p><span class="role hace">Hace</span>pedí correr el checklist.</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>uv --version
+claude --version
+specify check</code></pre>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p><code>uv --version</code> + confirmar el panel <b>Specs</b> en Kiro.</p>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:08–0:10</div>
+      <div class="body">
+        <p><span class="role res">Resuelve</span>rojos rápidos; derivá al troubleshooting (<a href="#ts" style="color:var(--accent)">4.G</a>).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== B1 ===== -->
+  <section class="block" id="b1">
+    <div class="block-head"><span class="time">0:10 – 0:35</span><h2>Bloque 1 — Fundamentos de SDD</h2><span class="dur">25 min</span></div>
+    <p class="res">Slides: <code>slides/bloque1-fundamentos-sdd.html</code></p>
+
+    <div class="beat">
+      <div class="clk">0:10–0:13</div>
+      <div class="body"><p><span class="role dice">Dice</span>"La spec gobierna, el código es output." Analogía IaC.</p></div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:13–0:23</div>
+      <div class="body">
+        <p><span class="role hace">Hace</span>presentá la HTML del Bloque 1. Recorré el flujo SDD en abstracto y después aterrizalo en cada herramienta:</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <p><code>/speckit.*</code> y artefactos en <code>.specify/</code> + <code>specs/</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Feature Spec de Kiro y artefactos <code>requirements.md</code> / <code>design.md</code> / <code>tasks.md</code> en <code>.kiro/specs/</code>.</p>
+        </div>
+        <div class="callout ok"><b style="color:var(--ok)">Punto clave:</b> el mismo concepto, dos implementaciones.</div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:23–0:33</div>
+      <div class="body">
+        <p><span class="role dice">Dice</span>adaptar SDD a la empresa.</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <p>constitución en <code>.specify/memory/constitution.md</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Steering files en <code>.kiro/steering/</code>.</p>
+        </div>
+        <p><span class="role part">Particip.</span>anotan qué reglas pondrían.</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:33–0:35</div>
+      <div class="body"><p><b>Transición</b> al setup.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== B2 ===== -->
+  <section class="block" id="b2">
+    <div class="block-head"><span class="time">0:35 – 1:00</span><h2>Bloque 2 — Setup técnico hands-on</h2><span class="dur">25 min</span></div>
+    <p class="res">Slides: <code>slides/bloque2-setup.html</code></p>
+
+    <div class="beat">
+      <div class="clk">0:35–0:38</div>
+      <div class="body"><p><span class="role dice">Dice</span>"Cada uno arma su entorno según su camino." Mostrá la HTML del Bloque 2.</p></div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:38–0:50</div>
+      <div class="body">
+        <p><span class="role hace">Hace</span> / <span class="role part">Particip.</span> tipean:</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>mkdir taller-sdd && cd taller-sdd
+git init
+claude              # primera vez: autenticar en navegador
+# dentro de Claude Code:
+/init
+specify init . --integration claude</code></pre>
+          <p>Luego, en Claude Code, tipear <code>/</code> y confirmar que aparecen los <code>/speckit.*</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <pre><code>En Kiro: File → New Folder "taller-sdd" → Open Folder.
+(Opcional) abrir terminal integrada y: git init
+No se instala Spec Kit. El panel "Specs" ya está listo.</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">0:50–1:00</div>
+      <div class="body">
+        <p><b>Verificación grupal.</b></p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>ls .specify/ .claude/commands/</code></pre>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>confirmar el botón "+" bajo Specs y que el chat responde.</p>
+        </div>
+        <p class="res">Troubleshooting de los que no ven comandos / panel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== B3 ===== -->
+  <section class="block" id="b3">
+    <div class="block-head"><span class="time">1:00 – 1:45</span><h2>Bloque 3 — Práctica guiada: flujo completo</h2><span class="dur">45 min</span></div>
+    <p class="res">Recurso: <code>recursos/problema.md</code></p>
+
+    <div class="beat">
+      <div class="clk">1:00–1:05</div>
+      <div class="body"><p><span class="role dice">Dice</span>entregá el <code>.md</code> del problema. "Primero <b>ESTIMÁ</b> cuánto tardarías a mano (DB + Flask + 4 endpoints + seed + curl). Anotá el número."</p></div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:05–1:08</div>
+      <div class="body"><p><span class="role dice">Dice</span>"Ahora lo automatizamos vía SDD, cada uno en su herramienta."</p></div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:08–1:42</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>ejecutan el flujo:</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>/speckit.constitution  (reglas: solo stdlib + Flask, sqlite3, sin auth, tests con curl)
+/speckit.specify       (pegar el contenido del .md del problema)
+/speckit.clarify       (cerrar ambigüedades)
+/speckit.plan          (Flask + sqlite3 stdlib)
+/speckit.tasks
+/speckit.analyze       (gate de consistencia)
+/speckit.implement</code></pre>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <pre><code>(Opcional) crear un Steering file en .kiro/steering/ con las mismas reglas.
+Panel Specs → "+" → Feature → pegar el .md del problema →
+   elegir Requirements-First (o Quick Plan si el grupo va ajustado de tiempo) →
+   revisar requirements.md → aprobar → revisar design.md → aprobar →
+   revisar tasks.md → "Run all Tasks" (o tarea por tarea, recomendado).</code></pre>
+        </div>
+        <div class="callout"><b>Mientras corre, narrá qué está pasando en cada fase.</b></div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:42–1:45</div>
+      <div class="body"><p><span class="role part">Particip.</span><b>Prueban con curl</b> los endpoints y comparan tiempo real vs estimación. "¿Quién tardó menos? ¿Qué les sorprendió?"</p></div>
+    </div>
+  </section>
+
+  <!-- ===== B4 ===== -->
+  <section class="block" id="b4">
+    <div class="block-head"><span class="time">1:45 – 2:20</span><h2>Bloque 4 — Construir una Skill con SDD + MCP</h2><span class="dur">35 min</span></div>
+    <p class="res">Recursos: <code>recursos/spec-mcp.md</code>, <code>recursos/spec-skill.md</code>, <code>recursos/examples/mcp.json.example</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
+
+    <div class="beat">
+      <div class="clk">1:45–1:48</div>
+      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Opcional: poblá el inventario con <code>recursos/seed.sh</code> para que la demo final luzca con ~10 modelos.</em></p></div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:48–1:52</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>scaffoldean el proyecto del MCP <span class="tag both">idéntico A/B</span> — solo el entorno, el código lo genera SDD.</p>
+        <pre><code>uv init mcp-items && cd mcp-items
+uv venv && source .venv/bin/activate
+uv add "mcp[cli]" httpx</code></pre>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:52–1:58</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>vía SDD generan el <code>server.py</code> (spec pegable: <code>recursos/spec-mcp.md</code>; solución de referencia: <code>OLDS/recursos/mcp-items/server.py</code>):</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <p><code>/speckit.specify</code> con la spec del MCP → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>mcp-items/server.py</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Feature Spec de Kiro con la misma spec (Quick Plan si vas ajustado); resultado en <code>mcp-items/server.py</code>.</p>
+        </div>
+        <div class="callout"><b>Narrá:</b> misma mecánica que el Flask, otro artefacto. El <code>.md</code> no menciona herramienta porque MCP es estándar abierto.</div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">1:58–2:03</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>registran el MCP:</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>claude mcp add items-api -- uv --directory "$(pwd)" run server.py
+claude mcp list          # debe aparecer items-api
+# dentro de Claude Code: /mcp</code></pre>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>crear/editar <code>.kiro/settings/mcp.json</code> en el workspace:</p>
+          <pre><code>{
+  "mcpServers": {
+    "items-api": {
+      "command": "uv",
+      "args": ["--directory", "/ruta/absoluta/a/mcp-items", "run", "server.py"],
+      "disabled": false
+    }
+  }
+}</code></pre>
+          <p>Kiro recarga al guardar; confirmar en el panel MCP que <code>items-api</code> está conectado y expone las tools.</p>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">2:03–2:15</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>vía SDD crean la Skill (spec pegable: <code>recursos/spec-skill.md</code>; solución de referencia: <code>OLDS/recursos/skills/items-ops/SKILL.md</code>):</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <p><code>/speckit.specify</code> con la spec de la Skill → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>.claude/skills/items-ops/SKILL.md</code>. Si la carpeta es nueva: reiniciá Claude Code o <code>/reload-skills</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Feature Spec de Kiro con la misma spec; resultado en <code>.kiro/skills/items-ops/SKILL.md</code> (<b>recordá la subcarpeta con el nombre</b>).</p>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">2:15–2:20</div>
+      <div class="body"><p><span class="role part">Particip.</span><b>Prueban:</b> "listá los modelos y agregá uno." El agente usa la Skill + las tools del MCP. Verifican con curl.</p></div>
+    </div>
+
+    <div class="callout a">
+      <span class="h">Spec del MCP</span>
+      el texto completo para pegar está en <code>recursos/spec-mcp.md</code> (distribuilo junto con <code>problema.md</code> y <code>spec-skill.md</code>).
+      Resumen: server MCP <code>items-api</code> (stdio, <code>FastMCP</code> + <code>httpx</code>) que expone 3 tools
+      (<code>list_models</code>, <code>get_model</code>, <code>add_model</code>) contra el Flask en <code>127.0.0.1:5000</code>;
+      maneja el 404 con mensaje claro y <b>nunca escribe a stdout</b> (log a stderr).
+    </div>
+
+    <div class="callout b">
+      <span class="h">Spec de la Skill</span>
+      el texto completo para pegar está en <code>recursos/spec-skill.md</code> (distribuilo junto con <code>problema.md</code>).
+      Resumen: Skill <code>items-ops</code> que opera el inventario vía las tools del MCP <code>items-api</code>;
+      (1) explica cuándo usarse; (2) usa SIEMPRE nombres calificados (<code>items-api:list_models</code>, etc.);
+      (3) valida <code>accuracy</code> ∈ [0,1] antes del alta; (4) tras un alta, confirma el id leyendo el modelo.
+    </div>
+  </section>
+
+  <!-- ===== B5 ===== -->
+  <section class="block" id="b5">
+    <div class="block-head"><span class="time">2:20 – 2:30</span><h2>Bloque 5 — Reflexión y extensión</h2><span class="dur">10 min</span></div>
+    <p class="res">Slides: <code>slides/bloque5-reflexion.html</code></p>
+
+    <div class="beat">
+      <div class="clk">2:20–2:25</div>
+      <div class="body">
+        <p><span class="role dice">Dice</span>Skills + MCPs + imaginación = construís cualquier cosa.
+        <b>MCP = conectividad</b> (tools), <b>Skills = procedimiento</b> (cómo se hace acá).
+        Da los 2–3 ejemplos (run-training, data-drift-check, model-card).</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">2:25–2:30</div>
+      <div class="body">
+        <p><span class="role dice">Dice</span>el concepto central — "diseñá tu propio SDD basado en Skills".</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span><p>Skills + constitución.</p></div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span><p>Skills + Steering + <b>Powers</b> (empaquetan MCP + steering + hooks).</p></div>
+        <p class="res">Cierre y próximos pasos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TROUBLESHOOTING ===== -->
+  <section class="block" id="ts">
+    <div class="block-head"><span class="time">4.G</span><h2>Troubleshooting</h2></div>
+
+    <details class="ts-group" open>
+      <summary><span class="tag both">Comunes</span></summary>
+      <ul>
+        <li><span class="ts-q">Python viejo/no encontrado:</span> <code>python3 --version</code>; si &lt;3.11, <code>uv python install 3.12</code>. Spec Kit y el SDK MCP requieren ≥3.10.</li>
+        <li><span class="ts-q"><code>uv</code>/<code>uvx</code> "command not found":</span> reabrí la terminal; si persiste, agregá <code>~/.local/bin</code> al PATH.</li>
+        <li><span class="ts-q">MCP 0 tools / no conecta:</span> corré el server a mano para ver errores en stderr; <b>nunca <code>print()</code></b> a stdout (corrompe el JSON-RPC); usá <b>ruta absoluta</b> en el working directory; el server stdio descubre tools al inicio de sesión.</li>
+        <li><span class="ts-q">Flask/SQLite:</span> "no such table" → no inicializaste la DB; POST falla → falta <code>-H "Content-Type: application/json"</code>; puerto 5000 ocupado → cambialo.</li>
+        <li><span class="ts-q">macOS + puerto 5000 (¡frecuente!):</span> AirPlay Receiver escucha en el 5000 y responde <b>403 con body vacío</b> — parece que el server "no anda" pero es AirPlay. Desactivar en Ajustes del Sistema → General → AirDrop y Handoff → Receptor de AirPlay, o usar otro puerto. Diagnóstico: <code>lsof -nP -iTCP:5000 -sTCP:LISTEN</code> (si aparece <code>ControlCe</code>, es AirPlay).</li>
+        <li><span class="ts-q">Flask viejo (<code>'Flask' object has no attribute 'get'</code>):</span> <code>uv run --with flask</code> agarró un Python viejo del sistema. Fix: <code>uv run --python 3.12 --with flask app.py</code>.</li>
+      </ul>
+    </details>
+
+    <details class="ts-group">
+      <summary><span class="tag a">A</span> Camino A · Claude Code + Spec Kit</summary>
+      <ul>
+        <li><span class="ts-q">Claude Code "command not found":</span> abrí terminal nueva o <code>source ~/.zshrc</code>; el binario nativo está en <code>~/.local/bin/claude</code>.</li>
+        <li><span class="ts-q">Node viejo (instalación npm legada):</span> requiere Node 18+; mejor el instalador nativo; nunca <code>sudo npm</code>.</li>
+        <li><span class="ts-q">No aparecen los <code>/speckit.*</code>:</span> carpeta equivocada o no reiniciaste; <code>ls .claude/commands/</code>, reiniciá Claude Code; usá <code>--integration claude</code> (no el viejo <code>--ai</code>).</li>
+        <li><span class="ts-q">MCP no aparece tras <code>claude mcp add</code>:</span> <code>claude mcp list</code> y abrí sesión nueva (descubre tools al inicio).</li>
+      </ul>
+    </details>
+
+    <details class="ts-group">
+      <summary><span class="tag b">B</span> Camino B · Kiro</summary>
+      <ul>
+        <li><span class="ts-q">No veo el panel Specs:</span> confirmá que abriste una <b>carpeta</b> (no un archivo suelto); reabrí con File → Open Folder.</li>
+        <li><span class="ts-q">La Skill no se reconoce:</span> debe estar en <code>.kiro/skills/&lt;nombre&gt;/SKILL.md</code> (subcarpeta con el nombre), no suelta bajo <code>skills/</code>; revisá el frontmatter (<code>name</code>, <code>description</code>).</li>
+        <li><span class="ts-q">El MCP no conecta desde <code>mcp.json</code>:</span> validá el JSON (comas, llaves); ruta absoluta en <code>--directory</code>; verificá que el Flask del Bloque 3 esté corriendo; mirá los logs del panel MCP; referenciá variables como <code>${VAR}</code> y no hardcodees secretos.</li>
+        <li><span class="ts-q">El Feature Spec no avanza:</span> en Requirements-First hay gates entre fases; para la demo, usá <b>Quick Plan</b> para saltarlos.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ===== RECOMENDACIONES ===== -->
+  <section class="block" id="rec">
+    <div class="block-head"><span class="time">★</span><h2>Recomendaciones operativas</h2></div>
+    <ol class="rec">
+      <li><b>Antes:</b> mandá el material previo 3–4 días antes; pedí el output del checklist en un canal.</li>
+      <li><b>Durante:</b> mostrá la <b>tabla maestra de equivalencias</b> todo el tiempo.</li>
+      <li><b>Pinneá versiones <span class="tag a">A</span>:</b> Spec Kit <code>@v0.8.18</code>; opcional <code>uv add "mcp[cli]==1.27.1"</code>.</li>
+      <li><b>Grupo Kiro <span class="tag b">B</span>:</b> si vas ajustado en el Bloque 3, usá <b>Quick Plan</b> (sin gates).</li>
+      <li><b>Umbral de decisión:</b> si &gt;20% tiene el entorno roto al minuto 8, corré el Bloque 2 como "setup asistido" extendido y recortá 10 min del Bloque 3.</li>
+    </ol>
+  </section>
+
+  <footer>
+    Fuente: documento maestro <code>MD for Workshop Práctico SDD + Skills .md</code> · generado desde <code>guion-facilitador.md</code>.
+    Navegación: clic en el índice de la izquierda. Imprimible (Cmd+P) para llevarlo en papel.
+  </footer>
+</main>
+</div>
+
+<script>
+// resaltar la sección activa en el nav al scrollear
+const links = [...document.querySelectorAll('nav a')];
+const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = map.get(e.target.id);
+      if (a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-15% 0px -75% 0px', threshold:0});
+document.querySelectorAll('.block').forEach(b => obs.observe(b));
+</script>
+</body>
+</html>

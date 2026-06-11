@@ -96,8 +96,9 @@ docker --version</code></pre>
     <code>uv 0.x.x</code> &nbsp;·&nbsp; <code>Python 3.11.x</code> o superior &nbsp;·&nbsp; <code>git version 2.x</code> &nbsp;·&nbsp; <code>Docker version 2x.x</code>
   </div>
   <div class="callout" style="margin-top:.9em">
-    Si alguno falla: <code>brew install uv git docker</code> (macOS) o bajá el instalador oficial.<br>
-    Python &lt; 3.11: <code>uv python install 3.11</code>
+    Si <code>uv</code> falla: <code>curl -LsSf https://astral.sh/uv/install.sh | sh</code> y reabrí la terminal.<br>
+    Docker: instalá Docker Desktop desde el sitio oficial.<br>
+    Python &lt; 3.11: <code>uv python install 3.12</code>
   </div>
 </section>
 
@@ -186,7 +187,7 @@ ls .claude/commands/</code></pre>
     <b>Deberías ver:</b><br>
     <code>.specify/</code> con archivos de configuración del proyecto<br>
     <code>.claude/commands/</code> con los archivos <code>speckit.*.md</code><br>
-    En Claude Code: el menú <code>/</code> lista <code>/speckit.create</code>, <code>/speckit.list</code>, etc.
+    En Claude Code: el menú <code>/</code> lista <code>/speckit.constitution</code>, <code>/speckit.specify</code>, <code>/speckit.plan</code>, etc.
   </div>
 </section>
 

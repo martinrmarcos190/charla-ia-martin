@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloque 5 — Reflexión y extensión</title>
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--fg:#e6e8ee;--muted:#9aa4b2;--a:#ff9e64;--a-bg:rgba(255,158,100,.12);--a-br:rgba(255,158,100,.45);--b:#a78bfa;--b-bg:rgba(167,139,250,.12);--b-br:rgba(167,139,250,.45);--ok:#7ee787;--ok-bg:rgba(126,231,135,.12);--accent:#58a6ff;--code:#0a0c10;--border:#30363d}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+.deck{height:100vh;width:100vw;position:relative}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5vh 7vw;animation:fade .35s ease}
+.slide.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(38px,5.2vw,72px);line-height:1.05;margin-bottom:.35em;color:#fff}
+h2{font-size:clamp(28px,3.6vw,48px);margin-bottom:.6em;color:#fff;line-height:1.1}
+h3{font-size:clamp(20px,2.1vw,30px);margin-bottom:.4em;color:var(--fg)}
+p,li{font-size:clamp(18px,1.9vw,27px);line-height:1.5}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.4em 0}
+.lead{font-size:clamp(22px,2.4vw,34px);color:var(--muted)}
+.muted{color:var(--muted)}
+.big{font-size:clamp(26px,3vw,42px)}
+code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:rgba(255,255,255,.07);padding:.08em .35em;border-radius:5px;font-size:.9em}
+pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:.9em 1.1em;overflow:auto;margin:.5em 0}
+pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21px);line-height:1.55;display:block}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:2.2vw;align-items:start}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.6vw;align-items:start}
+.track{border-radius:14px;padding:1.1em 1.3em;border:1px solid}
+.track.a{background:var(--a-bg);border-color:var(--a-br)}
+.track.b{background:var(--b-bg);border-color:var(--b-br)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.1em 1.3em}
+.card h3{color:var(--accent)}
+.tag{display:inline-block;font-size:.62em;font-weight:800;padding:.25em .8em;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
+.tag.a{background:var(--a);color:#1a1205}
+.tag.b{background:var(--b);color:#160e2e}
+.tag.both{background:var(--ok);color:#06210d}
+.callout{border-left:4px solid var(--accent);background:var(--bg2);border-radius:0 10px 10px 0;padding:1em 1.3em;margin:.6em 0}
+.callout.ok{border-color:var(--ok)}
+.kicker{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:clamp(14px,1.4vw,20px);margin-bottom:.4em}
+.center{align-items:center;text-align:center}
+.eq{font-size:clamp(24px,2.8vw,40px);font-weight:700;text-align:center;margin:.6em 0}
+.eq .a{color:var(--a)}.eq .b{color:var(--b)}.eq .ok{color:var(--ok)}
+.bar{position:fixed;bottom:0;left:0;height:5px;background:linear-gradient(90deg,var(--a),var(--b));transition:width .3s;z-index:10}
+.counter{position:fixed;bottom:14px;right:22px;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums;z-index:10}
+.foot{position:fixed;bottom:12px;left:22px;color:var(--muted);font-size:15px;z-index:10}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<section class="slide center">
+  <div class="kicker">Taller práctico · Clase 3</div>
+  <h1>Bloque 5<br>Reflexión y extensión</h1>
+  <p class="lead">De armar un taller a armar tu propio SDD.</p>
+</section>
+
+<section class="slide center">
+  <h2>La ecuación</h2>
+  <div class="eq"><span class="ok">Skills</span> + <span class="a">MCPs</span> + imaginación = construís cualquier cosa</div>
+  <div class="callout" style="max-width:1000px">
+    <b>MCP</b> = <b>conectividad</b> (las tools, el acceso a tus sistemas).<br>
+    <b>Skills</b> = <b>procedimiento</b> (cómo se hace ACÁ: tus reglas y pasos).<br>
+    <span class="muted">Son complementarios: una sin la otra queda coja.</span>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Dos piezas, dos roles</div>
+  <h2>MCP vs Skills</h2>
+  <div class="cols">
+    <div class="card">
+      <h3>MCP = conectividad</h3>
+      <ul>
+        <li>Tools hacia APIs, DBs, servicios.</li>
+        <li>Define <b>qué puede tocar</b> el agente.</li>
+        <li>El "cableado" hacia tus sistemas.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Skills = procedimiento</h3>
+      <ul>
+        <li>Receta reproducible, progressive disclosure.</li>
+        <li>Define <b>cómo lo hace tu equipo</b> y cuándo.</li>
+        <li>El "manual de operación".</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Para el día a día</div>
+  <h2>3 ejemplos de Skills útiles</h2>
+  <div class="cols3">
+    <div class="card">
+      <h3>run-training</h3>
+      <p>Captura el procedimiento reproducible de levantar un entrenamiento (entorno, variables, script). Commiteada como skill de proyecto: todos siguen la misma receta.</p>
+    </div>
+    <div class="card">
+      <h3>data-drift-check</h3>
+      <p>Corre el chequeo de drift (referencia vs producción) con un script <code>scripts/drift.py</code> bundleado e interpreta el reporte. Script determinístico = confiabilidad, sin gastar contexto.</p>
+    </div>
+    <div class="card">
+      <h3>model-card</h3>
+      <p>Genera la model card siguiendo el template del equipo (<code>references/model-card-template.md</code>), tomando métricas del inventario vía el MCP.</p>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:.6em">En Kiro funcionan igual (mismo <code>SKILL.md</code> en <code>.kiro/skills/</code>). Si una necesita conectividad además del procedimiento, empaquetala como <b>Power</b>.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">El giro final</div>
+  <h2>Diseñá tu propio SDD basado en Skills</h2>
+  <p class="lead">El flujo <code>specify → plan → tasks → implement</code> <b>no es fijo</b>.</p>
+  <p>Una Skill es solo una carpeta con un <code>SKILL.md</code> que enseña un procedimiento. Encodeá <b>cada fase</b> a medida de tu stack:</p>
+  <ul>
+    <li><b>specify</b> → sabe que tus specs llevan sección de datos, métricas objetivo y restricciones de latencia.</li>
+    <li><b>plan</b> → impone tu stack (Kubeflow, MLflow, tu registry).</li>
+    <li><b>tasks</b> → con tus convenciones de CI.</li>
+    <li><b>implement</b> → conoce tus repos y patrones.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="kicker">Cómo lo armás en cada herramienta</div>
+  <h2>Las piezas para tu SDD de equipo</h2>
+  <div class="cols">
+    <div class="track a">
+      <h3><span class="tag a">A</span> Claude Code + Spec Kit</h3>
+      <ul>
+        <li>Skills → <code>.claude/skills/</code></li>
+        <li>Constitución → <code>.specify/memory/</code></li>
+        <li>Versionado en el repo, compartible vía <b>plugins</b>.</li>
+      </ul>
+    </div>
+    <div class="track b">
+      <h3><span class="tag b">B</span> Kiro</h3>
+      <ul>
+        <li>Skills → <code>.kiro/skills/</code></li>
+        <li>Steering files → <code>.kiro/steering/</code></li>
+        <li><b>Powers</b>: empaquetan MCP + steering + hooks, instalables desde la UI.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide center">
+  <div class="kicker">Solo en Kiro · siguiente paso</div>
+  <h2>Powers</h2>
+  <div class="callout" style="max-width:1000px">
+    Un <b>Power</b> es un <b>superset</b>: empaqueta <b>MCP servers + steering + hooks</b> en una unidad distribuible al equipo (frontmatter <code>POWER.md</code>).<br><br>
+    Para el taller alcanza con <b>Skills</b>. Powers es el paso siguiente para <b>distribuir</b>.
+  </div>
+</section>
+
+<section class="slide center">
+  <h2>La conclusión</h2>
+  <p class="big" style="max-width:1100px">Dejás de usar un SDD genérico y pasás a tener <b>el tuyo</b>: a medida del stack y <b>portable</b> entre herramientas.</p>
+  <p class="lead" style="margin-top:.8em">Porque SDD, MCP y Skills son estándares abiertos.</p>
+</section>
+
+<section class="slide center">
+  <h1>Diseñá tu propio<br>SDD basado en Skills.</h1>
+  <p class="lead">Esta semana: elegí un flujo real de tu equipo y encodealo como Skills.</p>
+  <p class="big" style="margin-top:1em">¡Gracias! · Q&amp;A</p>
+</section>
+
+</div>
+<div class="bar" id="bar"></div>
+<div class="counter" id="counter"></div>
+<div class="foot">Bloque 5 · Reflexión y extensión</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(n){slides[i].classList.remove('active');i=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.add('active');document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';}
+document.addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
+if(slides.length){slides[0].classList.add('active');document.getElementById('counter').textContent='1 / '+slides.length;document.getElementById('bar').style.width=(1/slides.length*100)+'%'}
+</script>
+</body>
+</html>
