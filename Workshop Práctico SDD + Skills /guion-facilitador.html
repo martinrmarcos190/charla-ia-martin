@@ -497,7 +497,7 @@ claude mcp list          # debe aparecer issues-api
 │   ├── issues-ops/SKILL.md
 │   └── issues-report/SKILL.md
 └── .mcp.json                    ← registra issues-api</code></pre>
-          <p>Instalar (marketplace local + <code>/plugin</code>; verificá el flujo exacto con la versión del día) y <b>reiniciar la sesión</b>.</p>
+          <p><b>Probar (directo):</b> <code>claude --plugin-dir ./devops-issues</code> y listo. <b>Distribuir (marketplace local):</b> <code>/plugin marketplace add ./carpeta</code> → <code>/plugin install devops-issues@taller</code> → <code>/reload-plugins</code> (sin reiniciar). <em>Flujo verificado contra la doc oficial; el MCP del plugin arranca solo al habilitarlo.</em></p>
         </div>
         <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
           <p>Empaquetar como <b>Power</b> <code>devops-issues</code> (MCP + steering); si la versión soporta skills dentro del Power, moverlas adentro — si no, viajan al lado en <code>.kiro/skills/</code>. El mensaje es el mismo: <b>una unidad que se comparte completa</b>.</p>
@@ -580,7 +580,7 @@ claude mcp list          # debe aparecer issues-api
         <li><span class="ts-q">El análisis se queda solo con los ERRORs (cae en los red herrings):</span> la spec pide buscar periodicidad/tendencias/ventanas aunque no haya ERROR — si el <code>SKILL.md</code> regenerado perdió eso, repetí <code>implement</code>; como pista en vivo: "¿qué pasa cada hora en punto?".</li>
         <li><span class="ts-q">El análisis duplica issues en vez de actualizar:</span> la spec exige comparar con <code>list_issues</code> antes de crear — si duplica, revisá que el <code>SKILL.md</code> regenerado conserve esa regla y repetí <code>implement</code>.</li>
         <li><span class="ts-q">El reporte sale vacío o viejo:</span> la skill debe llamar a <code>issues-api:list_issues</code> en el momento — si "recuerda" datos de antes, pedile explícito "consultá el MCP de nuevo"; verificá que el Flask siga corriendo.</li>
-        <li><span class="ts-q">El plugin no aparece (A):</span> estructura exacta <code>.claude-plugin/plugin.json</code> + <code>skills/&lt;nombre&gt;/SKILL.md</code>; tras instalar, <b>sesión nueva</b>; <code>/plugin</code> para ver el estado.</li>
+        <li><span class="ts-q">El plugin no aparece (A):</span> estructura exacta <code>.claude-plugin/plugin.json</code> + <code>skills/&lt;nombre&gt;/SKILL.md</code> (¡<code>skills/</code> va en la raíz del plugin, NO adentro de <code>.claude-plugin/</code>!); tras instalar, <code>/reload-plugins</code>; <code>/plugin</code> para ver el estado; atajo para probar: <code>claude --plugin-dir ./devops-issues</code>.</li>
         <li><span class="ts-q">El Power no toma las skills (B):</span> depende de la versión — dejá las skills en <code>.kiro/skills/</code> y el Power con MCP + steering; el mensaje pedagógico no cambia.</li>
       </ul>
     </details>

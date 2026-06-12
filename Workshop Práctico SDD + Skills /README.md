@@ -78,7 +78,7 @@ slide. Son autocontenidos (no necesitan internet) y tema oscuro para proyección
 
 - 🟧 **[A]** Spec Kit `0.8.18` (`specify check`, `specify version`); init con `--integration claude` (no el viejo `--ai`).
 - 🟧 **[A]** Claude Code: instalador nativo (`~/.local/bin/claude`), `claude --version` / `claude doctor`.
-- 🟧 **[A]** Plugins (B6): verificar el flujo de marketplace local e instalación (`/plugin`) con la versión del día.
+- 🟧 **[A]** Plugins (B6): flujo verificado contra la doc oficial (`--plugin-dir` para probar; marketplace local + `/plugin install` + `/reload-plugins` para distribuir). Solo dar una pasada rápida ese día por si cambió.
 - 🟪 **[B]** Kiro: confirmar nombres de variantes (Requirements-First / Design-First / Quick Plan), panel Specs, y si los **Powers** de la versión soportan skills adentro (B6).
 - 🟩 SDK MCP: paquete `mcp` (≈1.27.x, Python ≥3.10). Pinneá la patch que verifiques.
 
