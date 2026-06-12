@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guion del facilitador — Taller SDD + Skills (150 min)</title>
+<title>Guion del facilitador — Taller SDD + Skills DevOps (~195 min)</title>
 <style>
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#1c2230;--fg:#e6e8ee;--muted:#9aa4b2;
@@ -130,15 +130,17 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--border);color
 <!-- ============ NAV ============ -->
 <nav>
   <div class="brand">Guion del facilitador
-    <small>Taller SDD + Skills · 150 min · dual-track</small>
+    <small>Taller SDD + Skills DevOps · ~195 min · dual-track</small>
   </div>
   <ul>
     <li><a href="#b0"><span>B0 · Apertura</span><span class="t">10'</span></a></li>
     <li><a href="#b1"><span>B1 · Fundamentos</span><span class="t">25'</span></a></li>
     <li><a href="#b2"><span>B2 · Setup</span><span class="t">25'</span></a></li>
-    <li><a href="#b3"><span>B3 · Práctica</span><span class="t">45'</span></a></li>
-    <li><a href="#b4"><span>B4 · Skill + MCP</span><span class="t">35'</span></a></li>
-    <li><a href="#b5"><span>B5 · Reflexión</span><span class="t">10'</span></a></li>
+    <li><a href="#b3"><span>B3 · API de issues</span><span class="t">45'</span></a></li>
+    <li><a href="#b4"><span>B4 · MCP + Skill</span><span class="t">35'</span></a></li>
+    <li><a href="#b5"><span>B5 · Análisis de logs</span><span class="t">20'</span></a></li>
+    <li><a href="#b6"><span>B6 · Reporte + plugin</span><span class="t">25'</span></a></li>
+    <li><a href="#b7"><span>B7 · Reflexión</span><span class="t">10'</span></a></li>
     <li><a href="#ts"><span>4.G · Troubleshooting</span><span class="t">⚑</span></a></li>
     <li><a href="#rec"><span>Recomendaciones</span><span class="t">★</span></a></li>
   </ul>
@@ -158,10 +160,15 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--border);color
 <main>
   <header class="hero">
     <div class="kicker">Clase 3 · Guion minuto a minuto</div>
-    <h1>Taller práctico: Spec-Driven Development + Claude Skills</h1>
+    <h1>Taller práctico: SDD + Skills para DevOps</h1>
+    <p><b>El caso:</b> una API local de <b>issues de infraestructura</b>, un MCP que la
+       expone, una skill que opera los issues y <b>analiza logs</b>, otra que genera el
+       <b>reporte HTML</b>, y todo empaquetado en un <b>plugin/Power</b>.</p>
     <p>Reparto: <b>B0</b> apertura 10' · <b>B1</b> Fundamentos 25' · <b>B2</b> Setup 25' ·
-       <b>B3</b> Práctica guiada 45' · <b>B4</b> Skill + MCP 35' · <b>B5</b> Reflexión 10'.
-       Total <b>150 min</b>. Donde hay divergencia se marca el camino.</p>
+       <b>B3</b> API de issues 45' · <b>B4</b> MCP + Skill 35' · <b>B5</b> Análisis de logs 20' ·
+       <b>B6</b> Reporte + plugin 25' · <b>B7</b> Reflexión 10'.
+       Total <b>~195 min</b> (núcleo B0-B4: 150'; <b>B5/B6 son elásticos</b> — con slot de
+       2 h el taller cierra digno al final del B4). Donde hay divergencia se marca el camino.</p>
     <div class="callout" style="margin-top:18px">
       <span class="h">Tené siempre a mano</span>
       la <b>tabla maestra de equivalencias</b> en pantalla (slide 8 del Bloque 1) y el
@@ -296,12 +303,12 @@ No se instala Spec Kit. El panel "Specs" ya está listo.</code></pre>
 
   <!-- ===== B3 ===== -->
   <section class="block" id="b3">
-    <div class="block-head"><span class="time">1:00 – 1:45</span><h2>Bloque 3 — Práctica guiada: flujo completo</h2><span class="dur">45 min</span></div>
+    <div class="block-head"><span class="time">1:00 – 1:45</span><h2>Bloque 3 — Práctica guiada: la API de issues</h2><span class="dur">45 min</span></div>
     <p class="res">Recurso: <code>recursos/problema.md</code></p>
 
     <div class="beat">
       <div class="clk">1:00–1:05</div>
-      <div class="body"><p><span class="role dice">Dice</span>entregá el <code>.md</code> del problema. "Primero <b>ESTIMÁ</b> cuánto tardarías a mano (DB + Flask + 4 endpoints + seed + curl). Anotá el número."</p></div>
+      <div class="body"><p><span class="role dice">Dice</span>entregá el <code>.md</code> del problema: una API para registrar <b>issues de infraestructura</b> (qué se rompió, dónde, qué tan grave, qué solución se propone). "Primero <b>ESTIMÁ</b> cuánto tardarías a mano (DB + Flask + 5 endpoints + validación de enums + seed + curl). Anotá el número."</p></div>
     </div>
     <div class="beat">
       <div class="clk">1:05–1:08</div>
@@ -339,17 +346,17 @@ Panel Specs → "+" → Feature → pegar el .md del problema →
   <!-- ===== B4 ===== -->
   <section class="block" id="b4">
     <div class="block-head"><span class="time">1:45 – 2:20</span><h2>Bloque 4 — Construir una Skill con SDD + MCP</h2><span class="dur">35 min</span></div>
-    <p class="res">Recursos: <code>recursos/spec-mcp.md</code>, <code>recursos/spec-skill.md</code>, <code>recursos/examples/mcp.json.example</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/spec-mcp.md</code>, <code>recursos/spec-skill.md</code>, <code>recursos/examples/mcp.json.example</code>, <code>recursos/seed.sh</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
 
     <div class="beat">
       <div class="clk">1:45–1:48</div>
-      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Opcional: poblá el inventario con <code>recursos/seed.sh</code> para que la demo final luzca con ~10 modelos.</em></p></div>
+      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Recomendado: poblá la base con <code>recursos/seed.sh</code> (~8 issues extra, 2 resueltos) — el Bloque 5 lo necesita para la demo de dedupe.</em></p></div>
     </div>
     <div class="beat">
       <div class="clk">1:48–1:52</div>
       <div class="body">
         <p><span class="role part">Particip.</span>scaffoldean el proyecto del MCP <span class="tag both">idéntico A/B</span> — solo el entorno, el código lo genera SDD.</p>
-        <pre><code>uv init mcp-items && cd mcp-items
+        <pre><code>uv init mcp-issues && cd mcp-issues
 uv venv && source .venv/bin/activate
 uv add "mcp[cli]" httpx</code></pre>
       </div>
@@ -357,12 +364,12 @@ uv add "mcp[cli]" httpx</code></pre>
     <div class="beat">
       <div class="clk">1:52–1:58</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>vía SDD generan el <code>server.py</code> (spec pegable: <code>recursos/spec-mcp.md</code>; solución de referencia: <code>OLDS/recursos/mcp-items/server.py</code>):</p>
+        <p><span class="role part">Particip.</span>vía SDD generan el <code>server.py</code> (spec pegable: <code>recursos/spec-mcp.md</code>; solución de referencia: <code>OLDS/recursos/mcp-issues/server.py</code>):</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
-          <p><code>/speckit.specify</code> con la spec del MCP → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>mcp-items/server.py</code>.</p>
+          <p><code>/speckit.specify</code> con la spec del MCP → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>mcp-issues/server.py</code>.</p>
         </div>
         <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
-          <p>Feature Spec de Kiro con la misma spec (Quick Plan si vas ajustado); resultado en <code>mcp-items/server.py</code>.</p>
+          <p>Feature Spec de Kiro con la misma spec (Quick Plan si vas ajustado); resultado en <code>mcp-issues/server.py</code>.</p>
         </div>
         <div class="callout"><b>Narrá:</b> misma mecánica que el Flask, otro artefacto. El <code>.md</code> no menciona herramienta porque MCP es estándar abierto.</div>
       </div>
@@ -372,78 +379,153 @@ uv add "mcp[cli]" httpx</code></pre>
       <div class="body">
         <p><span class="role part">Particip.</span>registran el MCP:</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
-          <pre><code>claude mcp add items-api -- uv --directory "$(pwd)" run server.py
-claude mcp list          # debe aparecer items-api
+          <pre><code>claude mcp add issues-api -- uv --directory "$(pwd)" run server.py
+claude mcp list          # debe aparecer issues-api
 # dentro de Claude Code: /mcp</code></pre>
         </div>
         <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
           <p>crear/editar <code>.kiro/settings/mcp.json</code> en el workspace:</p>
           <pre><code>{
   "mcpServers": {
-    "items-api": {
+    "issues-api": {
       "command": "uv",
-      "args": ["--directory", "/ruta/absoluta/a/mcp-items", "run", "server.py"],
+      "args": ["--directory", "/ruta/absoluta/a/mcp-issues", "run", "server.py"],
       "disabled": false
     }
   }
 }</code></pre>
-          <p>Kiro recarga al guardar; confirmar en el panel MCP que <code>items-api</code> está conectado y expone las tools.</p>
+          <p>Kiro recarga al guardar; confirmar en el panel MCP que <code>issues-api</code> está conectado y expone las <b>4 tools</b>.</p>
         </div>
       </div>
     </div>
     <div class="beat">
       <div class="clk">2:03–2:15</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>vía SDD crean la Skill (spec pegable: <code>recursos/spec-skill.md</code>; solución de referencia: <code>OLDS/recursos/skills/items-ops/SKILL.md</code>):</p>
+        <p><span class="role part">Particip.</span>vía SDD crean la Skill (spec pegable: <code>recursos/spec-skill.md</code>; solución de referencia: <code>OLDS/recursos/skills/issues-ops/SKILL.md</code>):</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
-          <p><code>/speckit.specify</code> con la spec de la Skill → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>.claude/skills/items-ops/SKILL.md</code>. Si la carpeta es nueva: reiniciá Claude Code o <code>/reload-skills</code>.</p>
+          <p><code>/speckit.specify</code> con la spec de la Skill → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>.claude/skills/issues-ops/SKILL.md</code>. Si la carpeta es nueva: reiniciá Claude Code o <code>/reload-skills</code>.</p>
         </div>
         <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
-          <p>Feature Spec de Kiro con la misma spec; resultado en <code>.kiro/skills/items-ops/SKILL.md</code> (<b>recordá la subcarpeta con el nombre</b>).</p>
+          <p>Feature Spec de Kiro con la misma spec; resultado en <code>.kiro/skills/issues-ops/SKILL.md</code> (<b>recordá la subcarpeta con el nombre</b>).</p>
         </div>
       </div>
     </div>
     <div class="beat">
       <div class="clk">2:15–2:20</div>
-      <div class="body"><p><span class="role part">Particip.</span><b>Prueban:</b> "listá los modelos y agregá uno." El agente usa la Skill + las tools del MCP. Verifican con curl.</p></div>
+      <div class="body"><p><span class="role part">Particip.</span><b>Prueban:</b> "listá los issues abiertos y marcá el de los pods en CrashLoop como investigating." El agente usa la Skill + las tools del MCP (incluido <code>update_issue</code>). Verifican con curl. <em>Bonus: pedile que resuelva un issue <b>sin</b> dar solución — la skill la tiene que exigir (regla de negocio).</em></p></div>
     </div>
 
     <div class="callout a">
       <span class="h">Spec del MCP</span>
       el texto completo para pegar está en <code>recursos/spec-mcp.md</code> (distribuilo junto con <code>problema.md</code> y <code>spec-skill.md</code>).
-      Resumen: server MCP <code>items-api</code> (stdio, <code>FastMCP</code> + <code>httpx</code>) que expone 3 tools
-      (<code>list_models</code>, <code>get_model</code>, <code>add_model</code>) contra el Flask en <code>127.0.0.1:5000</code>;
-      maneja el 404 con mensaje claro y <b>nunca escribe a stdout</b> (log a stderr).
+      Resumen: server MCP <code>issues-api</code> (stdio, <code>FastMCP</code> + <code>httpx</code>) que expone 4 tools
+      (<code>list_issues</code>, <code>get_issue</code>, <code>add_issue</code>, <code>update_issue</code>) contra el Flask en <code>127.0.0.1:5000</code>;
+      <code>update_issue</code> manda <b>solo los campos provistos</b>; maneja 404/400 con mensaje claro y <b>nunca escribe a stdout</b> (log a stderr).
     </div>
 
     <div class="callout b">
       <span class="h">Spec de la Skill</span>
       el texto completo para pegar está en <code>recursos/spec-skill.md</code> (distribuilo junto con <code>problema.md</code>).
-      Resumen: Skill <code>items-ops</code> que opera el inventario vía las tools del MCP <code>items-api</code>;
-      (1) explica cuándo usarse; (2) usa SIEMPRE nombres calificados (<code>items-api:list_models</code>, etc.);
-      (3) valida <code>accuracy</code> ∈ [0,1] antes del alta; (4) tras un alta, confirma el id leyendo el modelo.
+      Resumen: Skill <code>issues-ops</code> que opera el registro de issues vía las tools del MCP <code>issues-api</code>;
+      (1) explica cuándo usarse; (2) usa SIEMPRE nombres calificados (<code>issues-api:list_issues</code>, etc.);
+      (3) valida los enums (<code>severity</code>, <code>status</code>); (4) <b>regla de negocio:</b> <code>resolved</code> exige
+      <code>proposed_solution</code>; (5) tras crear/editar, confirma leyendo el issue.
     </div>
   </section>
 
-  <!-- ===== B5 ===== -->
+  <!-- ===== B5: ANÁLISIS DE LOGS ===== -->
   <section class="block" id="b5">
-    <div class="block-head"><span class="time">2:20 – 2:30</span><h2>Bloque 5 — Reflexión y extensión</h2><span class="dur">10 min</span></div>
-    <p class="res">Slides: <code>slides/bloque5-reflexion.html</code></p>
+    <div class="block-head"><span class="time">2:20 – 2:40</span><h2>Bloque 5 — La skill aprende a leer logs <span class="dur">(elástico)</span></h2><span class="dur">20 min</span></div>
+    <p class="res">Recursos: <code>recursos/spec-logs.md</code>, <code>recursos/logs/app.log</code> (~1400 líneas, 6 patrones enterrados). <em>Requiere la base poblada con <code>seed.sh</code>.</em></p>
 
     <div class="beat">
-      <div class="clk">2:20–2:25</div>
+      <div class="clk">2:20–2:23</div>
       <div class="body">
-        <p><span class="role dice">Dice</span>Skills + MCPs + imaginación = construís cualquier cosa.
-        <b>MCP = conectividad</b> (tools), <b>Skills = procedimiento</b> (cómo se hace acá).
-        Da los 2–3 ejemplos (run-training, data-drift-check, model-card).</p>
+        <p><span class="role dice">Dice</span>"¿Quién disfrutó alguna vez leer 1400 líneas de logs a las 3 AM? Acá está el verdadero pitch: la skill puede hacer el trabajo tedioso. Y de paso vemos <b>el superpoder de SDD: evolucionar</b> — no escribimos una skill nueva, <b>cambiamos la spec</b> de <code>issues-ops</code> y se regenera."</p>
+        <p><span class="role hace">Hace</span>abrí <code>recursos/logs/app.log</code> y scrolleá un rato en pantalla — que se sienta lo inmanejable. Repartí el archivo.</p>
       </div>
     </div>
     <div class="beat">
-      <div class="clk">2:25–2:30</div>
+      <div class="clk">2:23–2:33</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>evolucionan la skill vía SDD (spec pegable: <code>recursos/spec-logs.md</code>; el artefacto es <b>el mismo</b> <code>SKILL.md</code> de <code>issues-ops</code>, actualizado):</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <p><code>/speckit.specify</code> con la spec de logs → <code>plan</code> → <code>tasks</code> → <code>implement</code>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Feature Spec con la misma spec (Quick Plan recomendado acá — es una extensión, no un sistema).</p>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">2:33–2:40</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span><b>corren el análisis:</b> "analizá <code>recursos/logs/app.log</code>". La skill debe: detectar los patrones entre el ruido, <b>actualizar</b> los issues que ya existían (payments-api, api-gateway — sin duplicar) y <b>crear</b> los nuevos (OOM de auth-service, disco de db-01, cert TLS).</p>
+        <div class="callout ok"><b>El momento clave para narrar:</b> la correlación disco-lleno-en-db-01 ↔ backups-que-fallan. Si la skill conecta esos dos y propone la causa raíz, ahí está la demo de valor real. Cierran verificando con <code>curl /issues</code> o pidiendo la lista.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== B6: REPORTE + PLUGIN ===== -->
+  <section class="block" id="b6">
+    <div class="block-head"><span class="time">2:40 – 3:05</span><h2>Bloque 6 — Reporte HTML + plugin: las skills trabajan juntas <span class="dur">(elástico)</span></h2><span class="dur">25 min</span></div>
+    <p class="res">Recursos: <code>recursos/spec-report.md</code>, <code>recursos/spec-plugin.md</code>. <em>Solución de referencia: <code>OLDS/recursos/skills/issues-report/SKILL.md</code>.</em></p>
+
+    <div class="beat">
+      <div class="clk">2:40–2:50</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>vía SDD crean la segunda skill, <code>issues-report</code> (spec pegable: <code>recursos/spec-report.md</code>): un reporte HTML autocontenido alimentado <b>solo</b> por <code>issues-api:list_issues</code>.</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span><p><code>/speckit.specify</code> → <code>implement</code>; resultado en <code>.claude/skills/issues-report/SKILL.md</code>.</p></div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span><p>Feature Spec (Quick Plan); resultado en <code>.kiro/skills/issues-report/SKILL.md</code>.</p></div>
+        <p>Prueban: "armá el reporte de issues" → abren <code>issues-report.html</code> en el navegador. Después del análisis de logs del B5, el reporte sale <b>cargado de datos reales</b>.</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">2:50–3:00</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span>empaquetan todo como <b><code>devops-issues</code></b> (spec: <code>recursos/spec-plugin.md</code>): las 2 skills + el MCP en una unidad instalable.</p>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
+          <pre><code>devops-issues/
+├── .claude-plugin/plugin.json   ← name, description, version
+├── skills/
+│   ├── issues-ops/SKILL.md
+│   └── issues-report/SKILL.md
+└── .mcp.json                    ← registra issues-api</code></pre>
+          <p>Instalar (marketplace local + <code>/plugin</code>; verificá el flujo exacto con la versión del día) y <b>reiniciar la sesión</b>.</p>
+        </div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span>
+          <p>Empaquetar como <b>Power</b> <code>devops-issues</code> (MCP + steering); si la versión soporta skills dentro del Power, moverlas adentro — si no, viajan al lado en <code>.kiro/skills/</code>. El mensaje es el mismo: <b>una unidad que se comparte completa</b>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">3:00–3:05</div>
+      <div class="body">
+        <p><span class="role part">Particip.</span><b>Prueba integrada final:</b> en sesión nueva, sin registrar nada a mano: "analizá <code>recursos/logs/app.log</code> y después regenerá el reporte". Una skill actualiza la tabla, la otra la consume, el MCP conecta todo. <b>Ese es el taller en una frase.</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== B7: REFLEXIÓN ===== -->
+  <section class="block" id="b7">
+    <div class="block-head"><span class="time">3:05 – 3:15</span><h2>Bloque 7 — Reflexión y extensión</h2><span class="dur">10 min</span></div>
+    <p class="res">Slides: <code>slides/bloque7-reflexion.html</code></p>
+
+    <div class="beat">
+      <div class="clk">3:05–3:10</div>
+      <div class="body">
+        <p><span class="role dice">Dice</span>Skills + MCPs + imaginación = construís cualquier cosa.
+        <b>MCP = conectividad</b> (tools), <b>Skills = procedimiento</b> (cómo se hace acá).
+        Hoy lo hicieron entero: API → MCP → skill que opera y lee logs → skill que reporta → plugin.
+        Otros ejemplos del mismo patrón: <code>incident-triage</code>, <code>runbook-executor</code>, <code>postmortem-writer</code>.</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="clk">3:10–3:15</div>
       <div class="body">
         <p><span class="role dice">Dice</span>el concepto central — "diseñá tu propio SDD basado en Skills".</p>
-        <div class="track a"><span class="lbl"><span class="tag a">A</span></span><p>Skills + constitución.</p></div>
-        <div class="track b"><span class="lbl"><span class="tag b">B</span></span><p>Skills + Steering + <b>Powers</b> (empaquetan MCP + steering + hooks).</p></div>
+        <div class="track a"><span class="lbl"><span class="tag a">A</span></span><p>Skills + constitución + plugins para distribuir al equipo.</p></div>
+        <div class="track b"><span class="lbl"><span class="tag b">B</span></span><p>Skills + Steering + <b>Powers</b> (como el que acaban de armar).</p></div>
         <p class="res">Cierre y próximos pasos.</p>
       </div>
     </div>
@@ -484,6 +566,17 @@ claude mcp list          # debe aparecer items-api
         <li><span class="ts-q">El Feature Spec no avanza:</span> en Requirements-First hay gates entre fases; para la demo, usá <b>Quick Plan</b> para saltarlos.</li>
       </ul>
     </details>
+
+    <details class="ts-group">
+      <summary><span class="tag both">B5/B6</span> Logs, reporte y plugin</summary>
+      <ul>
+        <li><span class="ts-q">La skill no encuentra el log:</span> pasale la <b>ruta absoluta</b> de <code>app.log</code> (o copialo dentro del proyecto del taller); verificá permisos de lectura.</li>
+        <li><span class="ts-q">El análisis duplica issues en vez de actualizar:</span> la spec exige comparar con <code>list_issues</code> antes de crear — si duplica, revisá que el <code>SKILL.md</code> regenerado conserve esa regla y repetí <code>implement</code>.</li>
+        <li><span class="ts-q">El reporte sale vacío o viejo:</span> la skill debe llamar a <code>issues-api:list_issues</code> en el momento — si "recuerda" datos de antes, pedile explícito "consultá el MCP de nuevo"; verificá que el Flask siga corriendo.</li>
+        <li><span class="ts-q">El plugin no aparece (A):</span> estructura exacta <code>.claude-plugin/plugin.json</code> + <code>skills/&lt;nombre&gt;/SKILL.md</code>; tras instalar, <b>sesión nueva</b>; <code>/plugin</code> para ver el estado.</li>
+        <li><span class="ts-q">El Power no toma las skills (B):</span> depende de la versión — dejá las skills en <code>.kiro/skills/</code> y el Power con MCP + steering; el mensaje pedagógico no cambia.</li>
+      </ul>
+    </details>
   </section>
 
   <!-- ===== RECOMENDACIONES ===== -->
@@ -495,12 +588,15 @@ claude mcp list          # debe aparecer items-api
       <li><b>Pinneá versiones <span class="tag a">A</span>:</b> Spec Kit <code>@v0.8.18</code>; opcional <code>uv add "mcp[cli]==1.27.1"</code>.</li>
       <li><b>Grupo Kiro <span class="tag b">B</span>:</b> si vas ajustado en el Bloque 3, usá <b>Quick Plan</b> (sin gates).</li>
       <li><b>Umbral de decisión:</b> si &gt;20% tiene el entorno roto al minuto 8, corré el Bloque 2 como "setup asistido" extendido y recortá 10 min del Bloque 3.</li>
+      <li><b>B5/B6 son elásticos:</b> el taller cierra digno al final del B4 (prueba de la skill + MCP). Si venís atrasado, saltá directo a B7 y mostrá B5/B6 como demo tuya en 5'. Si vas bien, corré los dos completos.</li>
+      <li><b>Antes del B6 🟧 [A]:</b> verificá ese día el flujo exacto de plugins (<code>/plugin</code>, marketplace local) con la versión instalada; 🟪 <b>[B]</b>: confirmá si los Powers de la versión soportan skills adentro.</li>
     </ol>
   </section>
 
   <footer>
-    Fuente: documento maestro <code>MD for Workshop Práctico SDD + Skills .md</code> ·
-    materiales de participantes en <code>github.com/martinrmarcos190/repo-charla-ia</code>.
+    Edición DevOps (issues + logs + reporte + plugin) ·
+    materiales de participantes en <code>github.com/martinrmarcos190/repo-charla-ia</code> ·
+    doc maestro v1 archivado en <code>OLDS/</code>.
     Navegación: clic en el índice de la izquierda. Imprimible (Cmd+P) para llevarlo en papel.
   </footer>
 </main>
