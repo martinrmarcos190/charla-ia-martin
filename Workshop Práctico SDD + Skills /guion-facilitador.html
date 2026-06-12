@@ -304,7 +304,7 @@ No se instala Spec Kit. El panel "Specs" ya está listo.</code></pre>
   <!-- ===== B3 ===== -->
   <section class="block" id="b3">
     <div class="block-head"><span class="time">1:00 – 1:45</span><h2>Bloque 3 — Práctica guiada: la API de issues</h2><span class="dur">45 min</span></div>
-    <p class="res">Recurso: <code>recursos/problema.md</code></p>
+    <p class="res">Recurso: <code>recursos/bloque3-api/problema.md</code></p>
 
     <div class="beat">
       <div class="clk">1:00–1:05</div>
@@ -346,11 +346,11 @@ Panel Specs → "+" → Feature → pegar el .md del problema →
   <!-- ===== B4 ===== -->
   <section class="block" id="b4">
     <div class="block-head"><span class="time">1:45 – 2:20</span><h2>Bloque 4 — Construir una Skill con SDD + MCP</h2><span class="dur">35 min</span></div>
-    <p class="res">Recursos: <code>recursos/spec-mcp.md</code>, <code>recursos/spec-skill.md</code>, <code>recursos/examples/mcp.json.example</code>, <code>recursos/seed.sh</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/bloque4-mcp-skill/spec-mcp.md</code>, <code>recursos/bloque4-mcp-skill/spec-skill.md</code>, <code>recursos/bloque4-mcp-skill/mcp.json.example</code>, <code>recursos/bloque4-mcp-skill/seed.sh</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
 
     <div class="beat">
       <div class="clk">1:45–1:48</div>
-      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Recomendado: poblá la base con <code>recursos/seed.sh</code> (~8 issues extra, 2 resueltos) — el Bloque 5 lo necesita para la demo de dedupe.</em></p></div>
+      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Recomendado: poblá la base con <code>recursos/bloque4-mcp-skill/seed.sh</code> (~8 issues extra, 2 resueltos) — el Bloque 5 lo necesita para la demo de dedupe.</em></p></div>
     </div>
     <div class="beat">
       <div class="clk">1:48–1:52</div>
@@ -364,7 +364,7 @@ uv add "mcp[cli]" httpx</code></pre>
     <div class="beat">
       <div class="clk">1:52–1:58</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>vía SDD generan el <code>server.py</code> (spec pegable: <code>recursos/spec-mcp.md</code>; solución de referencia: <code>OLDS/recursos/mcp-issues/server.py</code>):</p>
+        <p><span class="role part">Particip.</span>vía SDD generan el <code>server.py</code> (spec pegable: <code>recursos/bloque4-mcp-skill/spec-mcp.md</code>; solución de referencia: <code>OLDS/recursos/mcp-issues/server.py</code>):</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
           <p><code>/speckit.specify</code> con la spec del MCP → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>mcp-issues/server.py</code>.</p>
         </div>
@@ -401,7 +401,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">2:03–2:15</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>vía SDD crean la Skill (spec pegable: <code>recursos/spec-skill.md</code>; solución de referencia: <code>OLDS/recursos/skills/issues-ops/SKILL.md</code>):</p>
+        <p><span class="role part">Particip.</span>vía SDD crean la Skill (spec pegable: <code>recursos/bloque4-mcp-skill/spec-skill.md</code>; solución de referencia: <code>OLDS/recursos/skills/issues-ops/SKILL.md</code>):</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
           <p><code>/speckit.specify</code> con la spec de la Skill → <code>plan</code> → <code>tasks</code> → <code>implement</code>; resultado en <code>.claude/skills/issues-ops/SKILL.md</code>. Si la carpeta es nueva: reiniciá Claude Code o <code>/reload-skills</code>.</p>
         </div>
@@ -417,7 +417,7 @@ claude mcp list          # debe aparecer issues-api
 
     <div class="callout a">
       <span class="h">Spec del MCP</span>
-      el texto completo para pegar está en <code>recursos/spec-mcp.md</code> (distribuilo junto con <code>problema.md</code> y <code>spec-skill.md</code>).
+      el texto completo para pegar está en <code>recursos/bloque4-mcp-skill/spec-mcp.md</code> (distribuilo junto con <code>problema.md</code> y <code>spec-skill.md</code>).
       Resumen: server MCP <code>issues-api</code> (stdio, <code>FastMCP</code> + <code>httpx</code>) que expone 4 tools
       (<code>list_issues</code>, <code>get_issue</code>, <code>add_issue</code>, <code>update_issue</code>) contra el Flask en <code>127.0.0.1:5000</code>;
       <code>update_issue</code> manda <b>solo los campos provistos</b>; maneja 404/400 con mensaje claro y <b>nunca escribe a stdout</b> (log a stderr).
@@ -425,7 +425,7 @@ claude mcp list          # debe aparecer issues-api
 
     <div class="callout b">
       <span class="h">Spec de la Skill</span>
-      el texto completo para pegar está en <code>recursos/spec-skill.md</code> (distribuilo junto con <code>problema.md</code>).
+      el texto completo para pegar está en <code>recursos/bloque4-mcp-skill/spec-skill.md</code> (distribuilo junto con <code>problema.md</code>).
       Resumen: Skill <code>issues-ops</code> que opera el registro de issues vía las tools del MCP <code>issues-api</code>;
       (1) explica cuándo usarse; (2) usa SIEMPRE nombres calificados (<code>issues-api:list_issues</code>, etc.);
       (3) valida los enums (<code>severity</code>, <code>status</code>); (4) <b>regla de negocio:</b> <code>resolved</code> exige
@@ -436,7 +436,7 @@ claude mcp list          # debe aparecer issues-api
   <!-- ===== B5: ANÁLISIS DE LOGS ===== -->
   <section class="block" id="b5">
     <div class="block-head"><span class="time">2:20 – 2:40</span><h2>Bloque 5 — La skill aprende a leer logs <span class="dur">(elástico)</span></h2><span class="dur">20 min</span></div>
-    <p class="res">Recursos: <code>recursos/spec-logs.md</code>, <code>recursos/logs/</code> (3 archivos: <code>gateway.log</code> + <code>services.log</code> + <code>infra.log</code>, ~3900 líneas). <em>Requiere la base poblada con <code>seed.sh</code>. Clave de respuestas del facilitador: <code>OLDS/recursos/logs-respuestas.md</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/bloque5-logs/spec-logs.md</code>, <code>recursos/bloque5-logs/logs/</code> (3 archivos: <code>gateway.log</code> + <code>services.log</code> + <code>infra.log</code>, ~3900 líneas). <em>Requiere la base poblada con <code>seed.sh</code>. Clave de respuestas del facilitador: <code>OLDS/recursos/logs-respuestas.md</code>.</em></p>
 
     <div class="beat">
       <div class="clk">2:20–2:23</div>
@@ -448,7 +448,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">2:23–2:33</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>evolucionan la skill vía SDD (spec pegable: <code>recursos/spec-logs.md</code>; el artefacto es <b>el mismo</b> <code>SKILL.md</code> de <code>issues-ops</code>, actualizado):</p>
+        <p><span class="role part">Particip.</span>evolucionan la skill vía SDD (spec pegable: <code>recursos/bloque5-logs/spec-logs.md</code>; el artefacto es <b>el mismo</b> <code>SKILL.md</code> de <code>issues-ops</code>, actualizado):</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
           <p><code>/speckit.specify</code> con la spec de logs → <code>plan</code> → <code>tasks</code> → <code>implement</code>.</p>
         </div>
@@ -460,7 +460,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">2:33–2:40</div>
       <div class="body">
-        <p><span class="role part">Particip.</span><b>corren el análisis:</b> "analizá los logs de <code>recursos/logs/</code>". Las 4 historias enterradas (detalle completo en <code>OLDS/recursos/logs-respuestas.md</code>):</p>
+        <p><span class="role part">Particip.</span><b>corren el análisis:</b> "analizá los logs de <code>recursos/bloque5-logs/logs/</code>". Las 4 historias enterradas (detalle completo en <code>OLDS/recursos/logs-respuestas.md</code>):</p>
         <ul>
           <li><b>El cron asesino</b> (periodicidad): un <code>analytics-rollup</code> horario en infra satura db-01 → acquires lentos en payments → 504s en el gateway, cada hora en punto. <b>Actualiza</b> el issue de payments.</li>
           <li><b>Leak post-deploy</b> (tendencia): deploy de checkout v2.8.0 a las 07:14 → el pool crece 7→50 en INFOs a lo largo de 3 horas → 502s recién a las 10:41. <b>Actualiza</b> el issue de 502s.</li>
@@ -475,12 +475,12 @@ claude mcp list          # debe aparecer issues-api
   <!-- ===== B6: REPORTE + PLUGIN ===== -->
   <section class="block" id="b6">
     <div class="block-head"><span class="time">2:40 – 3:05</span><h2>Bloque 6 — Reporte HTML + plugin: las skills trabajan juntas <span class="dur">(elástico)</span></h2><span class="dur">25 min</span></div>
-    <p class="res">Recursos: <code>recursos/spec-report.md</code>, <code>recursos/spec-plugin.md</code>. <em>Solución de referencia: <code>OLDS/recursos/skills/issues-report/SKILL.md</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/bloque6-reporte-plugin/spec-report.md</code>, <code>recursos/bloque6-reporte-plugin/spec-plugin.md</code>. <em>Solución de referencia: <code>OLDS/recursos/skills/issues-report/SKILL.md</code>.</em></p>
 
     <div class="beat">
       <div class="clk">2:40–2:50</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>vía SDD crean la segunda skill, <code>issues-report</code> (spec pegable: <code>recursos/spec-report.md</code>): un reporte HTML autocontenido alimentado <b>solo</b> por <code>issues-api:list_issues</code>.</p>
+        <p><span class="role part">Particip.</span>vía SDD crean la segunda skill, <code>issues-report</code> (spec pegable: <code>recursos/bloque6-reporte-plugin/spec-report.md</code>): un reporte HTML autocontenido alimentado <b>solo</b> por <code>issues-api:list_issues</code>.</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span><p><code>/speckit.specify</code> → <code>implement</code>; resultado en <code>.claude/skills/issues-report/SKILL.md</code>.</p></div>
         <div class="track b"><span class="lbl"><span class="tag b">B</span></span><p>Feature Spec (Quick Plan); resultado en <code>.kiro/skills/issues-report/SKILL.md</code>.</p></div>
         <p>Prueban: "armá el reporte de issues" → abren <code>issues-report.html</code> en el navegador. Después del análisis de logs del B5, el reporte sale <b>cargado de datos reales</b>.</p>
@@ -489,7 +489,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">2:50–3:00</div>
       <div class="body">
-        <p><span class="role part">Particip.</span>empaquetan todo como <b><code>devops-issues</code></b> (spec: <code>recursos/spec-plugin.md</code>): las 2 skills + el MCP en una unidad instalable.</p>
+        <p><span class="role part">Particip.</span>empaquetan todo como <b><code>devops-issues</code></b> (spec: <code>recursos/bloque6-reporte-plugin/spec-plugin.md</code>): las 2 skills + el MCP en una unidad instalable.</p>
         <div class="track a"><span class="lbl"><span class="tag a">A</span></span>
           <pre><code>devops-issues/
 ├── .claude-plugin/plugin.json   ← name, description, version
@@ -507,7 +507,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">3:00–3:05</div>
       <div class="body">
-        <p><span class="role part">Particip.</span><b>Prueba integrada final:</b> en sesión nueva, sin registrar nada a mano: "analizá los logs de <code>recursos/logs/</code> y después regenerá el reporte". Una skill actualiza la tabla, la otra la consume, el MCP conecta todo. <b>Ese es el taller en una frase.</b></p>
+        <p><span class="role part">Particip.</span><b>Prueba integrada final:</b> en sesión nueva, sin registrar nada a mano: "analizá los logs de <code>recursos/bloque5-logs/logs/</code> y después regenerá el reporte". Una skill actualiza la tabla, la otra la consume, el MCP conecta todo. <b>Ese es el taller en una frase.</b></p>
       </div>
     </div>
   </section>

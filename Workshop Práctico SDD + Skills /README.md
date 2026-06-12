@@ -24,22 +24,24 @@ Workshop Práctico SDD + Skills/
 │   ├── bloque1-fundamentos-sdd.html  ← deck Bloque 1 (qué es SDD)
 │   ├── bloque2-setup.html            ← deck Bloque 2 (setup hands-on por camino)
 │   └── bloque7-reflexion.html        ← deck Bloque 7 (cierre y extensión)
-└── recursos/
-    ├── problema.md                   ← spec del problema: API de issues (tool-agnostic, B3)
-    ├── spec-mcp.md                   ← spec del MCP issues-api (tool-agnostic, B4)
-    ├── spec-skill.md                 ← spec de la skill issues-ops (tool-agnostic, B4)
-    ├── spec-logs.md                  ← spec: la skill aprende a leer logs (evolución, B5)
-    ├── spec-report.md                ← spec de la skill issues-report (B6)
-    ├── spec-plugin.md                ← spec del empaquetado devops-issues (B6)
-    ├── seed.sh                       ← carga ~8 issues de ejemplo vía POST/PUT (poblar la base)
-    ├── logs/                         ← ~3900 líneas en 3 archivos, 4 historias que
-    │   ├── gateway.log               ←   solo se resuelven correlacionando ENTRE
-    │   ├── services.log              ←   archivos (clave de respuestas en
-    │   └── infra.log                 ←   OLDS/recursos/logs-respuestas.md) (B5)
-    └── examples/
-        ├── constitution.example.md   ← 🟧 [A] constitución de ejemplo
-        ├── steering.example.md       ← 🟪 [B] steering file de ejemplo
-        └── mcp.json.example          ← 🟪 [B] registro MCP para Kiro
+└── recursos/                         ← organizado por bloque
+    ├── bloque3-api/
+    │   ├── problema.md               ← spec del problema: API de issues (tool-agnostic)
+    │   ├── constitution.example.md   ← 🟧 [A] constitución de ejemplo
+    │   └── steering.example.md       ← 🟪 [B] steering file de ejemplo
+    ├── bloque4-mcp-skill/
+    │   ├── spec-mcp.md               ← spec del MCP issues-api (tool-agnostic)
+    │   ├── spec-skill.md             ← spec de la skill issues-ops (tool-agnostic)
+    │   ├── seed.sh                   ← carga ~8 issues de ejemplo vía POST/PUT
+    │   └── mcp.json.example          ← 🟪 [B] registro MCP para Kiro
+    ├── bloque5-logs/
+    │   ├── spec-logs.md              ← spec: la skill aprende a leer logs (evolución)
+    │   └── logs/                     ← gateway + services + infra (~3900 líneas,
+    │                                    4 historias que solo se resuelven correlacionando
+    │                                    ENTRE archivos; respuestas en OLDS/recursos/logs-respuestas.md)
+    └── bloque6-reporte-plugin/
+        ├── spec-report.md            ← spec de la skill issues-report
+        └── spec-plugin.md            ← spec del empaquetado devops-issues
 
 (El app.py de la API, el server.py del MCP y los SKILL.md se generan en vivo vía
 SDD; las soluciones de referencia quedaron archivadas en OLDS/recursos/.)
@@ -65,10 +67,10 @@ slide. Son autocontenidos (no necesitan internet) y tema oscuro para proyección
 | B0 · Apertura | 10' | `guion-facilitador.html` |
 | B1 · Fundamentos de SDD | 25' | `slides/bloque1-fundamentos-sdd.html` |
 | B2 · Setup hands-on | 25' | `slides/bloque2-setup.html` |
-| B3 · Práctica guiada: API de issues | 45' | `recursos/problema.md` (ref. en `OLDS/recursos/app.py`) |
-| B4 · MCP + Skill | 35' | `recursos/spec-mcp.md`, `recursos/spec-skill.md`, `recursos/examples/mcp.json.example`, `recursos/seed.sh` |
-| B5 · La skill lee logs *(elástico)* | 20' | `recursos/spec-logs.md`, `recursos/logs/` (respuestas: `OLDS/recursos/logs-respuestas.md`) |
-| B6 · Reporte + plugin *(elástico)* | 25' | `recursos/spec-report.md`, `recursos/spec-plugin.md` |
+| B3 · Práctica guiada: API de issues | 45' | `recursos/bloque3-api/problema.md` (ref. en `OLDS/recursos/app.py`) |
+| B4 · MCP + Skill | 35' | `recursos/bloque4-mcp-skill/spec-mcp.md`, `recursos/bloque4-mcp-skill/spec-skill.md`, `recursos/bloque4-mcp-skill/mcp.json.example`, `recursos/bloque4-mcp-skill/seed.sh` |
+| B5 · La skill lee logs *(elástico)* | 20' | `recursos/bloque5-logs/spec-logs.md`, `recursos/bloque5-logs/logs/` (respuestas: `OLDS/recursos/logs-respuestas.md`) |
+| B6 · Reporte + plugin *(elástico)* | 25' | `recursos/bloque6-reporte-plugin/spec-report.md`, `recursos/bloque6-reporte-plugin/spec-plugin.md` |
 | B7 · Reflexión | 10' | `slides/bloque7-reflexion.html` |
 
 > **Si el slot es de 2 h:** el taller cierra digno al final del B4 (la prueba
