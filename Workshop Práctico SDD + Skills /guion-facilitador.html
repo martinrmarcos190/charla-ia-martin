@@ -436,13 +436,13 @@ claude mcp list          # debe aparecer issues-api
   <!-- ===== B5: ANÁLISIS DE LOGS ===== -->
   <section class="block" id="b5">
     <div class="block-head"><span class="time">2:20 – 2:40</span><h2>Bloque 5 — La skill aprende a leer logs <span class="dur">(elástico)</span></h2><span class="dur">20 min</span></div>
-    <p class="res">Recursos: <code>recursos/spec-logs.md</code>, <code>recursos/logs/app.log</code> (~1400 líneas, 6 patrones enterrados). <em>Requiere la base poblada con <code>seed.sh</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/spec-logs.md</code>, <code>recursos/logs/</code> (3 archivos: <code>gateway.log</code> + <code>services.log</code> + <code>infra.log</code>, ~3900 líneas). <em>Requiere la base poblada con <code>seed.sh</code>. Clave de respuestas del facilitador: <code>OLDS/recursos/logs-respuestas.md</code>.</em></p>
 
     <div class="beat">
       <div class="clk">2:20–2:23</div>
       <div class="body">
-        <p><span class="role dice">Dice</span>"¿Quién disfrutó alguna vez leer 1400 líneas de logs a las 3 AM? Acá está el verdadero pitch: la skill puede hacer el trabajo tedioso. Y de paso vemos <b>el superpoder de SDD: evolucionar</b> — no escribimos una skill nueva, <b>cambiamos la spec</b> de <code>issues-ops</code> y se regenera."</p>
-        <p><span class="role hace">Hace</span>abrí <code>recursos/logs/app.log</code> y scrolleá un rato en pantalla — que se sienta lo inmanejable. Repartí el archivo.</p>
+        <p><span class="role dice">Dice</span>"Desafío para los veteranos: acá hay 3 archivos de logs — gateway, servicios e infra. Hay varios incidentes enterrados. <b>Los que quieran, intenten con grep.</b> Spoiler: <code>grep ERROR</code> les va a dar 37 errores de image-resize que se auto-resuelven y un puñado de 504s… y <b>ninguna causa raíz</b>, porque las causas son líneas INFO inocentes en OTRO archivo, minutos u horas antes del síntoma. Esto no se resuelve con regex: se resuelve <b>correlacionando</b>. Y de paso vemos el superpoder de SDD: no escribimos una skill nueva, <b>cambiamos la spec</b> de <code>issues-ops</code> y se regenera."</p>
+        <p><span class="role hace">Hace</span>mostrá los 3 archivos en pantalla, greppeá <code>ERROR</code> en vivo y dejá que se note el callejón sin salida. Repartí la carpeta <code>logs/</code>.</p>
       </div>
     </div>
     <div class="beat">
@@ -460,8 +460,14 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">2:33–2:40</div>
       <div class="body">
-        <p><span class="role part">Particip.</span><b>corren el análisis:</b> "analizá <code>recursos/logs/app.log</code>". La skill debe: detectar los patrones entre el ruido, <b>actualizar</b> los issues que ya existían (payments-api, api-gateway — sin duplicar) y <b>crear</b> los nuevos (OOM de auth-service, disco de db-01, cert TLS).</p>
-        <div class="callout ok"><b>El momento clave para narrar:</b> la correlación disco-lleno-en-db-01 ↔ backups-que-fallan. Si la skill conecta esos dos y propone la causa raíz, ahí está la demo de valor real. Cierran verificando con <code>curl /issues</code> o pidiendo la lista.</div>
+        <p><span class="role part">Particip.</span><b>corren el análisis:</b> "analizá los logs de <code>recursos/logs/</code>". Las 4 historias enterradas (detalle completo en <code>OLDS/recursos/logs-respuestas.md</code>):</p>
+        <ul>
+          <li><b>El cron asesino</b> (periodicidad): un <code>analytics-rollup</code> horario en infra satura db-01 → acquires lentos en payments → 504s en el gateway, cada hora en punto. <b>Actualiza</b> el issue de payments.</li>
+          <li><b>Leak post-deploy</b> (tendencia): deploy de checkout v2.8.0 a las 07:14 → el pool crece 7→50 en INFOs a lo largo de 3 horas → 502s recién a las 10:41. <b>Actualiza</b> el issue de 502s.</li>
+          <li><b>Clock skew → JWT</b> (ventana): corrección NTP de -2.4s en worker-2 → "token used before issued" → ráfaga de 401s de 11 minutos. <b>Crea</b> issue nuevo.</li>
+          <li><b>Disco + backups</b> (la fácil, para entrar en calor): disco 84→97% → backups fallan. <b>Actualiza</b> el issue de backups.</li>
+        </ul>
+        <div class="callout ok"><b>El momento clave para narrar:</b> cuando la skill cite líneas de DOS o TRES archivos distintos como cadena causal (cron INFO + acquire WARN + 504) — eso es lo que ningún grep hace. Y que <b>descarte</b> los 37 errores de image-resize con justificación. Cierran verificando con <code>curl /issues</code>.</div>
       </div>
     </div>
   </section>
@@ -501,7 +507,7 @@ claude mcp list          # debe aparecer issues-api
     <div class="beat">
       <div class="clk">3:00–3:05</div>
       <div class="body">
-        <p><span class="role part">Particip.</span><b>Prueba integrada final:</b> en sesión nueva, sin registrar nada a mano: "analizá <code>recursos/logs/app.log</code> y después regenerá el reporte". Una skill actualiza la tabla, la otra la consume, el MCP conecta todo. <b>Ese es el taller en una frase.</b></p>
+        <p><span class="role part">Particip.</span><b>Prueba integrada final:</b> en sesión nueva, sin registrar nada a mano: "analizá los logs de <code>recursos/logs/</code> y después regenerá el reporte". Una skill actualiza la tabla, la otra la consume, el MCP conecta todo. <b>Ese es el taller en una frase.</b></p>
       </div>
     </div>
   </section>
@@ -570,7 +576,8 @@ claude mcp list          # debe aparecer issues-api
     <details class="ts-group">
       <summary><span class="tag both">B5/B6</span> Logs, reporte y plugin</summary>
       <ul>
-        <li><span class="ts-q">La skill no encuentra el log:</span> pasale la <b>ruta absoluta</b> de <code>app.log</code> (o copialo dentro del proyecto del taller); verificá permisos de lectura.</li>
+        <li><span class="ts-q">La skill no encuentra los logs:</span> pasale la <b>ruta absoluta</b> de la carpeta <code>logs/</code> (o copiala dentro del proyecto del taller); verificá permisos de lectura.</li>
+        <li><span class="ts-q">El análisis se queda solo con los ERRORs (cae en los red herrings):</span> la spec pide buscar periodicidad/tendencias/ventanas aunque no haya ERROR — si el <code>SKILL.md</code> regenerado perdió eso, repetí <code>implement</code>; como pista en vivo: "¿qué pasa cada hora en punto?".</li>
         <li><span class="ts-q">El análisis duplica issues en vez de actualizar:</span> la spec exige comparar con <code>list_issues</code> antes de crear — si duplica, revisá que el <code>SKILL.md</code> regenerado conserve esa regla y repetí <code>implement</code>.</li>
         <li><span class="ts-q">El reporte sale vacío o viejo:</span> la skill debe llamar a <code>issues-api:list_issues</code> en el momento — si "recuerda" datos de antes, pedile explícito "consultá el MCP de nuevo"; verificá que el Flask siga corriendo.</li>
         <li><span class="ts-q">El plugin no aparece (A):</span> estructura exacta <code>.claude-plugin/plugin.json</code> + <code>skills/&lt;nombre&gt;/SKILL.md</code>; tras instalar, <b>sesión nueva</b>; <code>/plugin</code> para ver el estado.</li>

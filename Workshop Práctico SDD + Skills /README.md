@@ -32,8 +32,10 @@ Workshop Práctico SDD + Skills/
     ├── spec-report.md                ← spec de la skill issues-report (B6)
     ├── spec-plugin.md                ← spec del empaquetado devops-issues (B6)
     ├── seed.sh                       ← carga ~8 issues de ejemplo vía POST/PUT (poblar la base)
-    ├── logs/
-    │   └── app.log                   ← ~1400 líneas de logs con 6 patrones enterrados (B5)
+    ├── logs/                         ← ~3900 líneas en 3 archivos, 4 historias que
+    │   ├── gateway.log               ←   solo se resuelven correlacionando ENTRE
+    │   ├── services.log              ←   archivos (clave de respuestas en
+    │   └── infra.log                 ←   OLDS/recursos/logs-respuestas.md) (B5)
     └── examples/
         ├── constitution.example.md   ← 🟧 [A] constitución de ejemplo
         ├── steering.example.md       ← 🟪 [B] steering file de ejemplo
@@ -65,7 +67,7 @@ slide. Son autocontenidos (no necesitan internet) y tema oscuro para proyección
 | B2 · Setup hands-on | 25' | `slides/bloque2-setup.html` |
 | B3 · Práctica guiada: API de issues | 45' | `recursos/problema.md` (ref. en `OLDS/recursos/app.py`) |
 | B4 · MCP + Skill | 35' | `recursos/spec-mcp.md`, `recursos/spec-skill.md`, `recursos/examples/mcp.json.example`, `recursos/seed.sh` |
-| B5 · La skill lee logs *(elástico)* | 20' | `recursos/spec-logs.md`, `recursos/logs/app.log` |
+| B5 · La skill lee logs *(elástico)* | 20' | `recursos/spec-logs.md`, `recursos/logs/` (respuestas: `OLDS/recursos/logs-respuestas.md`) |
 | B6 · Reporte + plugin *(elástico)* | 25' | `recursos/spec-report.md`, `recursos/spec-plugin.md` |
 | B7 · Reflexión | 10' | `slides/bloque7-reflexion.html` |
 

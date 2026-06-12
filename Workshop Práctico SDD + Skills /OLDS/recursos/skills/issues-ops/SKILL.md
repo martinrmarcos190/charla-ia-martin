@@ -36,23 +36,29 @@ descripción o solución), o analizar un archivo de logs.
 4. Ejecutá la tool correspondiente.
 5. Mostrá el resultado de forma legible.
 
-## Análisis de logs
-Cuando el usuario pida analizar un archivo de logs (te pasa la ruta):
+## Análisis forense de logs distribuidos
+Cuando el usuario pida analizar logs (te pasa una carpeta con varios archivos:
+gateway, servicios, infraestructura):
 
-1. Leé el archivo completo. Formato: `timestamp [NIVEL] servicio mensaje`.
-2. Ignorá el ruido: INFO de requests normales, health checks y cache no son issues.
-3. Agrupá los problemas por patrón (mismo servicio + mismo tipo de error), con
-   frecuencia y ventana temporal (primera y última aparición).
-4. Compará contra los issues existentes con `issues-api:list_issues`:
-   - Patrón que matchea un issue registrado → `issues-api:update_issue`,
-     sumando a `description` la evidencia (frecuencia, ventana, 1-2 líneas de
-     log representativas) sin borrar lo original.
-   - Patrón nuevo → `issues-api:add_issue` con severity según frecuencia y
-     criticidad (FATAL recurrente o recurso ≥95% = critical; warnings
-     preventivos = medium/low) y una `proposed_solution` concreta.
-5. Correlacioná señales entre servicios (p. ej. disco de la DB llenándose y
-   backups de esa DB fallando): decilo explícitamente y sumá la hipótesis de
-   causa raíz al issue correspondiente.
+1. Inventariá los archivos y entendé qué capa describe cada uno.
+2. Separá síntomas de ruido: errores que se auto-resuelven (retry OK), issues
+   marcados como conocidos en el propio log y chatter operativo **no son
+   hallazgos** — descartalos explícitamente con justificación.
+3. Buscá anomalías aunque no haya ERROR:
+   - **Periodicidad**: síntomas en ventanas regulares → ¿qué evento de otra
+     capa coincide con el inicio de cada ventana?
+   - **Tendencias**: métricas dentro de INFOs que degradan gradualmente
+     (pools, heap, disco) → ¿qué evento puntual inició la tendencia?
+   - **Ventanas acotadas**: ráfagas que empiezan y terminan de golpe → ¿qué
+     evento puntual las abre?
+4. Construí la cadena causal completa: evento origen (archivo + timestamp) →
+   efecto intermedio → síntoma. Citá 1-2 líneas de **cada archivo** involucrado.
+5. Compará contra los issues existentes con `issues-api:list_issues`:
+   - El hallazgo explica un issue registrado → `issues-api:update_issue`
+     sumando causa raíz + evidencia a `description` (sin borrar lo original) y
+     un fix dirigido a la causa en `proposed_solution`.
+   - Problema nuevo → `issues-api:add_issue` con severity según impacto.
 6. Nunca dupliques: ante la duda, consultá con `issues-api:get_issue`; si sigue
    ambiguo, preguntá al usuario.
-7. Cerrá con un resumen: issues creados, actualizados y descartados como ruido.
+7. Cerrá con un informe: tabla causa raíz → síntoma → issue actualizado/creado,
+   y la lista de descartados con el porqué.
