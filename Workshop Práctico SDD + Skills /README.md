@@ -27,12 +27,12 @@ Workshop Práctico SDD + Skills/
 └── recursos/                         ← organizado por bloque
     ├── bloque3-api/
     │   ├── problema.md               ← spec del problema: API de issues (tool-agnostic)
+    │   ├── seed.sh                   ← carga ~8 issues vía POST/PUT (al final del B3)
     │   ├── constitution.example.md   ← 🟧 [A] constitución de ejemplo
     │   └── steering.example.md       ← 🟪 [B] steering file de ejemplo
     ├── bloque4-mcp-skill/
     │   ├── spec-mcp.md               ← spec del MCP issues-api (tool-agnostic)
     │   ├── spec-skill.md             ← spec de la skill issues-ops (tool-agnostic)
-    │   ├── seed.sh                   ← carga ~8 issues de ejemplo vía POST/PUT
     │   └── mcp.json.example          ← 🟪 [B] registro MCP para Kiro
     ├── bloque5-logs/
     │   ├── spec-logs.md              ← spec: la skill aprende a leer logs (evolución)
@@ -67,8 +67,8 @@ slide. Son autocontenidos (no necesitan internet) y tema oscuro para proyección
 | B0 · Apertura | 10' | `guion-facilitador.html` |
 | B1 · Fundamentos de SDD | 25' | `slides/bloque1-fundamentos-sdd.html` |
 | B2 · Setup hands-on | 25' | `slides/bloque2-setup.html` |
-| B3 · Práctica guiada: API de issues | 45' | `recursos/bloque3-api/problema.md` (ref. en `OLDS/recursos/app.py`) |
-| B4 · MCP + Skill | 35' | `recursos/bloque4-mcp-skill/spec-mcp.md`, `recursos/bloque4-mcp-skill/spec-skill.md`, `recursos/bloque4-mcp-skill/mcp.json.example`, `recursos/bloque4-mcp-skill/seed.sh` |
+| B3 · Práctica guiada: API de issues | 45' | `recursos/bloque3-api/problema.md`, `recursos/bloque3-api/seed.sh` (ref. en `OLDS/recursos/app.py`) |
+| B4 · MCP + Skill | 35' | `recursos/bloque4-mcp-skill/spec-mcp.md`, `recursos/bloque4-mcp-skill/spec-skill.md`, `recursos/bloque4-mcp-skill/mcp.json.example` |
 | B5 · La skill lee logs *(elástico)* | 20' | `recursos/bloque5-logs/spec-logs.md`, `recursos/bloque5-logs/logs/` (respuestas: `OLDS/recursos/logs-respuestas.md`) |
 | B6 · Reporte + plugin *(elástico)* | 25' | `recursos/bloque6-reporte-plugin/spec-report.md`, `recursos/bloque6-reporte-plugin/spec-plugin.md` |
 | B7 · Reflexión | 10' | `slides/bloque7-reflexion.html` |

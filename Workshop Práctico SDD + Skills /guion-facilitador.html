@@ -339,18 +339,18 @@ Panel Specs → "+" → Feature → pegar el .md del problema →
     </div>
     <div class="beat">
       <div class="clk">1:42–1:45</div>
-      <div class="body"><p><span class="role part">Particip.</span><b>Prueban con curl</b> los endpoints y comparan tiempo real vs estimación. "¿Quién tardó menos? ¿Qué les sorprendió?"</p></div>
+      <div class="body"><p><span class="role part">Particip.</span><b>Prueban con curl</b> los endpoints, <b>pueblan la base</b> con <code>./recursos/bloque3-api/seed.sh</code> (~8 issues extra, 2 resueltos — los Bloques 4 y 5 lo necesitan) y comparan tiempo real vs estimación. "¿Quién tardó menos? ¿Qué les sorprendió?"</p></div>
     </div>
   </section>
 
   <!-- ===== B4 ===== -->
   <section class="block" id="b4">
     <div class="block-head"><span class="time">1:45 – 2:20</span><h2>Bloque 4 — Construir una Skill con SDD + MCP</h2><span class="dur">35 min</span></div>
-    <p class="res">Recursos: <code>recursos/bloque4-mcp-skill/spec-mcp.md</code>, <code>recursos/bloque4-mcp-skill/spec-skill.md</code>, <code>recursos/bloque4-mcp-skill/mcp.json.example</code>, <code>recursos/bloque4-mcp-skill/seed.sh</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
+    <p class="res">Recursos: <code>recursos/bloque4-mcp-skill/spec-mcp.md</code>, <code>recursos/bloque4-mcp-skill/spec-skill.md</code>, <code>recursos/bloque4-mcp-skill/mcp.json.example</code>. <em>El <code>server.py</code> y el <code>SKILL.md</code> se generan en vivo vía SDD; solución de referencia archivada en <code>OLDS/recursos/</code>.</em></p>
 
     <div class="beat">
       <div class="clk">1:45–1:48</div>
-      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo.)</b> <em>Recomendado: poblá la base con <code>recursos/bloque4-mcp-skill/seed.sh</code> (~8 issues extra, 2 resueltos) — el Bloque 5 lo necesita para la demo de dedupe.</em></p></div>
+      <div class="body"><p><span class="role dice">Dice</span>"Acá no pegamos código: <b>construimos todo desde cero vía specs</b>, igual que el Flask. Primero un MCP propio que le pega a los endpoints, y después una Skill que conecta todo." <b>(El Flask del Bloque 3 debe estar corriendo, con la base ya poblada por el <code>seed.sh</code> del final del B3.)</b> <em>Si alguien se lo salteó: <code>./recursos/bloque3-api/seed.sh</code> — el Bloque 5 lo necesita para la demo de dedupe.</em></p></div>
     </div>
     <div class="beat">
       <div class="clk">1:48–1:52</div>
