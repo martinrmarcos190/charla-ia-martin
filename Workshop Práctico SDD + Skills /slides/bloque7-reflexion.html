@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bloque 5 — Reflexión y extensión</title>
+<title>Bloque 7 — Reflexión y extensión</title>
 <style>
 :root{--bg:#0d1117;--bg2:#161b22;--fg:#e6e8ee;--muted:#9aa4b2;--a:#ff9e64;--a-bg:rgba(255,158,100,.12);--a-br:rgba(255,158,100,.45);--b:#a78bfa;--b-bg:rgba(167,139,250,.12);--b-br:rgba(167,139,250,.45);--ok:#7ee787;--ok-bg:rgba(126,231,135,.12);--accent:#58a6ff;--code:#0a0c10;--border:#30363d}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -52,7 +52,7 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
 
 <section class="slide center">
   <div class="kicker">Taller práctico · Clase 3</div>
-  <h1>Bloque 5<br>Reflexión y extensión</h1>
+  <h1>Bloque 7<br>Reflexión y extensión</h1>
   <p class="lead">De armar un taller a armar tu propio SDD.</p>
 </section>
 
@@ -90,20 +90,24 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
 </section>
 
 <section class="slide">
-  <div class="kicker">Para el día a día</div>
-  <h2>3 ejemplos de Skills útiles</h2>
+  <div class="kicker">Hoy lo hicieron entero</div>
+  <h2>El patrón que acaban de construir</h2>
+  <div class="callout ok" style="margin-bottom:.8em">
+    API de issues → MCP <code>issues-api</code> → skill <code>issues-ops</code> (opera <b>y lee logs</b>) → skill <code>issues-report</code> → plugin <code>devops-issues</code>.
+  </div>
+  <p style="margin-bottom:.4em"><b>El mismo patrón aplica a cualquier flujo de tu equipo:</b></p>
   <div class="cols3">
     <div class="card">
-      <h3>run-training</h3>
-      <p>Captura el procedimiento reproducible de levantar un entrenamiento (entorno, variables, script). Commiteada como skill de proyecto: todos siguen la misma receta.</p>
+      <h3>incident-triage</h3>
+      <p>Recibe la alerta, junta contexto (logs, métricas, deploys recientes vía MCPs), clasifica severidad según TU runbook y abre el incidente con el template del equipo.</p>
     </div>
     <div class="card">
-      <h3>data-drift-check</h3>
-      <p>Corre el chequeo de drift (referencia vs producción) con un script <code>scripts/drift.py</code> bundleado e interpreta el reporte. Script determinístico = confiabilidad, sin gastar contexto.</p>
+      <h3>runbook-executor</h3>
+      <p>Encodea el runbook de operaciones (rotar credenciales, escalar un servicio, drenar un nodo) como procedimiento verificable, paso a paso, con confirmaciones.</p>
     </div>
     <div class="card">
-      <h3>model-card</h3>
-      <p>Genera la model card siguiendo el template del equipo (<code>references/model-card-template.md</code>), tomando métricas del inventario vía el MCP.</p>
+      <h3>postmortem-writer</h3>
+      <p>Genera el postmortem desde la línea de tiempo del incidente (issues + logs vía MCP), siguiendo el formato del equipo: impacto, causa raíz, acciones.</p>
     </div>
   </div>
   <p class="muted" style="margin-top:.6em">En Kiro funcionan igual (mismo <code>SKILL.md</code> en <code>.kiro/skills/</code>). Si una necesita conectividad además del procedimiento, empaquetala como <b>Power</b>.</p>
@@ -115,10 +119,10 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
   <p class="lead">El flujo <code>specify → plan → tasks → implement</code> <b>no es fijo</b>.</p>
   <p>Una Skill es solo una carpeta con un <code>SKILL.md</code> que enseña un procedimiento. Encodeá <b>cada fase</b> a medida de tu stack:</p>
   <ul>
-    <li><b>specify</b> → sabe que tus specs llevan sección de datos, métricas objetivo y restricciones de latencia.</li>
-    <li><b>plan</b> → impone tu stack (Kubeflow, MLflow, tu registry).</li>
-    <li><b>tasks</b> → con tus convenciones de CI.</li>
-    <li><b>implement</b> → conoce tus repos y patrones.</li>
+    <li><b>specify</b> → sabe que tus specs llevan SLOs, plan de rollback y criterios de monitoreo.</li>
+    <li><b>plan</b> → impone tu stack (Terraform, ArgoCD, tu observabilidad).</li>
+    <li><b>tasks</b> → con tus convenciones de CI/CD y ventanas de deploy.</li>
+    <li><b>implement</b> → conoce tus repos, módulos y patrones.</li>
   </ul>
 </section>
 
@@ -131,7 +135,7 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
       <ul>
         <li>Skills → <code>.claude/skills/</code></li>
         <li>Constitución → <code>.specify/memory/</code></li>
-        <li>Versionado en el repo, compartible vía <b>plugins</b>.</li>
+        <li>Compartible vía <b>plugins</b> — como el <code>devops-issues</code> que armaron en el B6.</li>
       </ul>
     </div>
     <div class="track b">
@@ -146,11 +150,11 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
 </section>
 
 <section class="slide center">
-  <div class="kicker">Solo en Kiro · siguiente paso</div>
+  <div class="kicker">Solo en Kiro · lo que acaban de hacer</div>
   <h2>Powers</h2>
   <div class="callout" style="max-width:1000px">
     Un <b>Power</b> es un <b>superset</b>: empaqueta <b>MCP servers + steering + hooks</b> en una unidad distribuible al equipo (frontmatter <code>POWER.md</code>).<br><br>
-    Para el taller alcanza con <b>Skills</b>. Powers es el paso siguiente para <b>distribuir</b>.
+    En el B6 empaquetaron <code>devops-issues</code>: ese es el camino para <b>distribuir</b> el toolkit al resto del equipo.
   </div>
 </section>
 
@@ -169,7 +173,7 @@ pre code{background:none;padding:0;color:#c9d1d9;font-size:clamp(14px,1.35vw,21p
 </div>
 <div class="bar" id="bar"></div>
 <div class="counter" id="counter"></div>
-<div class="foot">Bloque 5 · Reflexión y extensión</div>
+<div class="foot">Bloque 7 · Reflexión y extensión</div>
 <script>
 const slides=[...document.querySelectorAll('.slide')];let i=0;
 function show(n){slides[i].classList.remove('active');i=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.add('active');document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';}
